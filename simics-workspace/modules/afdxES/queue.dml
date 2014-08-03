@@ -1,0 +1,71 @@
+dml 1.2;
+import "constant.dml";
+import "packet-description.dml";
+
+method InitQueue(Queue *queue) {
+    queue->front = 0;
+	queue->rear = 0;
+    memset(&queue->item, 0, ITEM_NUM);
+	queue->item_num = 0;
+	queue->frame_size = 0;
+}
+
+	
+method EnQueue(Queue *queue, Item item) {
+	local bool is_overflow;
+	inline $IsOverflow(queue, item) -> (is_overflow); 
+	if (is_overflow) {
+		log "info" : "Overflow!";
+	} else {
+		memcpy(&(queue->item[queue->rear]), &(item.frame), sizeoftype(Item)); // 将 Item结构体复制到queue中对应的项
+		queue->rear = (queue->rear + 1) % ITEM_NUM;
+		++queue->item_num;  
+		queue->frame_size += item.size; 
+        		
+	}
+}
+	
+method DeQueue(Queue *queue, Item *item) {
+    local bool is_empty;
+	inline $IsEmpty(queue) -> (is_empty);
+	if (is_empty) {
+		//log "info" : "The fifo is empty";
+	} else {
+		memcpy(item, &(queue->item[queue->front]), sizeoftype(Item)); // 将 queue中的front项存储在结构体中并返回
+		queue->front = (queue->front + 1) % ITEM_NUM;
+		--queue->item_num;
+		queue->frame_size -= item->size;
+	}
+}
+	
+method IsEmpty(Queue *queue) -> (bool result) {
+	result = queue->front == queue->rear;
+}
+	
+method SetEmpty(Queue *queue) {
+	InitQueue(queue);
+}
+
+method QueueLength(Queue *queue) -> (uint32 length) {
+	length = queue->item_num;
+}
+
+method IsOverflow(Queue *queue, Item item) -> (bool result) {
+	if ((queue->frame_size + item.size) > FIFO_SIZE) { // 现在已经有的frame_size + item.size > 8K 则溢出
+		// 设置相应的MIB寄存器
+		result = true;    
+	} else {
+		result = false;
+	}
+}
+
+method IsFull(Queue *queue) -> (bool result) {   // 如果有overflow的话，这个函数还有调用的必要吗？
+	result = (queue->rear + 1) % ITEM_NUM == queue->front; 
+}
+
+method GetFirstItemInfo(Queue *queue) -> (uint32 item_size, uint8 interface_id) {
+    local Item item;
+    memcpy(&item, &(queue->item[queue->front]), sizeoftype(Item));
+    item_size = item.size;
+    interface_id = item.frame[11] >> 5; // notice it may be wrong, please check!
+}

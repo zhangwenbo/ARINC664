@@ -1,0 +1,2 @@
+add-directory "%script%"
+run-command-file "%simics%\\targets\\p4080ds\\p4080ds-linux-multi.simics"

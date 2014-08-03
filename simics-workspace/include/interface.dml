@@ -1,0 +1,21 @@
+dml 1.2;
+
+typedef struct {
+	void (*load_analyse_cam_cfg_table)(conf_object_t *obj, uint32 size, void *data);
+	void (*load_analyse_ram_cfg_table)(conf_object_t *obj, uint32 size, void *data);
+	void (*load_transmit_ram_cfg_table)(conf_object_t *obj, uint32 size, void *data);
+	void (*load_scheduling_ram_cfg_table)(conf_object_t *obj, uint32 size, void *data);
+	void (*load_rm_cam_cfg_table)(conf_object_t *obj, uint32 size, void *data);
+	void (*load_rm_ram_cfg_table)(conf_object_t *obj, uint32 size, void *data);
+	void (*load_fragment_ram_cfg_table)(conf_object_t *obj, uint32 size, void *data);
+}load_cfg_table_interface_t;
+
+
+typedef struct {
+	void (*send_to_RDC)(conf_object_t *obj, void *data, int dest_udp, int length);
+} Send_To_RDC_interface_t;
+
+
+typedef struct {
+	void (*send_to_A664)(conf_object_t *obj, int port_id, void *data, int length);
+} Send_To_A664_interface_t;

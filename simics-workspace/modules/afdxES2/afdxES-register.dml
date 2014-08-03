@@ -1,0 +1,669 @@
+dml 1.2;
+
+bank cfg_table_regs 
+{
+    parameter register_size = 4;
+  
+	register cfg_table_src is (unmapped) "cfg_table_src" 
+	{
+		parameter value = 0;
+	}
+	register cfg_done_615a is (unmapped) "cfg_done_615a" 
+	{
+		parameter value = 0;
+	}
+    register cfg_reset is (unmapped) "cfg reset";
+	register busy_reset_port is (unmapped)"busy reset port";
+
+    register analyse_cfg_cam_data1 is (unmapped) "cam config data part1";
+    register analyse_cfg_cam_data2 is (unmapped) "cam config data part2";
+    register analyse_cfg_cam_data3 is (unmapped) "cam config data part3";
+    register analyse_cfg_cam_addr  is (unmapped) "cam config address";
+    register analyse_cfg_ram_data  is (unmapped) "ram config data";
+    register analyse_cfg_ram_addr  is (unmapped) "ram config address";
+
+    register transmit_cfg_ram_data1 is (unmapped) "ram config data part1";
+    register transmit_cfg_ram_data2 is (unmapped) "ram config data part2";
+    register transmit_cfg_ram_data3 is (unmapped) "ram config data part3";
+    register transmit_cfg_ram_data4 is (unmapped) "ram config data part4";
+    register transmit_cfg_ram_addr  is (unmapped) "ram config address";
+
+    register scheduling_cfg_data is (unmapped) "ram config data";
+    register scheduling_cfg_addr is (unmapped)"ram config addr"; 
+
+    register rm_cfg_cam_data is (unmapped) "cam config data";
+    register rm_cfg_cam_addr is (unmapped) "cam config addr"; 
+
+    register rm_cfg_ram_data is (unmapped) "ram config data";
+    register rm_cfg_ram_addr is (unmapped) "ram config addr"; 
+
+    register fragment_cfg_data is (unmapped) "ram config data";
+    register fragment_cfg_addr is (unmapped) "ram config addr"; 
+	
+	register cfg_reset 
+	{
+		field RETENTION [31:8] is (reserved);
+		field reset     [7:7];
+		field port_id   [6:0];
+	}	
+	register busy_reset_port 
+	{
+		field busy  [0:0];
+	}
+	
+    register analyse_cfg_cam_data3  // -> [65:64]
+	{  
+        field RETENTION [31:2] is (reserved);
+        field ICMP_TYPE_ID [1:1];
+        field MULTICAST_ID [0:0];
+    }
+	
+	register analyse_cfg_ram_data 
+	{
+        field RETENTION [31:4]is (zeros) "Reserved";
+        field NETWORK_B_ENABLE [3:3] "NETWORK B ENABLE";
+        field NETWORK_A_ENABLE [2:2] "NETWORK A ENABLE";
+        field PORT_TYPE [1:0] "Port type";
+    }
+	
+	register transmit_cfg_ram_data1   // [31:0]
+	{  
+        field SOURCE_UDP_PORT_PART1 [31:18] "Source UDP Port Part1";
+        field DEST_UDP_PORT [17:2] "Dest UDP Port";
+        field SUB_VL_ID [1:0] "Sub VL ID";
+	}
+
+    register transmit_cfg_ram_data2   // [63:32]
+	{ 
+        field USER_DEFINED_ID_PART1 [31:18] "User Defined ID Part1";
+        field PROTOCAL_ID [17:10] "Protocal ID";
+        field INTERFACE_ID [9:7] "Interface ID";
+        field PARTITION_ID [6:2] "Partition ID";
+        field SOURCE_UDP_PORT_PART2 [1:0] "Source UDP Port Part2";  
+    }
+
+    register transmit_cfg_ram_data3     // [95:64]
+	{ 
+        field MIN_FRAME_LENGTH_PART1 [31:27] "Min Frame Length Part1";
+        field IP_MULTICAST [26:26] "IP Multicast";
+        field VL_INDEX [25:18] "VL Index";
+        field VL_ID [17:2] "VL ID";
+        field USER_DEFINED_ID_PART2 [1:0] "User Defined ID Part2";
+    }
+
+    register transmit_cfg_ram_data4   // [109:66]
+	{ 
+        field RETENTION [31:8] is (reserved);
+        field PORT_TYPE [7:6] "Port Type";
+        field MIN_FRAME_LENGTH_PART2 [5:0] "Min Frame Length Part2"; 
+    }
+
+	register scheduling_cfg_data 
+	{
+        field RETENTION [31:17] is (reserved);
+        field BAG [16:0] "BAG";
+    }
+
+	register rm_cfg_cam_data 
+	{
+        field RETENTION [31:16] is (reserved);
+        field VL_ID [15:0] "VL ID";
+    }
+	
+	register rm_cfg_ram_data 
+	{
+        field RETENTION [31:27] is (reserved);
+        field VL_ENABLE [26:26] "VL Enable";
+        field SKEW_MAX [25:5] "Skew max";
+        field RM_ENABLE [4:4] "RM enable";
+        field NETWORK_B_IC_ENABLE [3:3] "Network B IC Enable";
+        field NETWORK_A_IC_ENABLE [2:2] "Network A IC Enable";
+        field NETWORK_B_ENABLE [1:1] "Network B Enable";
+        field NETWORK_A_ENABLE [0:0] "Network A Enable";
+    }
+	
+    register fragment_cfg_data 
+	{
+        field RETENTION [31:11] is (zeros) "Reserved";
+        field MAX_FRAME_LENGTH [10:0] "Max Frame Length";
+    }
+}
+
+bank tx_regs 
+{
+    parameter register_size = 4;
+    register tx_port_id      is (unmapped) "Host send data frame Port ID register";
+    register tx_frame_len    is (unmapped) "Host send data frame length register";
+    register tx_buf_overflow is (unmapped) "Host send data frame overflow flag register";
+	register tx_dst_ip_addr  is (unmapped) "Host send data frame dest ip address";
+	register tx_dst_udp_addr is (unmapped) "Host send data frame dest udp address";
+}
+
+bank rx_regs 
+{
+	parameter register_size = 4;
+	parameter offset = 0x3000;
+	register rx_port_id                   is (unmapped) "To query the data frame port id";
+	register rx_check_valid               is (unmapped) "Determine whether there is a data frame receiving port";
+	register rx_rec_frame                 is (unmapped) "If write one, the device starts reading from the receive data frames Port cache";
+	register rx_rec_state                 is (unmapped) "If one, the PCI bus can initiate DMA operation receiving current data frame";
+	register rx_frame_len                 is (unmapped) "Analyzing the received data frame";
+	register rx_rec_network               is (unmapped) "Determine the data to be received frome port A or B network";
+	register rx_rec_time1                 is (unmapped) "Analyzing received data frame time";
+	register rx_rec_time2                 is (unmapped) "Analyzing received data frame time";
+	register rx_src_ip_addr               is (unmapped) "Analyzing the data to be received source IP address";
+	register rx_src_udp_addr              is (unmapped) "Analyzing the data to be received source UDP address";
+	register rx_sampling_port_freshness   is (unmapped) "Analyzing the sample port to receive data frames freshness";
+	register rec_frame_drop               is (unmapped) "Clear the current data frame";
+}
+
+bank mib 
+{
+	parameter register_size = 4;
+	register ESID				is (unmapped) 	 "ESID";
+	register ESVer				is (unmapped)	 "ESVer";
+	register ESPosition			is (unmapped)	"ESPosition";
+	register ESTx				is (unmapped) 	"ESPosition";
+	register ESTxCnt			is (unmapped)	"ES Tx Count";
+	register ESTxIPCnt			is (unmapped)	"ESTxIPCnt";
+	register ESTxICMPCnt		is (unmapped)	"ESTxICMPCnt";
+	register ESTxUDPCnt			is (unmapped)  "ESTxUDPCnt";
+	register ESRx				is (unmapped) "ESRx";
+	register ESRxCnt			is (unmapped)	"ESRxCnt";
+	register ESRxIPCnt			is (unmapped)  "ESRxIPCnt";
+	register ESRxUDPCnt			is (unmapped)  "ESRxUDPCnt";
+	register PortRx				is (unmapped)  "PortRx";
+	register APortRx			is (unmapped)	"APortRx";
+	register APortRxCnt			is (unmapped)	"APortRxCnt";
+	register APortCRCErrCnt		is (unmapped)	"APortCRCErrCnt";
+	register AAlignmentErrorCnt is (unmapped)  "AAlignmentErrorCnt";
+	register ALengthExceedCnt64 is (unmapped)  "ALengthExceedCnt64";
+	register ALengthExceedCnt1518 is (unmapped) "ALengthExceedCnt1518";
+	register APortSNErrorCnt	is (unmapped)	"APortSNErrorCnt";
+	register APortVLIDErrCnt	is (unmapped)	"APortVLIDErrCnt";
+	register BPortRx			is (unmapped)	"BPortRx";
+	register BPortRxCnt			is (unmapped)	"BPortRxCnt";
+	register BPortRxErrCnt		is (unmapped)	"BPortRxErrCnt";
+	register BAlignmentErrorCnt	is (unmapped)	"BAlignmentErrorCnt";
+	register BLengthExceedCnt64	is (unmapped)	"BLengthExceedCnt64";
+	register BLengthExceedCnt1518 is (unmapped) "BLengthExceedCnt1518";
+	register BPortSNErrorCnt	is (unmapped)	"BPortSNErrorCnt";
+	register BPortVLIDErrCnt	is (unmapped)	"BPortVLIDErrCnt";
+	register ESRxIPErrCnt		is (unmapped)	"ESRxIPErrCnt";
+	register UDPComPortErr		is (unmapped)	"UDPComPortErr";
+	register ESStatusClr		is (unmapped)	"ESStatusClr";
+	register ESReset			is (unmapped)	"ESReset";
+	register EquipmentOnline	is (unmapped)	"EquipmentOnline";
+	register ESUpTime			is (unmapped)	"ESUpTime";
+	register ESException		is (unmapped)  "ESException";
+}
+
+bank test 
+{
+    parameter register_size = 4;
+	register wrapped  is (unmapped) "Used to test wrapped frame, after test, don't forget to delete this!!!";
+}
+
+// Implementation of registers
+bank cfg_table_regs 
+{   			
+    register analyse_cfg_cam_addr 
+	{
+        method after_write(memop) 
+		{
+            call $write_analyse_cam();
+			call $QuickSort($analyse_cfg_cam_array);
+        }
+        
+        method write_analyse_cam() 
+		{
+            $analyse_cfg_cam_array[$analyse_cfg_cam_index].
+                cam_data_part1.ICMP_TYPE_ID = $analyse_cfg_cam_data3.ICMP_TYPE_ID;
+            $analyse_cfg_cam_array[$analyse_cfg_cam_index].
+                cam_data_part1.MULTICAST_ID = $analyse_cfg_cam_data3.MULTICAST_ID;
+            $analyse_cfg_cam_array[$analyse_cfg_cam_index].
+                cam_data_part2 = $analyse_cfg_cam_data2;
+            $analyse_cfg_cam_array[$analyse_cfg_cam_index].
+                cam_data_part3 = $analyse_cfg_cam_data1;
+            $analyse_cfg_cam_array[$analyse_cfg_cam_index].address = $this;
+            $analyse_cfg_cam_index++;
+            
+            if ($analyse_cfg_cam_index == ANALYSE_CFG_CAM_MAX_SIZE) 
+			{ 
+                $analyse_cfg_cam_index = 0;
+            }
+        } 
+		
+		method is_bigger(analyse_cfg_cam *L, int position, analyse_cfg_cam pivotkey) -> (bool result) 
+		{
+			if (cast(L[position].cam_data_part1, uint28) > cast(pivotkey.cam_data_part1, uint28)) 
+				result = true;
+			else if (cast(L[position].cam_data_part1, uint28) < cast(pivotkey.cam_data_part1, uint28)) 
+				result = false;
+			else 
+			{
+				if (cast(L[position].cam_data_part2, uint32) > cast(pivotkey.cam_data_part2, uint32)) 
+					result = true;
+				else if (cast(L[position].cam_data_part2, uint32) < cast(pivotkey.cam_data_part2, uint32)) 
+					result = false;
+				else 
+				{
+					if (cast(L[position].cam_data_part3, uint32) >= cast(pivotkey.cam_data_part3, uint32)) 
+						result = true;
+					else
+						result = false;
+				}
+			}
+		}
+		
+		method is_smaller(analyse_cfg_cam *L, int position, analyse_cfg_cam pivotkey) -> (bool result) 
+		{
+			if (cast(L[position].cam_data_part1, uint28) > cast(pivotkey.cam_data_part1, uint28)) 
+				result = false;
+			else if (cast(L[position].cam_data_part1, uint28) < cast(pivotkey.cam_data_part1, uint28))
+				result = true;
+			else 
+			{
+				if (cast(L[position].cam_data_part2, uint32) > cast(pivotkey.cam_data_part2, uint32)) 
+					result = false;
+				else if (cast(L[position].cam_data_part2, uint32) < cast(pivotkey.cam_data_part2, uint32)) 
+					result = true;
+				else 
+				{
+					if (cast(L[position].cam_data_part3, uint32) >= cast(pivotkey.cam_data_part3, uint32)) 
+						result = false;
+					else 
+						result = true;
+				}
+			}
+		}
+		
+		method swap(analyse_cfg_cam *L, int low, int high) 
+		{
+			local analyse_cfg_cam tmp = L[low];
+			L[low] = L[high];
+			L[high] = tmp;
+		}
+		
+		method Partition(analyse_cfg_cam *L, int low, int high) -> (int position) 
+		{
+			local analyse_cfg_cam pivotkey;
+			pivotkey = L[low];
+			
+			while (low < high) 
+			{
+			    local bool compare_result;
+			    inline $is_bigger(L, high, pivotkey) -> (compare_result);
+				while ((low < high) && compare_result) 
+				{
+					--high;
+					inline $is_bigger(L, high, pivotkey) -> (compare_result);
+				}
+			
+				call $swap(L, low, high);
+				
+				inline $is_smaller(L, low, pivotkey) -> (compare_result);
+				while ((low < high) && compare_result) 
+				{
+				    ++low;
+					inline $is_smaller(L, low, pivotkey) -> (compare_result);
+				}
+				
+				call $swap(L, low, high);				
+			}
+			
+			position = low;
+		}
+		
+		method QSort(analyse_cfg_cam *L, int low, int high) 
+		{
+			local int pivot;
+			
+			if (low < high) 
+			{
+				call $Partition(L, low, high) -> (pivot);
+				call $QSort(L, low, pivot - 1);
+			    call $QSort(L, pivot + 1, high);
+			}		
+		}
+		
+		method QuickSort(analyse_cfg_cam *L) 
+		{
+	        call $QSort(L, 0, $analyse_cfg_cam_index - 1);
+        }
+    }
+    
+    register analyse_cfg_ram_addr 
+	{
+        method after_write(memop) 
+		{
+            call $write_analyse_ram();
+        }
+        
+        method write_analyse_ram() 
+		{
+            $analyse_cfg_ram_array[$this].ram_data.
+                NETWORK_B_ENABLE = $analyse_cfg_ram_data.NETWORK_B_ENABLE;
+            $analyse_cfg_ram_array[$this].ram_data.
+                NETWORK_A_ENABLE = $analyse_cfg_ram_data.NETWORK_A_ENABLE;
+            $analyse_cfg_ram_array[$this].ram_data.
+                PORT_TYPE = $analyse_cfg_ram_data.PORT_TYPE;    
+        }
+    }
+
+    register transmit_cfg_ram_addr 
+	{  
+        method after_write(memop) 
+		{
+            call $write_transmit_ram();
+        }
+        
+        method write_transmit_ram() 
+		{
+            $transmit_cfg_ram_array[$this].ram_data_part1.
+                PORT_TYPE = $transmit_cfg_ram_data4.PORT_TYPE;
+				log "info": "id=%d min_part1=%d min_part2=%d",$this,$transmit_cfg_ram_data3.MIN_FRAME_LENGTH_PART1,$transmit_cfg_ram_data4.MIN_FRAME_LENGTH_PART2;
+            $transmit_cfg_ram_array[$this].ram_data_part1.
+                MIN_FRAME_LENGTH = ($transmit_cfg_ram_data3.MIN_FRAME_LENGTH_PART1 ) |      // danger !!!!! 
+                                   ($transmit_cfg_ram_data4.MIN_FRAME_LENGTH_PART2<< 5);
+            $transmit_cfg_ram_array[$this].ram_data_part1.
+                IP_MULTICAST = $transmit_cfg_ram_data3.IP_MULTICAST;
+            $transmit_cfg_ram_array[$this].ram_data_part1.
+                VL_INDEX = $transmit_cfg_ram_data3.VL_INDEX;
+            $transmit_cfg_ram_array[$this].ram_data_part1.
+                VL_ID = $transmit_cfg_ram_data3.VL_ID;
+            $transmit_cfg_ram_array[$this].ram_data_part2.
+                USER_DEFINED_ID = ($transmit_cfg_ram_data2.USER_DEFINED_ID_PART1) |        // danger !!!!!!
+                                  $transmit_cfg_ram_data3.USER_DEFINED_ID_PART2<<14;
+            $transmit_cfg_ram_array[$this].ram_data_part2.
+                PROTOCAL_ID = $transmit_cfg_ram_data2.PROTOCAL_ID;
+            $transmit_cfg_ram_array[$this].ram_data_part2.
+                INTERFACE_ID = $transmit_cfg_ram_data2.INTERFACE_ID;
+            $transmit_cfg_ram_array[$this].ram_data_part2.
+                PARTITION_ID = $transmit_cfg_ram_data2.PARTITION_ID;
+            $transmit_cfg_ram_array[$this].ram_data_part3.
+                SOURCE_UDP_PORT = ($transmit_cfg_ram_data1.SOURCE_UDP_PORT_PART1 ) |         // danger !!!!!
+                                  $transmit_cfg_ram_data2.SOURCE_UDP_PORT_PART2<<14;
+            $transmit_cfg_ram_array[$this].ram_data_part3.
+                DEST_UDP_PORT = $transmit_cfg_ram_data1.DEST_UDP_PORT;
+            $transmit_cfg_ram_array[$this].ram_data_part3.
+                SUB_VL_ID = $transmit_cfg_ram_data1.SUB_VL_ID;
+					
+		    $vl[$transmit_cfg_ram_data3.VL_INDEX].valid_id |= (1 << $transmit_cfg_ram_data1.SUB_VL_ID);    //  确认哪些vl是有效的，在event遍历的时候会先判断
+			                                                                                               // SUB_VL_ID 是怎么取值的？
+        }
+    }
+
+    register scheduling_cfg_addr 
+	{
+        method after_write(memop) 
+		{
+            call $write_scheduling_ram();
+        }
+
+        method write_scheduling_ram() 
+		{
+            $scheduling_cfg_ram_array[$this].BAG = $scheduling_cfg_data.BAG;
+        }
+    }
+
+    register rm_cfg_cam_addr 
+	{
+        method after_write(memop) 
+		{
+            call $write_rm_cam();
+			call $QuickSort($rm_cfg_cam_array);
+        }
+
+        method write_rm_cam() 
+		{
+            $rm_cfg_cam_array[$rm_cfg_cam_index].VL_ID = $rm_cfg_cam_data.VL_ID;
+            $rm_cfg_cam_index++;
+        }
+		
+		method is_bigger(rm_cfg_cam *L, int position, rm_cfg_cam pivotkey) -> (bool result) 
+		{
+			if (L[position].VL_ID >= pivotkey.VL_ID) 
+			{
+				result = true;
+			} else 
+			{
+				result = false;
+			} 
+		}
+		
+		method is_smaller(rm_cfg_cam *L, int position, rm_cfg_cam pivotkey) -> (bool result) 
+		{
+			if (L[position].VL_ID >= pivotkey.VL_ID) 
+			{
+				result = false;
+			} else  
+			{
+				result = true;
+			}
+		}
+		
+		method swap(rm_cfg_cam *L, int low, int high) 
+		{
+			local rm_cfg_cam tmp = L[low];
+			L[low] = L[high];
+			L[high] = tmp;
+		}
+		
+		method Partition(rm_cfg_cam *L, int low, int high) -> (int position) 
+		{
+			local rm_cfg_cam pivotkey;
+			pivotkey = L[low];
+			
+			while (low < high) 
+			{
+			    local bool compare_result;
+			    inline $is_bigger(L, high, pivotkey) -> (compare_result);
+				while ((low < high) && compare_result) 
+				{
+					--high;
+					inline $is_bigger(L, high, pivotkey) -> (compare_result);
+				}
+			
+				call $swap(L, low, high);
+				
+				inline $is_smaller(L, low, pivotkey) -> (compare_result);
+				while ((low < high) && compare_result) 
+				{
+				    ++low;
+					inline $is_smaller(L, low, pivotkey) -> (compare_result);
+				}
+				
+				call $swap(L, low, high);				
+			}
+			
+			position = low;
+		}
+		
+		method QSort(rm_cfg_cam *L, int low, int high) 
+		{
+			local int pivot;
+			
+			if (low < high) 
+			{
+				call $Partition(L, low, high) -> (pivot);
+				call $QSort(L, low, pivot - 1);
+			    call $QSort(L, pivot + 1, high);
+			}		
+		}
+		
+		method QuickSort(rm_cfg_cam *L) 
+		{
+			log "info" : "<<<<<<<<<rm_cfg_cam_index = %d<<<<<<<<",$rm_cfg_cam_index;
+	        call $QSort(L, 0, $rm_cfg_cam_index - 1);
+        }
+    }
+
+    register rm_cfg_ram_addr 
+	{
+        method after_write(memop) 
+		{
+            call $write_rm_ram();
+        }
+        method write_rm_ram() 
+		{
+            $rm_cfg_ram_array[$this].ram_data.
+                VL_ENABLE =  $rm_cfg_ram_data.VL_ENABLE;
+            $rm_cfg_ram_array[$this].ram_data.
+                SKEW_MAX = $rm_cfg_ram_data.SKEW_MAX;
+            $rm_cfg_ram_array[$this].ram_data.
+                RM_ENABLE = $rm_cfg_ram_data.RM_ENABLE;
+            $rm_cfg_ram_array[$this].ram_data.
+                NETWORK_B_IC_ENABLE = $rm_cfg_ram_data.NETWORK_B_IC_ENABLE;
+            $rm_cfg_ram_array[$this].ram_data.
+                NETWORK_A_IC_ENABLE = $rm_cfg_ram_data.NETWORK_A_IC_ENABLE;
+            $rm_cfg_ram_array[$this].ram_data.
+                NETWORK_B_ENABLE = $rm_cfg_ram_data.NETWORK_B_ENABLE;
+            $rm_cfg_ram_array[$this].ram_data.
+                NETWORK_A_ENABLE = $rm_cfg_ram_data.NETWORK_A_ENABLE;   
+        }
+    }
+
+    register fragment_cfg_addr 
+	{
+        method after_write(memop) 
+		{
+            call $write_fragment_ram();
+        }
+
+        method write_fragment_ram() 
+		{
+            $fragment_cfg_ram_array[$this].
+            MAX_FRAME_LENGTH = $fragment_cfg_data.MAX_FRAME_LENGTH;
+        }
+    }
+}
+
+bank tx_regs 
+{ 
+	register tx_port_id   // 和寄存器表的描述可能不同
+	{    
+		field RETENTION [31:10] is (zeros) "Reserved";
+		field id [9:0] "Port ID";
+	}    
+	
+    register tx_frame_len  
+	{ 
+		field RETENTION [31:18] is (zeros) "Reserved";
+		field frame_len [17:0] "Send frame length";
+	}
+    // register tx_buf_overflow 
+	register tx_dst_udp_addr 
+	{
+		field RETENTION [31:16] is (zeros) "Reserved";
+		field dst_udp_addr [15:0] "Dest UDP address";
+	}
+	
+	register tx_buf_overflow 
+	{
+		field RETENTION [31:2] is (zeros) "Reserved";
+		field del_frame_id_valid_bit [1:1] "Deleting data frame identifier valid bit";
+		field del_frame_id_bit [0:0] "Deleting data frame ID";
+		
+		method after_read(memop) 
+		{
+			$this.del_frame_id_valid_bit = 0;
+		}
+	}
+}
+
+bank rx_regs 
+{
+	register rx_check_valid
+	{
+    	method read() -> (value) 
+		{
+			local uint32 port_id = $rx_regs.rx_port_id;
+			local bool is_empty;
+			if (port_id >= 0 && port_id < 128) 
+			{
+			    switch ($port[port_id].port_type) 
+				{
+			        case 0: case 1:
+				        inline $IsPortQueueEmpty(&($port[port_id].queue)) ->(is_empty);
+						break;
+					case 2:
+					    inline $IsPortSampleEmpty(&($port[port_id])) -> (is_empty);
+						break;
+					default:
+					    log "error" : "Unsuported port type";
+						break;
+			    }
+            } 
+			else 
+			{
+			    log "error": "wrong port id";
+			}			
+			
+			if (is_empty)
+				value = 0;
+			else 
+				value = 1;
+		}
+	}
+	
+	
+	register rx_rec_network 
+	{
+		//宽度2，方向R 接收数据帧A/B网络来源寄存器 01=数据帧来自A网络 10=数据帧来自B网络 11数据帧来自AB网络（仅当数据包进行IP分片时数据帧才可能来自AB网络）
+        field rxdn [1:0] "receive data frame network"
+		{
+            method read() -> (value) 
+			{
+                if (value == 1)
+                    log "info",4,0: "data frame from network A";
+                else if (value == 2)
+                    log "info",4,0: "data frame from network B";
+                else if (value == 3)
+        
+				log "info",4,0: "data frame from both network A and network B";
+            }
+        }
+        field res [31:2] is (reserved);
+	}	
+	
+	register rx_rec_time1 
+	{
+	    //宽度32，方向R 接收数据帧时间寄存器1,bit31~bit26:分钟（min） bit25~bit20:秒（s） bit19~bit10:毫秒（ms） bit9~bit0:微秒（us）
+        field us [9:0] "us";
+        field ms [19:10] "ms";
+        field s [25:20] "s";
+        field min [31:26] "min";
+	}
+	
+	register rx_rec_time2 
+	{
+	    //宽度14，方向R 接收数据帧时间寄存器2,bit13~bit5:天（day） bit4~bit0:小时（hour）
+        field h [4:0] "hour";
+        field day [13:5] "day";
+        field res [31:14] is (reserved);
+	}
+	
+	register rx_sampling_port_freshness
+	{
+		parameter hard_reset_value = 0x1;
+	}
+}
+
+constant TEST_FRAME_SIZE = 10;
+bank test 
+{
+	register wrapped 
+	{
+		method after_write(memop) 
+		{
+			local uint8 frame[TEST_FRAME_SIZE];
+			local uint32 frame_size = TEST_FRAME_SIZE;
+			local uint8 i = 0;
+			for (; i < TEST_FRAME_SIZE; ++i) 
+				frame[i] = i;
+			
+			call $wrapped_frame(frame, frame_size);
+		}
+	}
+}

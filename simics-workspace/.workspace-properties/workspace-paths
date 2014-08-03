@@ -1,0 +1,5 @@
+workspace: C:\Users\Tyrion\simics-workspace
+simics-root: C:\Program Files\Simics\Simics 4.6\Simics 4.6.111
+simics-model-builder: C:\Program Files\Simics\Simics 4.6\Simics 4.6.111\..\model builder 4.6.49
+simics-extension-builder: C:\Program Files\Simics\Simics 4.6\Simics 4.6.111\..\extension builder 4.6.21
+mingw: C:\mingw64-i686-20110207

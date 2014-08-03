@@ -1,0 +1,176 @@
+dml 1.2;
+import "constant.dml";
+
+
+//AFDX_frame
+struct Udp_Header_Structure {
+	uint16 UDP_SOURCE_ADDRESS;       
+	uint16 UDP_DESTINATION_ADDRESS;  
+	uint16 UDP_LENGTH;            
+	uint16 UDP_CHECKSUM;      
+}
+
+struct IP_Header_Structure {
+	uint8  VERSION_IHL;
+	uint8  TYPE_OF_SERVICE;
+	uint16 TOTAL_LENGTH;
+	uint16 FRAGMENT_IDENTIFICATION;
+	uint16	CONTROL_FRAGMENT;
+	uint8  TIME_TO_LIVE;
+	uint8  PROTOCAL;
+	uint16 HEADER_CHECKSUM;
+	uint32 IP_SOURCE_ADDRESS;
+	uint32 IP_DESTINATION_ADDRESS;
+}
+
+struct MAC_Header_Structrue {
+	uint32 CONSTANT_FIELD_1;
+	uint16 VIRTUAL_LINK_IDENTIFER;
+	uint8 CONSTANT_FIELD_2;
+	uint8 CONSTANT_FIELD_3;
+	uint8 CONSTANT_FIELD_4;
+	uint8 USER_DEFINED_ID;
+	uint8 USER_DEFINED_ID_2;
+	uint8 INTERFACE_CONSTANT;
+}
+
+struct Afdx_Data{
+	uint8 *data;
+	uint32 length;
+}
+
+struct Send_Frame_Packet{
+	uint32 	header_length;			//mac header, ip header ,ipv4sign ,sn ,crc
+	uint32  afdx_payload_length;    //send packet data size
+	uint32 	send_frame_length;
+	uint32 	first;
+	uint32	udp_offset; 			//udp offset
+}
+
+struct Afdx_Frame_Packet{
+	Udp_Header_Structure 	udp_header_structure;     // UDP header
+	IP_Header_Structure		ip_header_structure;      // IP  header
+	MAC_Header_Structrue 	mac_header_structure;	  // MAC header
+	Afdx_Data 				afdx_data;				  //send data and send data length
+	Send_Frame_Packet		send_frame_packet;		  //send frame ,max, min length
+}
+
+
+//for queue
+struct Item {
+	uint8 frame[DATA_SIZE];    // 最长帧大小
+	uint32 size;              // 有效帧长度
+}
+
+struct Queue {
+	uint32 front;
+	uint32 rear;
+	
+	Item item[ITEM_NUM];         // 这个用8K除以最小的帧长度64
+	
+	uint32 item_num;         // 用于存储当前已经存储了多少项
+	uint32 frame_size;       // 存储的所有帧合并在一起的大小
+}
+
+
+//for port queue
+struct QueueItem
+{
+	uint8 *buffer;
+	int32 whole_size;
+	int32 single_size;
+	int32 last;
+	uint32 dest_ip;
+	uint32 src_ip;
+    uint16 dest_udp;
+	QueueItem *prev_whole;
+	QueueItem *next;
+}
+
+struct UDP_Item
+{
+	uint8* buffer;
+	uint32 udp_length;
+	uint32 udp_packet_size;
+	uint1 mf;
+	uint32 dest_ip;
+	uint32 src_ip;
+    uint16 dest_udp;
+	uint2 port_type;
+}
+
+struct PortItem 
+{
+	uint8  *frame;
+	uint32 size;                   
+	uint32 dest_ip;
+	uint32 src_ip;
+	uint32 dest_udp;
+}
+
+struct PortQueue 
+{
+	QueueItem *head;
+	QueueItem *tail;
+	int32 item_length;
+	int32 queue_size;
+	int32 queue_full;
+}
+
+// for MIB
+struct MAC_MIB
+{
+		uint32 crc_error;   				//crc checksum error
+		uint32 delete_little_64;  			//delete the frame that size is little than 64B
+		uint32 delete_big_1518;   			//delete the frame that size is bigger than 1518B
+		uint32 input_frame_count;  			// input frame count
+		uint32 input_64_127_count;			//input frame size between 64 and 127
+		uint32 input_128_255_count;			//input frame size between 128 and 255
+		uint32 input_256_511_count;			//input frame size between 256 and 511
+		uint32 input_512_1023_count;		//input frame size between 512 and 1023
+		uint32 input_1024_1518_count;		//input frame size between 1024 and 1023
+		uint32 input_frame_byte_count; 		// input frame byte count
+		uint32 output_frame_count;  		// output frame byte count
+		uint32 output_64_127_count;			//output frame size between 64 and 127
+		uint32 output_128_255_count;		//output frame size between 128 and 255
+		uint32 output_256_511_count;		//output frame size between 256 and 511
+		uint32 output_512_1023_count;		//output frame size between 512 and 1023
+		uint32 output_1024_1518_count;		//output frame size between 1024 and 1023
+		uint32 output_frame_byte_count;  	// output frame byte count
+		uint32 first_bit_error_count;		//first bit error
+		uint32 ipchecksum_error_count;		//ip checksum error
+		uint32 delete_bit_2048_count;		//delete the frame bigger than 2048
+}
+
+struct RX_MIB
+{
+		uint32 disable_A_filt_count;
+		uint32 disable_B_filt_count;
+		uint32 A_integrated_filt_count;
+		uint32 B_integrated_filt_count;
+		uint32 vl_id_filt_count;
+		uint32 redunt_filt_count;
+		uint32 port_filt_count;
+	   	uint32 ip_checksum_filt_count;
+		uint32 ip_length_error_filt_count;
+		uint32 udp_length_error_filt_count;
+		uint32 ip_fragment_error_filt_count ;
+		uint32 overflow_count;
+		uint32 rx_icmp_reback_count;
+		uint32 rx_ip_data_count;
+		uint32 rx_udp_data_count;
+	    uint32 rx_icmp_data_count;
+		uint32 icmp_overflow_count;
+		uint32 rx_icmp_big_max_count;
+		uint32 rx_buffer_clear_delete_count;
+		uint32 size;
+}
+
+struct TX_MIB
+{
+		uint32 tx_ip_count;
+		uint32 tx_udp_count;
+		uint32 tx_icmp_count;
+}
+
+

@@ -1,0 +1,84 @@
+dml 1.2;
+
+//port type
+constant FIFO_PORT = 0;
+constant SAMPLE_PORT = 1;
+constant SAP_PORT = 2;
+constant ICMP_PORT = 3;
+
+//single or multiple transfer
+constant UNICAST = 0;
+constant MULTICAST = 1;
+
+//header length
+constant UDP_HEADER_LENGTH = 8;
+constant MAC_HEADER_LENGTH = 12;
+constant IP_HEADER_LENGTH = 20;
+constant IPV4_LENGTH = 2;   
+constant SN_CRC_LENGTH = 5;
+
+//for udp check sum
+constant IP_ADDRESS_LENGTH = 8;
+constant UPD_PROTOCAL_SUM = 17;
+constant UDP_CHECKSUM_OFFSET = 6;
+
+//for unpacket ip checksum
+constant IP_HEADER_ADDR = 14;
+constant IP_CHECKSUM_ADDR = IP_HEADER_ADDR + 10;
+
+//IP_CHECKSUM correctness
+constant CORRECT = 0;
+constant INCORRECT = 1;
+
+//for port information
+constant PORT_SIZE = 4096;
+
+//for receive udp checksum
+constant DEST_IP_ADDR_LENGTH = 4;
+constant SRC_IP_ADDR_LENGTH = 4;
+
+//for
+constant IP_DEST_ADDR = 30;
+constant UDP_DEST_ADDR = 36;
+constant  VL_ADDR = 4;
+constant MULTICAST_ADDR = IP_DEST_ADDR;
+constant UDP_HEADER_ADDR =34; 
+constant MF_ADDR = 20;
+constant SRC_IP_ADDR =26; 
+constant UDP_CHECKSUM_ADDR = 40;
+constant UDP_LENGTH_ADDR =38;
+//
+constant RECEIVE_UDP_FIRST = 1;
+
+//for
+constant INTERFACE_ID_ADDR = 11;
+
+//fragement
+constant FIRST = 1;
+constant NOT_FIRST = 0;
+
+//for queue
+constant DATA_SIZE = 1518;   // 最大帧长度
+constant FIFO_SIZE = 8192;  // 8K数据
+constant ITEM_NUM  = 128;   // 项数
+
+//for port queue
+constant PORT_DATA_SIZE = 8192;   // 最大帧长度
+constant PORT_FIFO_SIZE = 65535;  // 8K数据
+constant PORT_ITEM_NUM  = 2622;   // 项数
+constant PORT_ITEM_SIZE = 8096;
+constant PORT_QUEUE_MAX_SIZE = 64*1024;
+
+// for send vl
+constant SEND_VL_NUM = 128;
+
+// for recv vl
+constant RECV_VL_NUM = 256;
+
+data uint32 tx_buf_overflow_number[256];
+data uint32 rx_buf_overflow_number[256];
+data MAC_MIB maca_mib;
+data MAC_MIB macb_mib;
+data RX_MIB rx_mib;
+data TX_MIB tx_mib;
+data uint32 Table[256];

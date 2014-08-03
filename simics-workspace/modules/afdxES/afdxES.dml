@@ -1,0 +1,329 @@
+// Copyright 2005-2011 Virtutech AB
+dml 1.2;
+
+device afdxES;
+
+parameter desc = "afdx End System";
+parameter documentation = "afdx End System";
+parameter byte_order = "big-endian"; 
+ 
+import "utility.dml";
+import "io-memory.dml";
+import "simics/devs/memory-space.dml";
+import "packet-frame.dml";
+import "config-tables.dml";
+import "vl.dml";
+import "constant.dml";
+import "unpacket_frame.dml";
+import "afdx-exchange.dml";
+import "pci-action.dml";
+import "pci-register.dml";
+import "change_endian.dml";
+//import "crc.dml";
+
+
+header %{
+    #include <stdio.h>
+    #include <string.h>
+    #include <stdlib.h>
+    #include <errno.h>
+    #include <unistd.h>
+    #include <WINSOCK2.H>
+
+    SOCKET client_socket;
+
+    extern int socket_init(void);
+    extern int socket_recv(unsigned char *recvbuf, int size);
+    extern int socket_send(unsigned char *sendbuf, int size);
+%}
+
+extern int socket_init(void);
+extern int socket_recv(char *recvbuf, int size);
+extern int socket_send(char *sendbuf, int size);
+
+footer %{
+    int socket_init(void) {
+        WSADATA wsa;
+
+        if (WSAStartup(MAKEWORD(2,2), &wsa)) {
+            fprintf(stderr, "WSAStartup failed, error code is %d.\n", WSAGetLastError());
+            return -1;
+        }
+
+        client_socket = socket(AF_INET, SOCK_STREAM , 0);    
+
+        if (client_socket  == INVALID_SOCKET) {
+            fprintf(stderr, "Create socket failed, error code is %d.\n", WSAGetLastError());
+            return -1;
+        }
+
+        SOCKADDR_IN serveraddr;   
+        memset(&serveraddr, 0, sizeof(serveraddr));
+        serveraddr.sin_family = AF_INET;
+        serveraddr.sin_port = htons(9750);
+        serveraddr.sin_addr.S_un.S_addr = inet_addr("127.0.0.1");   
+
+        if (connect(client_socket, (struct sockaddr *) &serveraddr, sizeof(serveraddr)) != 0) {
+            fprintf(stderr, "Connect failed, error code is %d.\n", WSAGetLastError());
+            return -1;
+        }
+
+        fprintf(stdout, "Socket_init ok\n");
+
+        return 0;
+    }
+
+    int socket_send(unsigned char *sendbuf, int size) {
+        int len = send(client_socket, (char *)sendbuf, size, 0);
+
+        if (len == size) {
+            fprintf(stdout, "Socket send sucessfully, send %d bytes.\n", len);
+            return len;
+        } else {
+            fprintf(stderr, "Socket send failed, size = %d, sended len = %d!\n", size, len);
+            return 0;
+        }
+    }
+
+    int socket_recv(unsigned char *recvbuf, int size) {
+        fd_set rfds;
+        FD_ZERO(&rfds);                
+        FD_SET(client_socket, &rfds);  
+
+        struct timeval tv = {0};             
+
+        int retval = select(0, &rfds, NULL, NULL, &tv);   
+        if (retval == -1) {
+            fprintf(stderr, "Socket recv select failed, error code is %d\n.", WSAGetLastError());
+            return -1;
+        }
+        else if (retval == 0) {
+            return 0;
+        } else {
+            int len = 0;
+
+            if (FD_ISSET(client_socket, &rfds)) {
+                memset(recvbuf, 0, size);
+
+                len = recv(client_socket, (char *)recvbuf, size, 0);
+                if (len == size) {
+                    fprintf(stdout, "Socket recv sucessfully!\n", WSAGetLastError());
+                } else {
+                    fprintf("Socket recv failed, error code is %d.\n", WSAGetLastError());
+                }
+            }
+
+            return len;
+        }
+    }
+%}
+
+connect local_space 
+{
+    parameter documentation = "The local-space the device uses to send/receive"
+        + "data to/from PCI memory space.";
+    parameter configuration = "optional";
+    interface memory_space 
+	{
+        parameter c_type = "memory_space_interface_t";
+    }
+}
+
+connect phyA
+{
+	parameter documentation = "Send data to ARINC664 2";
+    parameter configuration = "optional";
+    interface data_exchange 
+	{
+        parameter c_type = "data_exchange_interface_t";
+    }
+}
+
+connect phyB
+{
+	parameter documentation = "Send data to ARINC664 2";
+    parameter configuration = "optional";
+    interface data_exchange 
+	{
+        parameter c_type = "data_exchange_interface_t";
+    }
+}
+
+implement data_exchange {
+	method send_frame(uint8 *data, uint32 size) {
+	log "info" : "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ called by nic2  @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@";
+        local rm_cfg_cam item;
+        item.VL_ID = data[4];
+        local uint8 position;
+		local bool crc;
+		local RX_MIB rx_mib_temp;
+
+        log "info" : "The size is %d", size;
+      
+
+       
+	    call $recv_crc_check(data,size,$Table)->(crc);
+       
+		if(crc == false) 
+		{
+			log "info":"crc check failed";
+				return ;
+		}
+		
+		call $change_endian(data,size);
+		 //crc check
+		
+        call $BinarySearchRMCfgCamArray($rm_cfg_cam_array, item) -> (position);
+
+        log "info" : "The position is %d", position;
+        
+        local uint8 VL_ENABLE = $rm_cfg_ram_array[position].ram_data.VL_ENABLE;
+        local uint8 RM_ENABLE = $rm_cfg_ram_array[position].ram_data.RM_ENABLE;
+        local uint8 NETWORK_A_IC_ENABLE = $rm_cfg_ram_array[position].ram_data.NETWORK_A_IC_ENABLE;
+        local uint8 NETWORK_B_IC_ENABLE = $rm_cfg_ram_array[position].ram_data.NETWORK_B_IC_ENABLE;
+        local uint8 NETWORK_A_ENABLE = $rm_cfg_ram_array[position].ram_data.NETWORK_A_ENABLE;
+        local uint8 NETWORK_B_ENABLE = $rm_cfg_ram_array[position].ram_data.NETWORK_B_ENABLE;        
+        local uint8 A_Interface_ID;
+        local uint8 B_Interface_ID;
+       
+	   
+        if (VL_ENABLE == 0) {
+	   	    log "info" : "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$VL_Disable!$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$";
+            return;
+        }
+       
+        local uint8 frame_sn = data[size-5];
+		local uint8 interface_id;
+		interface_id = data[11]>>5;
+		log "info" : "interace_ido = %d", interface_id;
+
+        if (NETWORK_A_ENABLE == 1) {
+            A_Interface_ID = 1;
+        } else {
+            A_Interface_ID = 0;
+        }
+
+        if (NETWORK_B_ENABLE == 1) {
+            B_Interface_ID = 2;
+        } else {
+            B_Interface_ID = 0;
+        }
+		
+		//for mib
+		if((interface_id ==1) && (A_Interface_ID ==0))
+			$rx_mib.disable_A_filt_count++;
+		if((interface_id ==2) && (B_Interface_ID ==0))
+			$rx_mib.disable_B_filt_count++;
+        
+	
+        if ((frame_sn == $recv_vl[position].expect_sn) && ((interface_id == A_Interface_ID) || (interface_id == B_Interface_ID))) {
+			$rx_mib.size = size;
+            call $unpacket_frame(data, size)->($rx_mib);
+            $recv_vl[position].expect_sn++;
+            $recv_vl[position].expect_sn %= 256;
+			if(interface_id == A_Interface_ID) call $mib_in_sum(&($maca_mib),size);
+			else if(interface_id == B_Interface_ID) call $mib_in_sum(&($macb_mib),size);
+        } else {
+			log "info" : "Send from error network";
+            return;
+        }
+	}
+}
+
+connect config_mac_mode {
+    interface config_mac_mode {
+        parameter c_type = "config_mac_mode_interface_t";
+    }
+}
+
+attribute mode "Used to switch work mode" { // 0 and 1
+    parameter allocate_type = "uint32";
+}
+
+method socket_loop_recv() {
+    local int length;
+    local uint8 *buf = new uint8 [PORT_DATA_SIZE];
+    length = socket_recv(buf, PORT_DATA_SIZE);
+    
+    if (length > 0) {
+	// local exception_type_t ex;
+	  //  local dbuffer_t *dbuf = new_dbuffer();
+		//local uint8 *buf;
+		//local uint8 i =0;
+        // for test begin
+		// buf = dbuffer_append(dbuf, item.size);
+       // buf = dbuffer_append(dbuf, item.size-8);
+        // for test end 
+        // for test begin
+       // for (; i < item.size-8; ++i) {
+          //buf[i] = item.frame[item.size-i-1];
+         // buf[i] = item.frame[i+8];
+          //buf[i] = 0xff;
+         // log "info" : "The buf[%d] = %x", i, buf[i];
+       // }
+		// for test end
+        // memcpy(buf, item.frame, item.size);
+			
+        //call $pci_data_to_memory(Sim_Addr_Space_Memory,
+         //                        buf,
+         //                       $pci9056.dmapadr0.padr0,
+         //                       //$pci9056.dmasiz0.siz0
+         //                       item.size-8) -> (ex);
+        //log "info": "write to pci memory space";
+        // for test begin
+        //log "info": "The $pci9056.dmasiz0.siz0 is %d", //  $pci9056.dmasiz0.siz0;
+//        log "info" : "The item size is %d", item.size;
+                
+        // for test end
+//        dbuffer_free(dbuf);//free dbuf
+
+  //      if (ex != Sim_PE_No_Exception) {
+    //        throw;
+      //      log "error": "write data to memory fail";
+       // }
+                
+       // log "info": "set DMA done status";
+       // $pciport.rx_rec_state = 1;
+                
+       // log "info" : "The item size is %d", item.size-8;
+        // for test
+	    // $pciport.rx_frame_len = item.size;
+       // $pciport.rx_frame_len = item.size-8;        
+        //log "info" : "Need to change";
+    }
+        after (1) call $socket_loop_recv();
+    
+}
+
+// USER-TODO: Add init() and post_init() methods here, if needed.
+// init() will be run to set the empty state of the model, before any
+// configuration or checkpointed attributes are set.  post_init() is run after
+// all configuration attributes have been set.  This happens both when the
+// initial configuration is set and when the configuration is loaded from a
+// checkpoint.
+
+
+method post_init() 
+{
+    call $pci_config.update_all_mappings();   //测试需要，暂时先注释掉
+	call $gen_normal_table($Table);
+    memset($udp_first,1,PORT_SIZE);
+    local uint32 i = 0;
+    for (; i < PORT_SIZE; ++i) {
+        call $InitPortQueue() -> ($port[i].queue);
+    }
+    if ($mode == 1) {
+        socket_init();
+        call $socket_loop_recv();
+    }
+    local uint32 j = 0;
+    for (; j < SEND_VL_NUM; ++j) {
+        $vl_index_array[j] = new uint8;
+    }
+    local uint32 k = 0;
+    for (; k < RECV_VL_NUM; ++k) {
+        $recv_vl[k].expect_sn = 0;
+    }
+	
+	$phy_max_bandwidth = 200;
+}

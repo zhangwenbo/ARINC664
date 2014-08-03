@@ -1,0 +1,931 @@
+// rtc_module.dml - Skeleton code to base new DML device modules on
+
+dml 1.2;
+
+device rtc_module;
+
+parameter desc = "name of device";
+
+parameter documentation = "Longer description that will appear in the help";
+parameter byte_order = "big-endian";
+
+import "utility.dml";
+import "interface.dml";
+import "config.dml";
+header %{
+#include <hwacfg.h>
+#include <softcfg.h>
+%}
+
+
+extern typedef struct
+{
+	uint8 vlNum;
+	uint8 bag;
+	uint8 period;
+	uint8 offset;
+
+	//unsigned long  dstIP;
+	uint8 vl_use;
+	uint8 RTC_period;
+
+	uint8 netSelect;
+	uint8 subvlTotal;
+
+	uint8 allow_redu;
+	//unsigned short fragAble;
+	//unsigned short allow_slice;
+	uint8 back0;
+
+	//unsigned short fragLen;
+	uint8 maxLen;
+	uint8 minLen;
+}SENDVL_STRUCT_t;
+
+extern typedef struct
+{
+	uint8 vlNum;
+	uint8 skewMax;
+	uint8 redundantAble;
+	uint8 integrityAble;
+
+	//unsigned long  dstIP;
+	uint8 vl_use;
+	uint8 back0;
+
+	//unsigned long  blank;
+	uint8 back1;
+	uint8 back2;
+}REVVL_STRUCT_t;
+
+extern typedef struct
+{
+	uint8 maxlen;
+	uint8 echoVlNum;
+	uint8 replyVlNum;
+	uint8 replySubVlNum;
+	//  unsigned short udpSrcPort;
+	//by wj 100226 unsigned short udpDstIPemp;
+	uint8 udpDstIPemp;
+	uint8 blank1;
+}ICMP_STRUCT_t;
+
+extern typedef struct
+{
+	uint8 flag;
+	uint8 blank1;
+	uint8 sendvl_num;
+	uint8 revvl_num;
+	uint8 domain;
+	uint8 side;
+	uint8 position;
+	uint8 blank2;
+
+	SENDVL_STRUCT_t sendVlSet[128];
+	REVVL_STRUCT_t recvVlSet[256];
+	ICMP_STRUCT_t IcmpSet[16];
+}HWACFG_STRUCT_t;
+
+
+extern typedef struct
+{
+	
+	uint8 nPortId;
+	uint8 nSrcUdp;
+
+	uint8 nSubVlIndex;
+	uint8 nDstUdp;
+
+	uint8 nPortType;
+	uint8 nA429RecvChannel;
+
+	uint32 nDstIP;
+	uint8 nUseType;
+	uint8 nDataSrcPatition;
+	uint8 n;/*分片*/
+
+	uint8 nLabelOffset;
+	uint32 nIcdid;
+	uint8 nMessageLength;
+	uint8 nRecvBufLength;
+
+}SEND_UDP_STRUCT_t;
+
+extern typedef struct
+{
+	uint8 nPortId;
+	uint8 nRecvUdpPort;
+	
+	uint8 nA429RecvChannel1;
+	uint8 nMessageLength;
+
+	uint8 nRecvBufLength;
+	uint8 nPortType;
+	
+	uint8 nUseType;
+	uint8 nVlId;
+	uint8 n;/*分片*/
+
+	uint8 nA429RecvChannel2;
+	uint32 nIcdid;
+	
+}RECV_UDP_STRUCT_t;
+
+extern typedef struct
+{
+	uint32 A429RecvChannel;
+	uint32 A429SendChannel;
+	uint32 nSendCheck;
+	uint32 Labelmap[8];
+}A429_STRUCT_t;
+
+extern typedef struct
+{
+	uint8 nHeadLabel;
+	uint8 nTailLabel;
+	uint32 nLabelMap[8];
+}ALABEL_STRUCT_t;
+
+extern typedef struct
+{
+	uint32 nSoftCfgLength;
+	uint8 n429PortNum;
+	uint8 n429PortCfgOffset;
+
+	uint8 nSendUdpNum;
+	uint8 nSendUdpCfgOffset;
+
+	uint8 nRecvUdpNum;
+	uint8 nRecvUdpCfgOffset;
+
+}SOFTCFG_STRUCT_t;
+
+extern typedef struct 
+{
+	SEND_UDP_STRUCT_t * pA429ToUdp;
+	ALABEL_STRUCT_t *pAlabel;
+	SENDVL_STRUCT_t * pSendVl;
+    int nPortId;
+	nFrameR *pNext;
+}nFrameR;
+
+/*nomal struct*/
+extern typedef struct
+{
+	nFrameR * pFrameR;
+	uint8 nUsed;
+}A429_TO_UDP_STRUCT_t;
+
+
+// typedef struct
+// {
+// 	A429_STRUCT_t nA429To429;
+// 	unsigned int nUsed;
+// }A429TOA429_STRUCT_t;
+
+extern typedef struct
+{
+	uint8 nUseType;
+	uint8  nA429SendChannel1;
+}AUDPTOA429_STRUCT_t;
+
+extern typedef struct
+{
+	uint32 pAfdxFrameBlock[100];
+	uint8 nFrameNum;
+}AFDXFRAME_STRUCT_t;
+
+
+extern typedef struct
+{
+	A429_TO_UDP_STRUCT_t nA429ToUdp[16][256];
+}A429_TO_UDP_ARRAY;
+
+extern typedef struct
+{
+	uint8 nA429ToA429[20][256];
+}A429_TO_A429_ARRAY;
+
+typedef struct
+{
+	uint8 pAfdxBlockTime[1024];
+}BLOCK_TIME_STRUCT_t;
+
+
+
+extern int getAfdxFrameBlockNum();
+extern int hwa_load_conf_file();
+extern A429_TO_UDP_ARRAY* GetnA429ToAudp();
+extern AFDXFRAME_STRUCT_t *getpAfdxFrameBlock();
+extern A429_TO_A429_ARRAY* GetnA429ToA429();
+
+extern AUDPTOA429_STRUCT_t* GetnUdpTo429();
+
+extern HWACFG_STRUCT_t *GetHwaCfg();
+
+extern int socket_init(void);
+extern int socket_recv(char *recvbuf, int size);
+extern int socket_send(char *sendbuf, int size);
+
+/*load cfg udp api*/
+extern SEND_UDP_STRUCT_t * getSendUdpCfg();
+extern RECV_UDP_STRUCT_t * getRecvUdpCfg();
+extern  int getSendUdpCnt();
+extern  int getRecvUdpCnt();
+
+implement Send_To_RDC {
+	method send_to_RDC(void *data, int dest_udp, int length) {
+		log "info" : "called by ARINC664 2";
+		log "info" : "The dest_udp is %d", dest_udp;
+        // for test begin
+       // $ARINC664_2.Send_To_A664.send_to_A664(0, data, length);/*用于自环测试*/
+        
+		local uint32 i;
+		for(i=0;i<length;i++) 
+			log "info":"data[%d] = %d",i,*cast(&data[i],uint8*);
+         for (i=0;i<length/4;i++)
+            log "info":"data[%d] = %x",i,*cast(&data[4*i],uint32*);
+        
+        call $AfdxTo429(dest_udp, cast(data, uint32*), length);
+        
+        // for test end
+	}
+}
+
+connect ARINC664_2 {
+    parameter documentation = "Send frame to ARINC664_2";
+	parameter configuration = "optional";
+	
+	interface Send_To_A664 {
+		parameter c_type = "Send_To_A664_interface_t";
+	}
+}
+
+connect LoadCfg{
+    parameter documentation = "load afdx config";
+	parameter configuration = "optional";
+	
+	interface load_cfg_table {
+		parameter c_type = "load_cfg_table_interface_t";
+	}
+}
+
+// USER-TODO: add connect definitions here, if needed
+
+// USER-TODO: add attribute definitions here, if needed
+
+// Basic bank declaration
+bank regs {
+    parameter register_size = 4;
+    // USER-TODO: Add more register declarations here.  Usually use just one
+    // line per register, containing size (optional), offset, any templates
+    // implemented, and a short description. Use the read_write template for
+    // normal registers where a read usually returns the last written value,
+    // and the unimplemented template for registers that you haven't yet
+    // implemented.
+    register counter @ 0x00 is (read_write) "A simple counter.";
+}
+
+// USER-TODO: add implement and port declarations here, if needed
+
+// USER-TODO: add event declarations here, if needed
+
+// USER-TODO: add common methods here, if needed
+
+// USER-TODO: add templates here, if needed
+
+// Implementation of registers
+bank regs {
+    register counter{
+       method read() -> (value) {
+				log "info": "read from counter";
+				//value = hwa_load_conf_file();
+				//test of udpto429
+                //local uint64 i = 0x4E09567AE5947D7F;
+                //call $AfdxTo429(1064,cast(&i, uint32*), 8);
+                //test of send429
+                call $send429(11,0x4E09567A);
+                //test of A429To429
+                /*call $A429To429(uint8 channel,uint32 data);*/
+				}
+    }
+
+    register afdx_block_adr size 4 is (unmapped);
+}
+event AfdxTimer{
+		parameter timebase = "seconds";
+		method event(void* data) {
+			local AFDXFRAME_STRUCT_t *pAfdxFrameBlock;
+			local uint8 *nBlockIndex = data;
+			
+			pAfdxFrameBlock = getpAfdxFrameBlock();
+			pAfdxFrameBlock[*nBlockIndex].nFrameNum = 0;
+				//log "info": "Tick: .";
+				
+			}
+}
+
+event AfdxRtcTimer{
+		parameter timebase = "seconds";
+		method event(void* data) {
+			local uint8 i=0;
+			local int AfdxFrameBlockNum;
+			local AFDXFRAME_STRUCT_t *pAfdxFrameBlock;
+			pAfdxFrameBlock = getpAfdxFrameBlock();
+			AfdxFrameBlockNum = getAfdxFrameBlockNum();
+			for(i=0;i<AfdxFrameBlockNum;i++)
+			{
+				if(pAfdxFrameBlock[i].nFrameNum>0)/*传递block个数*/
+				{
+					call $nSendToAfdx(i,pAfdxFrameBlock[i].pAfdxFrameBlock,pAfdxFrameBlock[i].nFrameNum);
+				}
+			}
+			inline $this.post(40000,NULL);
+		}
+}
+
+method InitTime()
+{
+	local BLOCK_TIME_STRUCT_t * pBlockTime;
+	local uint32 nBlockAdr;
+	pBlockTime = new BLOCK_TIME_STRUCT_t;
+	$regs.afdx_block_adr = cast(pBlockTime,uint32);
+	
+}
+
+/*
+method init()
+{
+	hwa_load_conf_file();
+	call $InitTime();
+}
+*/
+
+method nSendAfdxFrame()
+{
+
+}
+//send to 429 card//
+struct channel_data {
+    uint32 nr;
+    uint32 data;
+}
+
+method send429(uint8 channel,uint32 data)
+{
+	log "info" : "The channel is %d", channel;
+    local channel_data x;
+    x.nr = channel;
+    x.data = data;
+	log "info" : "Before call socket send@@@@@@@@@@@@@@@@@@@";
+    socket_send(cast(&x, uint8*), sizeof(x));
+}
+
+method A429To429(uint8 channel,uint32 data)
+{
+	local uint8 nLabel;
+	local uint8 i = 0;
+	local A429_TO_A429_ARRAY * nA429ToA429arry;
+	nLabel = data&0xff;
+	nA429ToA429arry = GetnA429ToA429();
+	log "info" : "A429TO429 :%x!\n",nA429ToA429arry->nA429ToA429[channel][nLabel];
+	for (i=0;i<16;i++)
+	{
+		if (((nA429ToA429arry->nA429ToA429[channel][nLabel])&(1<<i)) == 1)
+		{
+			call $send429(i,data);
+		}
+		
+	}
+
+}
+
+//send to afdx card
+method nSendToAfdx(uint8 portid,uint32 * data,uint8 datalen)
+{
+    log "info": "sendAfdx:portid:%d,data:%x,datalen:%d",portid,*data,datalen;
+    $ARINC664_2.Send_To_A664.send_to_A664(portid,cast(data,void *),datalen);
+}
+
+//429toafdx/429 receive from 429
+
+
+method A429ToAfdx(uint8 channel,uint32 data)
+{
+	channel = 7;
+log "info": "Received:Channel:%d,data:0x%x",channel,data;
+  
+	local int i = 0;
+	local nFrameR * pFrameR;
+	local uint8 nLabel;
+	local uint32 nData;
+	local int nA429ToAfdxCfgIndex = 0;
+	local uint32 nFramebit = 0; 
+	local uint8 nArryIndex;
+	local uint8 nBitIndex;
+	nLabel = data&0xff;
+	nData = (data&0x1FFFFC00)>>10;
+	local BLOCK_TIME_STRUCT_t * pBlockTime;
+	local uint8 nAfdxFlag;/*组包方式*/
+
+	local A429_TO_UDP_ARRAY * A429ToUdpArry;
+	local AFDXFRAME_STRUCT_t *pAfdxFrameBlock;
+	
+	pBlockTime = cast($regs.afdx_block_adr,BLOCK_TIME_STRUCT_t *);
+	
+	
+	A429ToUdpArry = GetnA429ToAudp();	
+	pAfdxFrameBlock=getpAfdxFrameBlock();
+	/*print config*/
+	pFrameR = A429ToUdpArry->nA429ToUdp[channel][data&0xff].pFrameR;
+	for (i=0;i<A429ToUdpArry->nA429ToUdp[channel][data&0xff].nUsed;i++)
+	{
+		if(i>0)
+		{
+			pFrameR= pFrameR->pNext;
+		}	
+		log "info": "portID:%d;\n",pFrameR->nPortId;
+	}
+	/*print config end*/		
+	log "info": "usd:%d,label:0x%x\n",A429ToUdpArry->nA429ToUdp[channel][nLabel].nUsed,nLabel;  
+	
+	if(A429ToUdpArry->nA429ToUdp[channel][nLabel].nUsed ==0)/*如果没用则转发到429*/
+	{
+			call $A429To429(channel,data);
+	}else{																	/*转发AFDX*/
+		if(nAfdxFlag == 1)/*定时组包*/
+		{
+			pFrameR = A429ToUdpArry->nA429ToUdp[channel][data&0xff].pFrameR;
+			for (i=0;i<A429ToUdpArry->nA429ToUdp[channel][data&0xff].nUsed;i++)
+			{
+				if(i>0)
+				{
+					pFrameR= pFrameR->pNext;
+				}
+                
+                if(pFrameR->pA429ToUdp->nUseType == 0)
+                {
+                    nA429ToAfdxCfgIndex = pFrameR->nPortId;
+                   // nFramebit=pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum;
+                    pAfdxFrameBlock[nA429ToAfdxCfgIndex].pAfdxFrameBlock[pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum]=data;
+                    pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum++;
+                    
+                }
+						
+				
+			}
+		}else{/*顺序组包*/
+			pFrameR = A429ToUdpArry->nA429ToUdp[channel][data&0xff].pFrameR;
+			for (i=0;i<A429ToUdpArry->nA429ToUdp[channel][data&0xff].nUsed;i++)
+			{
+				if(i>0)
+				{
+					pFrameR= pFrameR->pNext;
+				}
+				if (pFrameR->pA429ToUdp->nUseType == 0)/*正常模式则检查是否头包尾包*/
+				{
+					nA429ToAfdxCfgIndex = pFrameR->nPortId;
+					if (pFrameR->pAlabel->nHeadLabel == nLabel)     /*头包*/
+					{
+						pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum = 0;
+	
+						pAfdxFrameBlock[nA429ToAfdxCfgIndex].pAfdxFrameBlock[pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum]=data;
+						pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum++;
+						if(pFrameR->pAlabel->nTailLabel == nLabel)
+							{
+								log "info": "usd:for tail head and label!";  
+								log "info": "frame:0x%x,index:%d,frameNum:%d\n",pAfdxFrameBlock[nA429ToAfdxCfgIndex].pAfdxFrameBlock[0],nA429ToAfdxCfgIndex,pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum; 
+								call $nSendToAfdx(nA429ToAfdxCfgIndex,pAfdxFrameBlock[nA429ToAfdxCfgIndex].pAfdxFrameBlock,pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum);
+								
+								continue ;
+							}else{
+								inline $AfdxTimer.post(400000,&(pBlockTime->pAfdxBlockTime[nA429ToAfdxCfgIndex]));
+							}
+					}else if (pFrameR->pAlabel->nTailLabel == nLabel)/*尾包*/
+					{
+						pAfdxFrameBlock[nA429ToAfdxCfgIndex].pAfdxFrameBlock[pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum]=data;
+						pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum++;
+						call $nSendToAfdx(nA429ToAfdxCfgIndex,pAfdxFrameBlock[nA429ToAfdxCfgIndex].pAfdxFrameBlock,pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum);
+						inline $AfdxTimer.remove(&(pBlockTime->pAfdxBlockTime[nA429ToAfdxCfgIndex]));
+						pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum = 0;
+					}else{
+	
+						pAfdxFrameBlock[nA429ToAfdxCfgIndex].pAfdxFrameBlock[pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum]=data;
+						pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum++;
+						if (pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum > 100)
+						{
+							pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum = 0;
+						}
+					}
+				}/*usetype*/
+			}/*for*/
+		}/*end of 顺序组包*/
+	}
+
+
+if(0)
+{
+    log "info": "Received:Channel:%d,data:%d",channel,data;
+    return;
+	local int i = 0;
+	local nFrameR * pFrameR;
+	local char nLabel;
+	local uint32 nData;
+	local int nA429ToAfdxCfgIndex = 0;
+	local uint32 nFramebit = 0; 
+	local uint8 nArryIndex;
+	local uint8 nBitIndex;
+	nLabel = data&0xff;
+	nData = (data&0x1FFFFC00)>>10;
+	local BLOCK_TIME_STRUCT_t * pBlockTime;
+	local uint8 nAfdxFlag=0;/*组包方式*/
+
+	local A429_TO_UDP_ARRAY * A429ToUdpArry;
+	local AFDXFRAME_STRUCT_t *pAfdxFrameBlock;
+	
+	pBlockTime = cast($regs.afdx_block_adr,BLOCK_TIME_STRUCT_t *);
+	
+	
+	A429ToUdpArry = GetnA429ToAudp();	
+	pAfdxFrameBlock=getpAfdxFrameBlock();
+
+	//log "info": "usd:%d",A429ToUdpArry->nA429ToUdp[0][0].nUsed;  
+	
+	if(A429ToUdpArry->nA429ToUdp[channel][nLabel].nUsed ==0)/*如果没用则转发到429*/
+	{
+			call $A429To429(channel,data);
+	}else{																	/*转发AFDX*/
+		if(nAfdxFlag == 1)/*定时组包*/
+		{
+			pFrameR = A429ToUdpArry->nA429ToUdp[channel][data&0xff].pFrameR;
+			for (i=0;i<A429ToUdpArry->nA429ToUdp[channel][data&0xff].nUsed;i++)
+			{
+				if(i>0)
+				{
+					pFrameR= pFrameR->pNext;
+				}
+					if(pFrameR->pA429ToUdp->nUseType == 0)
+					{
+						nA429ToAfdxCfgIndex = pFrameR->pA429ToUdp->nPortId;
+						nFramebit=pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum*19;
+						nArryIndex = nFramebit/32;
+						nBitIndex = nFramebit%32;
+						if (32-nBitIndex > 19)
+						{
+							pAfdxFrameBlock[nA429ToAfdxCfgIndex].pAfdxFrameBlock[nArryIndex] |= (nData<<(32-nBitIndex));
+						}else 
+						{
+							pAfdxFrameBlock[nA429ToAfdxCfgIndex].pAfdxFrameBlock[nArryIndex] |= (nData>>(19-(32-nBitIndex)));
+							pAfdxFrameBlock[nA429ToAfdxCfgIndex].pAfdxFrameBlock[nArryIndex+1] |= (nData<<(32-nBitIndex));
+						}
+						pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum++;
+						
+					}
+						
+				
+			}
+		}else{/*顺序组包*/
+			pFrameR = A429ToUdpArry->nA429ToUdp[channel][data&0xff].pFrameR;
+			for (i=0;i<A429ToUdpArry->nA429ToUdp[channel][data&0xff].nUsed;i++)
+			{
+				if(i>0)
+				{
+					pFrameR= pFrameR->pNext;
+				}
+				if (pFrameR->pA429ToUdp->nUseType == 0)/*正常模式则检查是否头包尾包*/
+				{
+					nA429ToAfdxCfgIndex = pFrameR->pA429ToUdp->nPortId;
+					if (pFrameR->pAlabel->nHeadLabel == nLabel)     /*头包*/
+					{
+						pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum = 0;
+	
+						nFramebit=pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum*19;
+						nArryIndex = nFramebit/32;
+						nBitIndex = nFramebit%32;
+						if (32-nBitIndex > 19)
+						{
+							pAfdxFrameBlock[nA429ToAfdxCfgIndex].pAfdxFrameBlock[nArryIndex] |= (nData<<(32-nBitIndex));
+						}else 
+						{
+							pAfdxFrameBlock[nA429ToAfdxCfgIndex].pAfdxFrameBlock[nArryIndex] |= (nData>>(19-(32-nBitIndex)));
+							pAfdxFrameBlock[nA429ToAfdxCfgIndex].pAfdxFrameBlock[nArryIndex+1] |= (nData<<(32-nBitIndex));
+						}
+						pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum++;
+						if(pFrameR->pAlabel->nTailLabel == nLabel)
+							{
+								call $nSendToAfdx(nA429ToAfdxCfgIndex,pAfdxFrameBlock[nA429ToAfdxCfgIndex].pAfdxFrameBlock,pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum);
+								continue ;
+							}else{
+								inline $AfdxTimer.post(400000,&(pBlockTime->pAfdxBlockTime[nA429ToAfdxCfgIndex]));
+							}
+					}else if (pFrameR->pAlabel->nTailLabel == nLabel)/*尾包*/
+					{
+						nFramebit=pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum*19;
+						nArryIndex = nFramebit/32;
+						nBitIndex = nFramebit%32;
+						if (32-nBitIndex > 19)
+						{
+							pAfdxFrameBlock[nA429ToAfdxCfgIndex].pAfdxFrameBlock[nArryIndex] |= (nData<<(32-nBitIndex));
+						}else 
+						{
+							pAfdxFrameBlock[nA429ToAfdxCfgIndex].pAfdxFrameBlock[nArryIndex] |= (nData>>(19-(32-nBitIndex)));
+							pAfdxFrameBlock[nA429ToAfdxCfgIndex].pAfdxFrameBlock[nArryIndex+1] |= (nData<<(32-nBitIndex));
+						}
+						call $nSendToAfdx(nA429ToAfdxCfgIndex,pAfdxFrameBlock[nA429ToAfdxCfgIndex].pAfdxFrameBlock,pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum);
+						inline $AfdxTimer.remove(&(pBlockTime->pAfdxBlockTime[nA429ToAfdxCfgIndex]));
+						pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum = 0;
+					}else{
+	
+						nFramebit=pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum*19;
+						nArryIndex = nFramebit/32;
+						nBitIndex = nFramebit%32;
+						if (32-nBitIndex > 19)
+						{
+							pAfdxFrameBlock[nA429ToAfdxCfgIndex].pAfdxFrameBlock[nArryIndex] |= (nData<<(32-nBitIndex));
+						}else 
+						{
+							pAfdxFrameBlock[nA429ToAfdxCfgIndex].pAfdxFrameBlock[nArryIndex] |= (nData>>(19-(32-nBitIndex)));
+							pAfdxFrameBlock[nA429ToAfdxCfgIndex].pAfdxFrameBlock[nArryIndex+1] |= (nData<<(32-nBitIndex));
+						}
+						pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum++;
+						if (pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum > 100)
+						{
+							pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum = 0;
+						}
+					}
+				}/*usetype*/
+			}/*for*/
+		}/*end of 顺序组包*/
+	}
+
+}
+}
+
+
+
+
+//receive from afdx card
+method AfdxTo429(uint16 dest_udp,uint32 *payload,uint32 length)
+{
+log "info" : "Entering nUdpTo429()!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
+local uint8 i;
+local uint8 j;
+local uint32 Channel;
+local uint32 usertype_count;
+local uint32 wrongchannel_count;
+local uint32 wrongsize_count;
+local uint32 payload_temp;
+usertype_count = 0;
+wrongchannel_count = 0;
+wrongsize_count = 0;
+local AUDPTOA429_STRUCT_t * nUdpTo429Arry;
+log "info" : "Before call nUdpTo429()";
+nUdpTo429Arry = GetnUdpTo429();
+
+log "info" : "usetype is %d, channel is %d, length is %d",nUdpTo429Arry[dest_udp].nUseType,nUdpTo429Arry[dest_udp].nA429SendChannel1,length;
+    if (nUdpTo429Arry[dest_udp].nUseType ==0 && nUdpTo429Arry[dest_udp].nA429SendChannel1 !=0 && length%4 == 0)     //UseType Normal & Channels OK & frame size OK
+	{log "info": "after if!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
+
+        for (i=1; i<=(length/4); i++) {
+		Channel = nUdpTo429Arry[dest_udp].nA429SendChannel1;
+            for (j=1;j<=16;j++) {
+			log "info": "channel is %d", Channel;
+                if ((Channel & 0x1) == 1)
+                {
+                    log "info": "Before call send429 ##########################";
+                    STORE_BE32(&payload_temp,*payload);
+                    call $send429(j, payload_temp);
+					log "info":"after call send429";
+                }
+                Channel = Channel>>0x1;
+            }
+            payload = payload++;
+        }
+    }
+    else if (nUdpTo429Arry[dest_udp].nUseType !=0)  //usertype not normal
+        usertype_count++;
+    else if (nUdpTo429Arry[dest_udp].nA429SendChannel1 ==0)  //wrong 429 transmit channel
+        wrongchannel_count++;
+    else if (sizeof(payload)%4 != 0)  //wrong payload size
+        wrongsize_count++;
+}
+
+constant PORT_DATA_SIZE = 8;     // too big , sizeoftype(uint8) + sizeoftype(uint32) is OK?
+
+
+method socket_loop_recv() {
+    local int length;
+    local uint8 *buf = new uint8 [PORT_DATA_SIZE];
+    length = socket_recv(buf, PORT_DATA_SIZE);
+   // log "info" : "THe length is %d.", length;
+    if (length > 0) {
+        local uint8 channel;
+        local uint32 data;
+        memcpy(&channel, buf, sizeoftype(uint32));
+        memcpy(&data, buf + sizeoftype(uint32), sizeoftype(uint32));
+
+        call $A429ToAfdx(channel, data);
+        
+                  
+    } 
+   
+    delete buf;   
+	after (0.001) call $socket_loop_recv();
+    
+}
+
+method load_afdx_config()
+{
+	local HWACFG_STRUCT_t *pHwaCfg;
+	local analyse_cfg_cam  cam_cfg_table;
+	local analyse_cfg_ram recv_cfg_ram;
+		
+	local rm_cfg_cam  recv_rm_cfg_cam;
+	local rm_cfg_ram  recv_rm_cfg_ram;
+
+	
+	local transmit_cfg_ram    send_cfg_table;
+	local scheduling_cfg_ram  send_bag_table;
+	local fragment_cfg_ram   send_frame_length;
+	local uint32 i=0;
+	
+	local uint32 SendCfgUdpCnt;
+	local uint32 RecvCfgUdpCnt;
+	local RECV_UDP_STRUCT_t *RecvCfgUdp;
+	local SEND_UDP_STRUCT_t *SendCfgUdp;
+	
+	local uint32 userid ;
+	local uint32 partid ;
+	
+	local uint16 VlIndex;
+	pHwaCfg = GetHwaCfg();
+	
+	RecvCfgUdp=getRecvUdpCfg();
+	SendCfgUdp=getSendUdpCfg();
+	RecvCfgUdpCnt=getRecvUdpCnt();
+	SendCfgUdpCnt=getSendUdpCnt();
+	log "info" : "\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\";
+	log "info" :"revvl_num = %d",pHwaCfg->revvl_num;
+	log "info" :"sendvl_num = %d",pHwaCfg->sendvl_num;
+	log "info" :"RecvCfgUdpCnt = %d",RecvCfgUdpCnt;
+	log "info" :"SendCfgUdpCnt = %d",SendCfgUdpCnt;
+	log "info" : "\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\";
+
+
+	local int num;
+	
+	userid = cast(pHwaCfg->position,uint32) + cast(((pHwaCfg->side) << 5),uint32) + cast(((pHwaCfg->domain) << 8),uint32);
+	//partid = 
+	/*接收vl的配置*/
+	for(i=0;i<pHwaCfg->revvl_num;i++)/*接收VL最多256个*/
+	{
+	  
+	  recv_rm_cfg_cam.address =i;
+	  recv_rm_cfg_cam.VL_ID= pHwaCfg->recvVlSet[i].vlNum;
+	 
+	  recv_rm_cfg_ram.ram_data.VL_ENABLE = 1;/*默认都使能*/
+	  recv_rm_cfg_ram.ram_data.SKEW_MAX = pHwaCfg->recvVlSet[i].skewMax;
+	  recv_rm_cfg_ram.ram_data.RM_ENABLE = pHwaCfg->recvVlSet[i].redundantAble;/*冗余使能*/
+	 
+	  if(pHwaCfg->recvVlSet[i].redundantAble!=0)
+	  {
+		recv_rm_cfg_ram.ram_data.NETWORK_B_ENABLE=1;
+		recv_rm_cfg_ram.ram_data.NETWORK_A_ENABLE=1;
+		recv_rm_cfg_ram.ram_data.NETWORK_B_IC_ENABLE=pHwaCfg->recvVlSet[i].integrityAble;/*完整性检查*/
+		recv_rm_cfg_ram.ram_data.NETWORK_A_IC_ENABLE=pHwaCfg->recvVlSet[i].integrityAble;
+	  }else{
+		recv_rm_cfg_ram.ram_data.NETWORK_B_ENABLE=0;
+		recv_rm_cfg_ram.ram_data.NETWORK_A_ENABLE=1;
+		recv_rm_cfg_ram.ram_data.NETWORK_B_IC_ENABLE=0;
+		recv_rm_cfg_ram.ram_data.NETWORK_A_IC_ENABLE=pHwaCfg->recvVlSet[i].integrityAble;
+	  }
+	  
+	  $LoadCfg.load_cfg_table.load_rm_cam_cfg_table(1,&recv_rm_cfg_cam);
+	  $LoadCfg.load_cfg_table.load_rm_ram_cfg_table(1,&recv_rm_cfg_ram);
+	 
+	  log "info" : "The revvl_num is %d, and the cam_cfg_table.cam_data_part3.VL is %d", i, cam_cfg_table.cam_data_part3.VL;
+	  log "info": "n\n";
+	}
+	
+	
+	
+	
+	//load port cfg
+	//extern SEND_UDP_STRUCT_t * getSendUdpCfg();
+	//extern RECV_UDP_STRUCT_t * getRecvUdpCfg();
+	//extern unsigned int getSendUdpCnt();
+	//extern unsigned int getRecvUdpCnt();
+
+	/*接收port的配置   接收端口最大为4096*/
+	for(i=0;i<RecvCfgUdpCnt;i++)
+	{
+	   cam_cfg_table.address =i;
+	   //RecvCfgUdp[i].nPortId = i;
+	  cam_cfg_table.cam_data_part3.VL= RecvCfgUdp[i].nVlId;
+	  cam_cfg_table.cam_data_part3.DEST_UDP = RecvCfgUdp[i].nRecvUdpPort;
+	  cam_cfg_table.cam_data_part2.DEST_IP = ((0xa << 24) | ((userid & 0xffff) << 8) | (partid & 0x1f));
+	   
+    if(((( cam_cfg_table.cam_data_part2.DEST_IP & 0xff000000) >> 24) == 224) &&
+        ((( cam_cfg_table.cam_data_part2.DEST_IP & 0x00ff0000) >> 16) == 224))
+      {
+        cam_cfg_table.cam_data_part1.MULTICAST_ID = 1;//mode_multicast
+      }
+     else
+      {
+         cam_cfg_table.cam_data_part1.MULTICAST_ID = 0;
+      }
+	  //
+	  //
+	  //cam_cfg_table.cam_data_part1.ICMP_TYPE_ID
+	  
+	   recv_cfg_ram.ram_data.PORT_TYPE = RecvCfgUdp[i].nPortType;
+	   
+	  recv_cfg_ram.ram_data.NETWORK_A_ENABLE=1;
+	  recv_cfg_ram.ram_data.NETWORK_B_ENABLE=1;
+	  
+	  $LoadCfg.load_cfg_table.load_analyse_cam_cfg_table(1,&cam_cfg_table);
+	  $LoadCfg.load_cfg_table.load_analyse_ram_cfg_table(1,&recv_cfg_ram);
+	}
+    
+
+	/*发送VL的配置   发送VL最大为128*/
+	for(i=0;i<pHwaCfg->sendvl_num;i++)
+	{
+	  
+	  send_bag_table.BAG = pHwaCfg->sendVlSet[i].bag;
+	  
+	  
+	 
+	  
+	  log "info": "------------------------------------------------------------------------";
+	
+	  $LoadCfg.load_cfg_table.load_scheduling_ram_cfg_table(1,&send_bag_table);
+	 // $LoadCfg.load_cfg_table.load_fragment_ram_cfg_table(1,&send_frame_length);
+	  
+	  log "info" : "The sendvl_num is %d", i;
+	  log "info": "------------------------------------------------------------------------\n\n";
+	}
+	/*发送端口的配置   发送端口最大为1024*/
+    //log "info" : "SendCfgUdpCnt is %d", SendCfgUdpCnt;
+
+	for(i=0;i<SendCfgUdpCnt;i++)
+	{
+	  VlIndex = SendCfgUdp[i].nSubVlIndex;
+		
+	  send_cfg_table.ram_data_part1.VL_ID =pHwaCfg->sendVlSet[VlIndex>>2].vlNum;
+	  send_cfg_table.ram_data_part1.VL_INDEX=VlIndex>>2;
+	  
+	  send_cfg_table.ram_data_part4.PARTITION_ID = (SendCfgUdp[i].nDstIP&0x1f);
+	  send_cfg_table.ram_data_part4.USER_DEFINED_ID_L=(SendCfgUdp[i].nDstIP>>5)&0x3ff8;
+	  send_cfg_table.ram_data_part4.USER_DEFINED_ID_H=(SendCfgUdp[i].nDstIP>>19)&0x3;
+	  send_cfg_table.ram_data_part4.PRIVATE_IP= 0x0a;
+	  
+	  if(((( SendCfgUdp[i].nDstIP & 0xff000000) >> 24) == 224) &&
+        ((( SendCfgUdp[i].nDstIP & 0x00ff0000) >> 16) == 224))
+      {
+        send_cfg_table.ram_data_part1.IP_MULTICAST = 1;//mode_multicast
+      }
+     else
+      {
+         send_cfg_table.ram_data_part1.IP_MULTICAST = 0;
+      }
+	  
+	  send_cfg_table.ram_data_part1.MIN_FRAME_LENGTH =pHwaCfg->sendVlSet[VlIndex>>2].minLen;
+	  send_cfg_table.ram_data_part1.PORT_TYPE=SendCfgUdp[i].nPortType;
+	  send_cfg_table.ram_data_part2.PARTITION_ID=SendCfgUdp[i].nDataSrcPatition;
+	  send_cfg_table.ram_data_part2.INTERFACE_ID=pHwaCfg->sendVlSet[VlIndex>>2].netSelect;/*网络选择*/
+	  send_cfg_table.ram_data_part2.PROTOCAL_ID=0x11;/*只有UDP*/
+	  send_cfg_table.ram_data_part2.USER_DEFINED_ID=userid;
+	  send_cfg_table.ram_data_part3.SUB_VL_ID = (VlIndex&0x03);
+	  send_cfg_table.ram_data_part3.DEST_UDP_PORT=SendCfgUdp[i].nDstUdp;
+	  send_cfg_table.ram_data_part3.SOURCE_UDP_PORT=SendCfgUdp[i].nSrcUdp;
+	  
+	  send_frame_length.MAX_FRAME_LENGTH =pHwaCfg->sendVlSet[VlIndex>>2].maxLen;
+      
+      if (i == 0) {
+        log "info" : "The min_frame_length = %d", send_cfg_table.ram_data_part1.MIN_FRAME_LENGTH;
+      //  while(1);
+      }
+	  
+	  $LoadCfg.load_cfg_table.load_transmit_ram_cfg_table(1,&send_cfg_table);
+	  $LoadCfg.load_cfg_table.load_fragment_ram_cfg_table(1,&send_frame_length);
+	
+	}
+	
+
+
+}
+
+
+// USER-TODO: Add init() and post_init() methods here, if needed.
+// init() will be run to set the empty state of the model, before any
+// configuration or checkpointed attributes are set.  post_init() is run after
+// all configuration attributes have been set.  This happens both when the
+// initial configuration is set and when the configuration is loaded from a
+// checkpoint.
+method post_init() {
+    hwa_load_conf_file();
+	call $load_afdx_config();
+    socket_init();
+    call $socket_loop_recv();
+}

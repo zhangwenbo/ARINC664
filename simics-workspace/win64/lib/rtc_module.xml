@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<device name="rtc_module">
+  <desc>name of device</desc>
+  <documentation>Longer description that will appear in the help</documentation>
+  <bank name="regs">
+    <register name="counter">
+      <desc>A simple counter.</desc>
+      <offset>0</offset>
+      <size>4</size>
+    </register>
+    <register name="afdx_block_adr">
+      <size>4</size>
+    </register>
+  </bank>
+</device>

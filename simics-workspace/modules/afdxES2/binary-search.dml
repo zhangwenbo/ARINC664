@@ -1,0 +1,141 @@
+dml 1.2;
+
+import "config-tables.dml";
+
+method BinarySearchAnalyseCfgCamArray(analyse_cfg_cam *array, analyse_cfg_cam T) -> (int result) {
+	local int32 low;
+	local int32 high;
+    local int32 mid;
+	low = 0;
+	high = ANALYSE_CFG_CAM_MAX_SIZE - 1;
+	while (low <= high) {
+		log "info" :"low=%d ,high=%d",low,high;
+		mid = (low + high) / 2;
+		local bool compare_result;
+		inline $is_smaller_analyse(array, mid, T) -> (compare_result);
+		if (compare_result) {
+			high = mid - 1;
+		} else {
+			inline $is_bigger_analyse(array, mid, T) -> (compare_result);
+			if (compare_result) {
+				low = mid + 1;
+			} else {
+			    result = mid;
+		    }
+		}
+	}
+	result = -1;
+}
+
+method is_bigger_analyse(analyse_cfg_cam *L, int position, analyse_cfg_cam pivotkey) -> (bool result) {
+	if (cast(L[position].cam_data_part1, uint28) > cast(pivotkey.cam_data_part1, uint28)) {
+		result = true;
+	} else if (cast(L[position].cam_data_part1, uint28) < cast(pivotkey.cam_data_part1, uint28)) {
+		result = false;
+	} else {
+		if (cast(L[position].cam_data_part2, uint32) > cast(pivotkey.cam_data_part2, uint32)) {
+			result = true;
+		} else if (cast(L[position].cam_data_part2, uint32) < cast(pivotkey.cam_data_part2, uint32)) {
+			result = false;
+		} else {
+			if (cast(L[position].cam_data_part3, uint32) > cast(pivotkey.cam_data_part3, uint32)) {
+				result = true;
+			} else {
+				result = false;
+			}
+		}
+	}
+}
+		
+method is_smaller_analyse(analyse_cfg_cam *L, int position, analyse_cfg_cam pivotkey) -> (bool result) {
+	if (cast(L[position].cam_data_part1, uint28) > cast(pivotkey.cam_data_part1, uint28)) {
+		result = false;
+	} else if (cast(L[position].cam_data_part1, uint28) < cast(pivotkey.cam_data_part1, uint28)) {
+		result = true;
+	} else {
+		if (cast(L[position].cam_data_part2, uint32) > cast(pivotkey.cam_data_part2, uint32)) {
+			result = false;
+		} else if (cast(L[position].cam_data_part2, uint32) < cast(pivotkey.cam_data_part2, uint32)) {
+			result = true;
+		} else {
+			if (cast(L[position].cam_data_part3, uint32) >= cast(pivotkey.cam_data_part3, uint32)) {
+				result = false;
+			} else {
+				result = true;
+			}
+		}
+	}
+}
+
+method BinarySearchRMCfgCamArray(rm_cfg_cam *array, rm_cfg_cam T) -> (int result) 
+{
+	local int32 low;
+	local int32 high;
+    local int32 mid;
+	low = 0;
+	high = $rm_cfg_cam_index - 1;
+	
+		log "info" : "========================= 1 rm_cfg_cam begin ========================";
+		local int32 i;
+		for(i=0;i<32;i++)
+			log "info" : "$rm_cfg_cam_array[%d].VL_ID = %d", i, $rm_cfg_cam_array[i].VL_ID;
+		log "info" : "=========================1 rm_cfg_cam  end ========================";
+		
+		log "info": "T ================";
+		log "info" : "T.VL_ID = %d",  T.VL_ID;
+		log "info": "T ================";
+		
+	
+	while (low <= high) 
+	{
+		log "info" :"low=%d ,high=%d",low,high;
+		mid = (low + high) / 2;
+		local bool compare_result;
+		inline $is_smaller_rm(array, mid, T) -> (compare_result);
+		if (compare_result) 
+		{
+			log "info" :"small!";
+			high = mid - 1;
+		} 
+		else 
+		{
+			log "info" :"big!";
+			inline $is_bigger_rm(array, mid, T) -> (compare_result);
+			if (compare_result) 
+			{
+				low = mid + 1;
+			} 
+			else 
+			{
+				log "info": "equal ";
+			    result = mid;
+				return ;
+		    }
+		}		
+			
+	}
+	result = -1;
+}
+
+method is_bigger_rm(rm_cfg_cam *L, int position, rm_cfg_cam pivotkey) -> (bool result) 
+{
+	if (L[position].VL_ID > pivotkey.VL_ID) 
+	{
+		result = true;
+	} else 
+	{
+		result = false;
+	} 
+}
+
+method is_smaller_rm(rm_cfg_cam *L, int position, rm_cfg_cam pivotkey) -> (bool result) 
+{
+	if (L[position].VL_ID >= pivotkey.VL_ID) 
+	{
+		result = false;
+	} else	
+	{
+		result = true;
+		
+	}
+}

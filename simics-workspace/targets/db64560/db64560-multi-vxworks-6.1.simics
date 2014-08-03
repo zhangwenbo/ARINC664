@@ -1,0 +1,2 @@
+add-directory "%script%"
+run-command-file "%simics%\\targets\\db64560\\db64560-multi-vxworks-6.1.simics"

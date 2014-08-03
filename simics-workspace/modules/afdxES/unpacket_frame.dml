@@ -1,0 +1,135 @@
+dml 1.2;
+
+import "vl.dml";
+import "checksum.dml";
+import "constant.dml";
+import "port-queue.dml";
+import "binary-search.dml";
+import "config-tables.dml";
+import "packet-description.dml";
+
+data uint8 udp_first[PORT_SIZE];   //init with 1;
+
+method unpacket_frame(uint8 *buffer,uint32 size)->(RX_MIB rx_mib)
+{
+	log "info" : "called by ARINC2 to unpacket_frame";
+    
+	local uint16 dest_udp;
+	local uint16 vl;
+	local uint32 dest_ip;
+	local uint1 multicast;
+	local uint1 mf;
+	local uint32 port_id;
+	local analyse_cfg_cam T;
+	local uint1 enable_network_A;
+	local uint1 enable_network_B;
+	local uint2 port_type;
+	local bool result;
+    local uint8 correct;
+	
+	
+	local UDP_Item udp_item;
+	
+	call $unpacket_ip_checksum(buffer)->(correct);		//IP checksum
+    if(correct ==  INCORRECT)
+    {
+        log "info": "ip checksum error";
+		rx_mib.ip_checksum_filt_count++;
+        return ;
+    }
+	rx_mib. rx_ip_data_count++;
+	dest_udp =*cast((buffer + UDP_DEST_ADDR),uint16*);
+	dest_ip = *cast(buffer + IP_DEST_ADDR,uint32 *);
+	vl	= *(buffer + VL_ADDR);
+	multicast = cast(*(buffer + MULTICAST_ADDR) >>7,uint1);
+	mf =cast((*(buffer +MF_ADDR)>>5) &0x1, uint1);
+
+	T.cam_data_part1.MULTICAST_ID = multicast;
+	T.cam_data_part2.DEST_IP = dest_ip;
+	T.cam_data_part3.VL= vl;
+	T.cam_data_part3.DEST_UDP = dest_udp;
+	//find port through  item group. single has IP dest address ,mulitple hasn't IP dest address
+
+	call $BinarySearchAnalyseCfgCamArray(($analyse_cfg_cam_array), T) -> (port_id); 
+	
+	enable_network_A = cast((*(buffer + INTERFACE_ID_ADDR)>>5)&0x1,uint1);
+	enable_network_B = cast((*(buffer + INTERFACE_ID_ADDR)>>6)&0x1,uint1);
+	
+	
+	if(enable_network_A !=$analyse_cfg_ram_array[port_id].ram_data.NETWORK_A_ENABLE)
+	{
+		log "info": "enable network A error!";
+        
+		return;
+	}
+
+	if(enable_network_B != $analyse_cfg_ram_array[port_id].ram_data.NETWORK_B_ENABLE)
+	{
+		log "info": "enable network B error!";
+        // for test begin
+		//return;
+        // for test end lanxingdong
+	}
+
+	udp_item.port_type = $analyse_cfg_ram_array[port_id].ram_data.PORT_TYPE; 
+
+    
+	if($udp_first[port_id] == RECEIVE_UDP_FIRST)
+	{
+		udp_item.udp_length = *cast(buffer + UDP_LENGTH_ADDR,uint16 *);
+		rx_mib.rx_udp_data_count++;
+	}
+	else
+		udp_item.udp_length = 0;
+	
+	udp_item.buffer = buffer + UDP_HEADER_ADDR;     
+	udp_item.dest_ip = dest_ip;
+	udp_item.src_ip = *cast(buffer+SRC_IP_ADDR,uint32 *);
+	udp_item.udp_packet_size = size - (IP_HEADER_LENGTH + MAC_HEADER_LENGTH +IPV4_LENGTH + SN_CRC_LENGTH);
+	udp_item.mf =mf;
+    udp_item.dest_udp = dest_udp;
+	
+    log "info" : "The port_id is %d ####################################################################################", port_id;
+    log "info" : "The udp_item.port_type is %d &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&", udp_item.port_type;
+    
+   
+    
+	if (port_id >= 0 && port_id < 128) {
+		switch (udp_item.port_type) {
+   
+			case 0: case 1:
+			    call $EnPortQueue(($port[port_id].queue),udp_item)->(result);
+                  //for test start
+                
+                $pci9056.recvdmadone = 1;
+                $pciport.rx_check_valid = 1;  
+				//for test end
+				if(result == false)
+				{
+					log "info" : "port queue is full!";
+					return;
+				}
+			
+				break;
+			case 2:
+			    call $RefreshPortData(&($port[port_id]), udp_item);
+                  //for test start
+                $pci9056.recvdmadone = 1;
+                $pciport.rx_check_valid = 1;  
+				//for test end
+			default:
+			    log "error" : "Unsupported port type";
+			    break;
+		}
+	} else {
+		log "info": "wrong port id";
+	}
+	
+	
+	if(mf == 0)
+		$udp_first[port_id] = 1;
+	else 
+		$udp_first[port_id] = 0;
+}
+
+

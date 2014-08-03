@@ -1,0 +1,131 @@
+dml 1.2;
+
+/////////////////////////////////////  analyse_cfg_cam  begin  //////////////////////////////////////
+constant ANALYSE_CFG_CAM_MAX_SIZE = 4096;
+constant ANALYSE_CFG_RAM_MAX_SIZE = 4096;
+
+struct analyse_cfg_cam {    
+    physical_address_t address;
+    
+    bitfields 28 {
+        uint26 RETENTION                @ [27:2];   // [91:66];        
+        uint1  ICMP_TYPE_ID             @ [1:1];    // [65:65];
+        uint1  MULTICAST_ID             @ [0:0];    // [64:64];
+    } cam_data_part1;
+    
+    bitfields 32 {
+        uint32 DEST_IP                  @ [31:0];   // [63:32];
+    } cam_data_part2;
+    
+    bitfields 32 {
+        uint16 VL                       @ [31:16];
+        uint16 DEST_UDP                 @ [15:0];
+    } cam_data_part3;
+}
+
+data analyse_cfg_cam analyse_cfg_cam_array[ANALYSE_CFG_CAM_MAX_SIZE];
+data uint32 analyse_cfg_cam_index;  
+
+struct analyse_cfg_ram {
+    bitfields 11 {
+        uint6  RETENTION                @ [10:5];
+        uint1  NETWORK_B_ENABLE         @ [3:3];
+        uint1  NETWORK_A_ENABLE         @ [2:2];
+        uint2  PORT_TYPE                @ [1:0];   
+    } ram_data;
+}
+
+data analyse_cfg_ram analyse_cfg_ram_array[ANALYSE_CFG_RAM_MAX_SIZE];
+/////////////////////////////////////  analyse_cfg_cam  end  //////////////////////////////////////
+
+
+
+/////////////////////////////////////  transmit_cfg_ram  begin  //////////////////////////////////////
+constant TRANSMIT_CFG_RAM_MAX_SIZE = 1024;
+
+struct transmit_cfg_ram {
+	bitfields 29 {
+	    uint8  PRIVATE_IP               @ [28:21];      // [138:131]
+	    uint2  USER_DEFINED_ID_H        @ [20:19];     // [130:129]
+		uint14 USER_DEFINED_ID_L        @ [18:5];       // [128:115]
+		uint5  PARTITION_ID             @ [4:0];       // [114: 110] 
+	} ram_data_part4;
+    bitfields 44 {
+        uint6  RETENTION                @ [43:38];     // [109:104]
+        uint2  PORT_TYPE                @ [37:36];     // [103:102]
+        uint11 MIN_FRAME_LENGTH         @ [35:25];      // [101:91]   
+        uint1  IP_MULTICAST             @ [24:24];     // [90:90]
+        uint8  VL_INDEX                 @ [23:16];     // [89:82]
+        uint16 VL_ID                    @ [15:0];      // [81:66]   
+    } ram_data_part1; 
+
+    bitfields 32 {
+        uint16 USER_DEFINED_ID          @ [31:16];     // [65:50]
+        uint8  PROTOCAL_ID              @ [15:8];      // [49:42]
+        uint3  INTERFACE_ID             @ [7:5];       // [41:39]
+        uint5  PARTITION_ID             @ [4:0];       // [38:34]   
+    } ram_data_part2;
+
+    bitfields 34 {
+        uint16 SOURCE_UDP_PORT          @ [33:18];
+        uint16 DEST_UDP_PORT            @ [17:2];
+        uint2  SUB_VL_ID                @ [1:0];   
+    } ram_data_part3;
+}
+
+
+data transmit_cfg_ram transmit_cfg_ram_array[TRANSMIT_CFG_RAM_MAX_SIZE];
+/////////////////////////////////////  transmit_cfg_ram  end  //////////////////////////////////////
+
+
+/////////////////////////////////////  scheduling_cfg_ram  begin  //////////////////////////////////////
+constant SCHEDULING_CFG_RAM_MAX_SIZE = 128;
+
+struct scheduling_cfg_ram {
+    uint17 BAG; 
+}
+
+data scheduling_cfg_ram scheduling_cfg_ram_array[SCHEDULING_CFG_RAM_MAX_SIZE];
+/////////////////////////////////////  scheduling_cfg_ram  end  //////////////////////////////////////
+
+
+/////////////////////////////////////  rm_cfg_cam  begin  //////////////////////////////////////
+constant RM_CFG_CAM_MAX_SIZE = 128;
+constant RM_CFG_RAM_MAX_SIZE = 128;
+
+struct rm_cfg_cam {    
+    physical_address_t address;
+    uint16 VL_ID;
+}
+
+data rm_cfg_cam rm_cfg_cam_array[RM_CFG_CAM_MAX_SIZE];
+data uint32 rm_cfg_cam_index;  
+
+
+struct rm_cfg_ram {
+    bitfields 27 {
+        uint1  VL_ENABLE                @ [26:26];
+        uint21 SKEW_MAX                 @ [25:5];
+        uint1  RM_ENABLE                @ [4:4];
+        uint1  NETWORK_B_IC_ENABLE      @ [3:3];
+        uint1  NETWORK_A_IC_ENABLE      @ [2:2];
+        uint1  NETWORK_B_ENABLE         @ [1:1];
+        uint1  NETWORK_A_ENABLE         @ [0:0];
+    } ram_data;
+}
+
+data rm_cfg_ram rm_cfg_ram_array[RM_CFG_RAM_MAX_SIZE];
+/////////////////////////////////////  rm_cfg_cam  end  //////////////////////////////////////
+
+
+/////////////////////////////////////  fragment_cfg_ram  begin  //////////////////////////////////////
+constant FRAGMENT_CFG_RAM_MAX_SIZE = 1024;
+
+struct fragment_cfg_ram {
+   uint11 MAX_FRAME_LENGTH;
+}
+
+
+data fragment_cfg_ram fragment_cfg_ram_array[FRAGMENT_CFG_RAM_MAX_SIZE];
+/////////////////////////////////////  fragment_cfg_ram  end  //////////////////////////////////////
+

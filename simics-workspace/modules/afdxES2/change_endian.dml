@@ -1,0 +1,55 @@
+dml 1.2;
+
+method change_endian(uint8 *buffer,uint32 size)
+{
+    local uint32 constant_field;
+    local uint16 vl_id;
+    local uint16 user_define_id;
+    local uint16 ipv4;
+    local uint16 total_length;
+    local uint16 fragment_id;
+    local uint16 control_flag;
+    local uint16 ip_head_checksum;
+    local uint32 ip_src_addr;
+    local uint32 ip_dest_addr;
+    local uint16 udp_src_addr;
+    local uint16 udp_dest_addr;
+    local uint16 udp_length;
+    local uint16 udp_checksum;
+    
+    constant_field = *cast(buffer,uint32*);
+    ip_src_addr = *cast(buffer+26,uint32*);
+    ip_dest_addr = *cast(buffer+30,uint32*);
+    vl_id = *cast(buffer+4,uint16*);
+    user_define_id= *cast(buffer+9,uint16*);
+    ipv4= *cast(buffer+12,uint16*);
+    total_length= *cast(buffer+16,uint16*);
+    fragment_id= *cast(buffer+18,uint16*);
+    control_flag= *cast(buffer+20,uint16*);
+    ip_head_checksum= *cast(buffer+24,uint16*);
+    udp_src_addr= *cast(buffer+34,uint16*);
+    udp_dest_addr= *cast(buffer+36,uint16*);
+    udp_length= *cast(buffer+38,uint16*);
+    udp_checksum= *cast(buffer+40,uint16*);
+
+    STORE_BE32(cast(buffer,uint32*),constant_field);
+    STORE_BE32(cast(buffer+26,uint32*),ip_src_addr);
+    STORE_BE32(cast(buffer+30,uint32*),ip_dest_addr);
+    STORE_BE16(cast(buffer+4,uint16*),vl_id);
+    STORE_BE16(cast(buffer+9,uint16*),user_define_id);
+    STORE_BE16(cast(buffer+12,uint16*),ipv4);
+    STORE_BE16(cast(buffer+16,uint16*),total_length);
+    STORE_BE16(cast(buffer+18,uint16*),fragment_id);
+    STORE_BE16(cast(buffer+20,uint16*),control_flag);
+    STORE_BE16(cast(buffer+24,uint16*),ip_head_checksum);
+    STORE_BE16(cast(buffer+34,uint16*),udp_src_addr);
+    STORE_BE16(cast(buffer+36,uint16*),udp_dest_addr);
+    STORE_BE16(cast(buffer+38,uint16*),udp_length);
+    STORE_BE16(cast(buffer+40,uint16*),udp_checksum);
+	/*
+	local uint8 temp;
+	temp=*cast(buffer+27,uint8*);
+	*cast(buffer+27,uint8*)=*cast(buffer+28,uint8*);
+	*cast(buffer+28,uint8*)=temp;
+	*/
+}

@@ -1,0 +1,136 @@
+dml 1.2;
+
+import "utility.dml";
+import "io-memory.dml";
+import "pci-register.dml";
+import "simics/devs/memory-space.dml";
+import "ethernet.dml";                       // Ethernet common definitions
+import "ieee-802-3.dml";                     // Communications with PHY
+import "simics/devs/mii.dml";                // MII management bus
+import "packet-frame.dml";
+
+//start DMA from PCI memory space to local space
+method transmit() {
+    if ($pci9056.dmacsr1.dma1e == 1 && $pci9056.dmadpr1.dmad1 == 0 && $pci9056.dmasiz1.siz1 != 0) {
+        // Yes to transmit
+        // read from pci memeory space
+        local exception_type_t ex;
+        local exception_type_t exn;
+        local dbuffer_t *dbuf = new_dbuffer();  // new a buf
+        log "info",2,0: "tr new a dbuf";
+        local uint8 *buf;
+		local uint32 i;
+        log "info",2,0: "tr new a buf";
+        local physical_address_t length;
+        log "info",2,0: "tr new a length";
+        length = $pci9056.dmasiz1.siz1;  // required by the method of access_simple
+        log "info",2,0: "tr set length";
+        buf = dbuffer_append(dbuf, length); // buf is the address of dbuf
+        log "info",2,0: "tr set buf";
+        call $pci_data_from_memory(Sim_Addr_Space_Memory,
+                                    buf,
+                                    $pci9056.dmapadr1.padr1,
+                                    $pci9056.dmasiz1.siz1) -> (ex);
+        log "info",2,0: " tr read from pci memory space";
+        if (ex != Sim_PE_No_Exception) {
+            throw;
+            log "error": "tr Read data from memory fail";
+        }
+        /*
+		log "info",2,0: "wrap frame";
+        // the name of connector line 90 add ".memory_space.asscee_simple()"
+        exn = $local_space.memory_space.access_simple($dev.obj,
+                                                $pci9056.dmaladr1.ladr1,
+                                                buf,
+                                                length,
+                                                Sim_RW_Write,Sim_Endian_Target);
+        log "info",2,0: "tr wirte to local space";
+    
+        if (exn != Sim_PE_No_Exception) {
+            log "error": "tr unknown exception (%d) on local space write", cast (exn, int);
+        }
+        */
+        if ($mode == 0) {
+            
+            // for debug begin
+            local uint8 aa = 0;
+            for (; aa < length; ++aa) {
+                log "info" : "The send_buf[%d] = %x", aa, buf[aa];
+            } 
+            log "info" : "The send length is %d", length;
+            // for debug end
+            call $wrapped_frame(buf, length);
+        } else {
+            call $send_to_middleware(buf, length); //  这个地方想一下，是否需要增加一些信息
+        }
+		
+        log "info",2,0: "tr set DMA done status";
+        // set interrupt pin and raise pci interrupt
+        if ($pci9056.dmamode1.die == 1 && $pci9056.intcsr.ie == 1 && $pci9056.intcsr.dma1ie == 1){
+            log "info",2,0: "tr ready to raise pci interrupt";
+           // call $pci_config.pci_raise_interrupt();  //interrrupt mode
+	        $pci9056.loopdmadone = 1;
+	        $pciport.tx_buf_overflow.del_frame_id_valid_bit = 1;
+            log "info",2,0: "tr raise pci interrupt";
+        }
+        else {log "error" : "tr Unable to raise PCI interrupt!";
+        }
+    }
+    else{
+        log "error": "tr Unable to start DMA transmit!";
+    }
+}
+
+// start DMA from local space to PCI memory space
+method receive() {
+    if ($pci9056.dmacsr0.dma0e == 1 && $pci9056.dmadpr0.dmad0 == 1 && $pci9056.dmasiz0.siz0 != 0) {
+        // Yes to receive
+        // read from local space
+        local exception_type_t ex;
+        local exception_type_t exn;
+        local dbuffer_t *dbuf = new_dbuffer();  // new a buf
+        log "info",2,0: "new a dbuf";
+        local uint8 *buf;
+        log "info",2,0: "new a buf";
+        local physical_address_t length;
+        log "info",2,0: "new a length";
+        length = $pci9056.dmasiz0.siz0;   // required by the method of access_simple
+        log "info",2,0: "set length";
+		buf = dbuffer_append(dbuf, length);  // buf is the address of dbuf
+        log "info",2,0: "set buf";
+		
+		
+        
+		// the name of connector line 90 add ".memory_space.asscee_simple()"
+        exn = $local_space.memory_space.access_simple($dev.obj,
+                                                $pci9056.dmaladr0.ladr0,
+                                                buf,
+                                                length,
+                                                Sim_RW_Read,Sim_Endian_Target);
+        log "info",2,0: "read from local space";
+        if (exn != Sim_PE_No_Exception) {
+            log "error": "unknown exception (%d) on local space read", cast (exn, int);
+        }
+        call $pci_data_to_memory(Sim_Addr_Space_Memory,
+                                    buf,
+                                    $pci9056.dmapadr0.padr0,
+                                    $pci9056.dmasiz0.siz0) -> (ex);
+        log "info",2,0: "write to pci memory space";
+        dbuffer_free(dbuf);//free dbuf
+        if (ex != Sim_PE_No_Exception) {
+            throw;
+            log "error": "write data to memory fail";
+        }
+        log "info",2,0: "set DMA done status";
+        // set interrupt pin and raise pci interrupt
+        if ($pci9056.dmamode0.die == 1 && $pci9056.intcsr.ie == 1 && $pci9056.intcsr.dma0ie == 1) {
+            log "info",2,0: "ready to raise pci interrupt";
+            call $pci_config.pci_raise_interrupt();
+            log "info",2,0: "raise pci interrupt";
+        } else {
+            log "error" : "Unable to raise PCI interrupt!";
+        }
+	} else{
+        log "error": "Unable to start DMA receive!";
+  }
+}

@@ -1,0 +1,224 @@
+Wrote or updated C:\Users\Tyrion\simics-workspace\bin\tfdecode.bat
+Wrote or updated C:\Users\Tyrion\simics-workspace\bin\addon-manager.bat
+Wrote or updated C:\Users\Tyrion\simics-workspace\bin\gdb.bat
+Wrote or updated C:\Users\Tyrion\simics-workspace\bin\dmlc.bat
+Wrote or updated C:\Users\Tyrion\simics-workspace\simics.bat
+Wrote or updated C:\Users\Tyrion\simics-workspace\bin\simics.bat
+Wrote or updated C:\Users\Tyrion\simics-workspace\bin\stop-license-server.bat
+Wrote or updated C:\Users\Tyrion\simics-workspace\bin\start-license-server.bat
+Wrote or updated C:\Users\Tyrion\simics-workspace\bin\mini-python.bat
+Wrote or updated C:\Users\Tyrion\simics-workspace\bin\lookup-file.bat
+Wrote or updated C:\Users\Tyrion\simics-workspace\bin\workspace-setup.bat
+Wrote or updated C:\Users\Tyrion\simics-workspace\bin\checkpoint-merge.bat
+Wrote or updated C:\Users\Tyrion\simics-workspace\simics-gui.bat
+Wrote or updated C:\Users\Tyrion\simics-workspace\bin\simics-gui.bat
+Wrote or updated C:\Users\Tyrion\simics-workspace\bin\craff.bat
+Wrote or updated C:\Users\Tyrion\simics-workspace\bin\test-runner.bat
+Wrote or updated C:\Users\Tyrion\simics-workspace\bin\make.bat
+Created directory C:\Users\Tyrion\simics-workspace\targets\common
+Updated directory C:\Users\Tyrion\simics-workspace\targets\common
+Created directory C:\Users\Tyrion\simics-workspace\targets\db64560
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\db64560\db64560-linux-common.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\db64560\db64560-multi-linux.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\db64560\db64560-multi-vxworks-6.1.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\db64560\db64560-vxworks-6.1-common.simics
+Updated directory C:\Users\Tyrion\simics-workspace\targets\common
+Created directory C:\Users\Tyrion\simics-workspace\targets\common_back
+Created directory C:\Users\Tyrion\simics-workspace\targets\sbc7447
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\sbc7447\sbc7447-vxworks-5.5.1.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\sbc7447\sbc7447-vxworks653-2.2.simics
+Created directory C:\Users\Tyrion\simics-workspace\targets\sbc7447_back
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\sbc7447_back\sbc7447-vxworks-5.5.1.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\sbc7447_back\sbc7447-vxworks653-2.2.simics
+Created directory C:\Users\Tyrion\simics-workspace\targets\qoriq-p4
+Updated directory C:\Users\Tyrion\simics-workspace\targets\common
+Created directory C:\Users\Tyrion\simics-workspace\targets\p4080ds
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\p4080ds\p4040ds-linux-common.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\p4080ds\p4080ds-linux-common.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\p4080ds\p4080ds-linux-multi.simics
+Updated directory C:\Users\Tyrion\simics-workspace\targets\qoriq-p4
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\qoriq-p4\p4040ds-linux-common.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\qoriq-p4\p4080ds-hv-2.0-vxworks-6.9.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\qoriq-p4\p4080ds-hv-2.0-wrl-4.3.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\qoriq-p4\p4080ds-linux-common.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\qoriq-p4\p4080ds-linux-multi.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\qoriq-p4\p4080ds-vxworks-6.9.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\qoriq-p4\p4080ds-wrl-4.3.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\qoriq-p4\p4080ds-wrl-5.0.simics
+Created directory C:\Users\Tyrion\simics-workspace\targets\arm-sa1110
+Created directory C:\Users\Tyrion\simics-workspace\targets\demo
+Created directory C:\Users\Tyrion\simics-workspace\targets\ebony
+Created directory C:\Users\Tyrion\simics-workspace\targets\ep8260
+Created directory C:\Users\Tyrion\simics-workspace\targets\mpc8548cds
+Created directory C:\Users\Tyrion\simics-workspace\targets\mpc8572-simple
+Created directory C:\Users\Tyrion\simics-workspace\targets\mpc8572ds
+Created directory C:\Users\Tyrion\simics-workspace\targets\mpc8641-simple
+Created directory C:\Users\Tyrion\simics-workspace\targets\p2020-simple
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\p2020-simple\p2020-simple-linux-ipsec.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\p2020-simple\p2020-simple-linux-rfs.simics
+Updated directory C:\Users\Tyrion\simics-workspace\targets\qoriq-p4
+Updated directory C:\Users\Tyrion\simics-workspace\targets\arm-sa1110
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\arm-sa1110\sa1110-linux-large-common.simics
+Created directory C:\Users\Tyrion\simics-workspace\targets\arm-simple
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\arm-simple\arm-simple-common.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\arm-simple\arm-simple-graphics-driver.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\arm-simple\arm-simple-uart-driver.simics
+Updated directory C:\Users\Tyrion\simics-workspace\targets\common
+Updated directory C:\Users\Tyrion\simics-workspace\targets\demo
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\demo\accelerator-mixed-boot.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\demo\cache-profile-ppc750.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\demo\checkpoint-donut-1p-fb.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\demo\checkpoint-nt-clock.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\demo\ebony-linux-4pci.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\demo\fault-inj-memory.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\demo\multi-boot-common.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\demo\multi-mix-heterogeneity.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\demo\multi-mix-windriver.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\demo\multicore-hang-001-report.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\demo\multicore-hang-002-analysis.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\demo\multicore-hang-003-for-analyzer.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\demo\multicore-hang-004-bug-transportation.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\demo\multicore-rocket-movie.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\demo\pmppc-linux-x3.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\demo\repeatability-ptest.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\demo\router-demo.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\demo\router-demo.with.visualization.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\demo\sample-system-panel.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\demo\speed-arm9-dhry21.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\demo\speed-leon2-dhry21.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\demo\speed-ppc750-fibonacci.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\demo\speed-ppc750-idea.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\demo\speed-sparc-dhry21.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\demo\system-panel-etg.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\demo\system-perfmeter-demo.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\demo\viper-keyboard.simics
+Updated directory C:\Users\Tyrion\simics-workspace\targets\ebony
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\ebony\ebony-multi.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\ebony\ebony-ose-common.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\ebony\ebony-ose-multi.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\ebony\ebony-qnx-6.4.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\ebony\ebony-qnx-common.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\ebony\ebony-threadx-5.1.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\ebony\ebony-vxworks-6.0.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\ebony\ebony-vxworks-6.4.simics
+Updated directory C:\Users\Tyrion\simics-workspace\targets\ep8260
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\ep8260\ep8260-vxworks.simics
+Updated directory C:\Users\Tyrion\simics-workspace\targets\mpc8548cds
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\mpc8548cds\mpc8548cds-linux-freescale-ltib-2006-12-05.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\mpc8548cds\mpc8548cds-ose-common.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\mpc8548cds\mpc8548cds-ose-multi.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\mpc8548cds\mpc8548cds-ubuntu-maverick.simics
+Updated directory C:\Users\Tyrion\simics-workspace\targets\mpc8572-simple
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\mpc8572-simple\mpc8572-simple-vxworks-common.simics
+Updated directory C:\Users\Tyrion\simics-workspace\targets\mpc8572ds
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\mpc8572ds\mpc8572ds-vxworks-6.7.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\mpc8572ds\mpc8572ds-vxworks-common.simics
+Updated directory C:\Users\Tyrion\simics-workspace\targets\mpc8641-simple
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\mpc8641-simple\mpc8641-demo-rocket-movie.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\mpc8641-simple\mpc8641-simple-linux-multi.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\mpc8641-simple\mpc8641-simple-linux.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\mpc8641-simple\mpc8641-simple-wrs-linux.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\mpc8641-simple\mpc8641-ubuntu-lucid.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\mpc8641-simple\mpc8641d-simple-linux-multi.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\mpc8641-simple\mpc8641d-simple-linux.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\mpc8641-simple\mpc8641d-simple-ose-common.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\mpc8641-simple\mpc8641d-simple-qnx-common.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\mpc8641-simple\mpc8641d-simple-vxworks.simics
+Created directory C:\Users\Tyrion\simics-workspace\targets\ppc-simple
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\ppc-simple\ppc-simple-graphics-driver-bad-endian.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\ppc-simple\ppc-simple-graphics-driver.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\ppc-simple\ppc-simple-memtest.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\ppc-simple\ppc-simple-multi.simics
+Updated directory C:\Users\Tyrion\simics-workspace\targets\qoriq-p4
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\qoriq-p4\p4080ds-ubuntu-maverick.simics
+Created directory C:\Users\Tyrion\simics-workspace\targets\serengeti
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\serengeti\sarek-cluster.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\serengeti\sarek-common.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\serengeti\sarek-dhcp-common.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\serengeti\sarek-gcache-common.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\serengeti\sarek-multi.simics
+Created directory C:\Users\Tyrion\simics-workspace\targets\sunfire
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\sunfire\donut-common.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\sunfire\donut-dhcp-common.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\sunfire\donut-fb-common.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\sunfire\donut-gcache-common.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\sunfire\donut-multi.simics
+Created directory C:\Users\Tyrion\simics-workspace\targets\x86-440bx-old
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\x86-440bx-old\drabb.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\x86-440bx-old\dredd-winnt4-common.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\x86-440bx-old\dredd-winxpsp1-common.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\x86-440bx-old\firststeps-1.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\x86-440bx-old\firststeps-common.simics
+Updated directory C:\Users\Tyrion\simics-workspace\targets\common
+Created directory C:\Users\Tyrion\simics-workspace\targets\x86-440bx
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\x86-440bx\caipirinha-common.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\x86-440bx\cosmo-common.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\x86-440bx\cosmo-gcache-common.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\x86-440bx\cosmo-multi.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\x86-440bx\dredd-cd-install1.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\x86-440bx\dredd-cd-install2.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\x86-440bx\dredd-common.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\x86-440bx\dredd-floppy-install.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\x86-440bx\dredd-gcache-common.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\x86-440bx\dredd-pxe-boot.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\x86-440bx\enterprise-common.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\x86-440bx\enterprise-gcache-common.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\x86-440bx\enterprise-multi.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\x86-440bx\grog-common.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\x86-440bx\hippie-common.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\x86-440bx\hippie-gcache-common.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\x86-440bx\tango-common.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\x86-440bx\tango-gcache-common.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\x86-440bx\tango-multi.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\x86-440bx\x86-440bx-vxworks-6.9.2.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\x86-440bx\x86-440bx-wrlinux-4.3-pc-64.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\x86-440bx\x86-440bx-wrlinux-4.3-pc.simics
+Created directory C:\Users\Tyrion\simics-workspace\targets\qsp-ppc
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\qsp-ppc\qsp-linux-multi.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\qsp-ppc\qsp-linux.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\qsp-ppc\qsp-system-panel-example.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\qsp-ppc\qsp-vxworks-multi.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\qsp-ppc\qsp-vxworks.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\qsp-ppc\qsp-wrl4.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\qsp-ppc\qsp-wrl5.simics
+Created directory C:\Users\Tyrion\simics-workspace\targets\leon2-simple
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\leon2-simple\leon2-simple-multi.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\leon2-simple\leon2-simple-rtems.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\leon2-simple\leon2-simple.simics
+Created directory C:\Users\Tyrion\simics-workspace\targets\tms320c64
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\tms320c64\dsk6416-common.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\tms320c64\dsk6416-selftest.simics
+Created directory C:\Users\Tyrion\simics-workspace\targets\sbc8240
+Updated directory C:\Users\Tyrion\simics-workspace\targets\common
+Updated directory C:\Users\Tyrion\simics-workspace\targets\sbc8240
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\sbc8240\sbc8240-uboot-multi.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\sbc8240\sbc8240-uboot.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\sbc8240\sbc8240-vxworks55-multi.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\sbc8240\sbc8240-vxworks55.simics
+Updated directory C:\Users\Tyrion\simics-workspace\targets\common
+Created directory C:\Users\Tyrion\simics-workspace\targets\sbc750gx
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\sbc750gx\sbc750gx-vxworks-common.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\sbc750gx\sbc750gx-vxworks-host-serial.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\sbc750gx\sbc750gx-vxworks-multi.simics
+Updated directory C:\Users\Tyrion\simics-workspace\targets\common
+Updated directory C:\Users\Tyrion\simics-workspace\targets\mpc8641-simple
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\mpc8641-simple\firststeps.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\mpc8641-simple\mpc8641-simple-linux-2.6.34-common.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\mpc8641-simple\mpc8641-simple-linux-2.6.34-multi.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\mpc8641-simple\mpc8641-simple-linux-dec21140a-dml.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\mpc8641-simple\mpc8641-simple-u-boot.simics
+Updated directory C:\Users\Tyrion\simics-workspace\targets\ppc-simple
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\ppc-simple\ppc-simple-440gp-common.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\ppc-simple\ppc-simple-common.simics
+Created directory C:\Users\Tyrion\simics-workspace\targets\sample
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\sample\sample-linux-common.simics
+Created directory C:\Users\Tyrion\simics-workspace\targets\vacuum
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\vacuum\vacuum.simics
+Created directory C:\Users\Tyrion\simics-workspace\targets\cosim
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\cosim\queues-in-cosimulator.simics
+Updated directory C:\Users\Tyrion\simics-workspace\targets\vacuum
+Wrote or updated C:\Users\Tyrion\simics-workspace\targets\vacuum\vacuum.simics
+Wrote or updated C:\Users\Tyrion\simics-workspace\compiler.mk
+Wrote or updated C:\Users\Tyrion\simics-workspace\config.mk
+Wrote or updated C:\Users\Tyrion\simics-workspace\GNUmakefile
+Workspace created successfully

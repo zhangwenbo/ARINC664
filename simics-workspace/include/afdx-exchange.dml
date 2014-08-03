@@ -1,0 +1,12 @@
+dml 1.2;
+
+
+
+typedef struct {
+	void (*send_frame)(conf_object_t *obj, uint8 *data, uint32 size);
+	//void (*receive_frame)(conf_object_t *obj, int phy, const frags_t *frame, int crc_ok);
+} data_exchange_interface_t;
+
+typedef struct {
+    void (*config_mac_mode)(conf_object_t *obj, uint32 max_bandwidth);
+} config_mac_mode_interface_t;
