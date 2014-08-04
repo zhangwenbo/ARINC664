@@ -1,0 +1,43 @@
+dml 1.2;
+
+import "packet-description.dml";
+
+struct Upd_Header_Log {
+    uint2 port_type;
+    uint16 source_udp_port;
+    uint16 dest_udp_port;
+    Udp_Header_Structure *udp_header_structure;
+}
+    
+method print_udp_header(Upd_Header_Log *udp_header_log) {
+    log "info" : "=====================udp packet========================";	
+    log "info" : "port_type = %x", udp_header_log->port_type;	
+    log "info" : "source_udp_port = %x", udp_header_log->source_udp_port;	
+    log "info" : "dest_udp_port = %x", udp_header_log->dest_udp_port;	
+    log "info" : "udp_header_structure->UDP_SOURCE_ADDRESS = %x", udp_header_log->udp_header_structure->UDP_SOURCE_ADDRESS;	
+    log "info" : "udp_header_structure->UDP_DESTINATION_ADDRESS = %x", udp_header_log->udp_header_structure->UDP_DESTINATION_ADDRESS ;	
+    log "info" : "udp_header_structure->UDP_LENGTH = %x", udp_header_log->udp_header_structure->UDP_LENGTH;	
+    log "info" : "udp_header_structure->UDP_CHECKSUM = %x", udp_header_log->udp_header_structure->UDP_CHECKSUM ;	
+    log "info" : "=====================udp packet========================";	
+}
+
+struct IP_Header_Log {
+    uint1 ip_multicast;
+    IP_Header_Structure *ip_header_structure;
+}
+    
+method print_ip_header(IP_Header_Log *ip_header_log) {
+    log "info" : "=====================ip packet========================";	
+    log "info" : "ip_multicast = %d", ip_header_log->ip_multicast;	
+    log "info" : "ip_header_structure->VERSION_IHL=%x", ip_header_log->ip_header_structure->VERSION_IHL;	
+    log "info" : "ip_header_structure->TYPE_OF_SERVICE = %x", ip_header_log->ip_header_structure->TYPE_OF_SERVICE;	
+    log "info" : " ip_header_structure->TOTAL_LENGTH = %x", ip_header_log->ip_header_structure->TOTAL_LENGTH;	
+    log "info" : " ip_header_structure->FRAGMENT_IDENTIFICATION = %x", ip_header_log->ip_header_structure->FRAGMENT_IDENTIFICATION;	
+    log "info" : " ip_header_structure->CONTROL_FRAGMENT = %x", ip_header_log->ip_header_structure->CONTROL_FRAGMENT;	
+    log "info" : " ip_header_structure->TIME_TO_LIVE = %x", ip_header_log->ip_header_structure->TIME_TO_LIVE;	
+    log "info" : " ip_header_structure->PROTOCAL = %x", ip_header_log->ip_header_structure->PROTOCAL;	
+    log "info" : " ip_header_structure->HEADER_CHECKSUM = %x", ip_header_log->ip_header_structure->HEADER_CHECKSUM;	
+    log "info" : " ip_header_structure->IP_SOURCE_ADDRESS = %x", ip_header_log->ip_header_structure->IP_SOURCE_ADDRESS;	
+    log "info" : " ip_header_structure->IP_DESTINATION_ADDRESS = %x", ip_header_log->ip_header_structure->IP_DESTINATION_ADDRESS;	
+    log "info" : "=====================ip packet========================";	    
+}
