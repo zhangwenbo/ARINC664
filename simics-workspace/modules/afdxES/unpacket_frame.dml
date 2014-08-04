@@ -50,7 +50,8 @@ method unpacket_frame(uint8 *buffer,uint32 size)->(RX_MIB rx_mib)
 	T.cam_data_part3.DEST_UDP = dest_udp;
 	//find port through  item group. single has IP dest address ,mulitple hasn't IP dest address
 
-	call $BinarySearchAnalyseCfgCamArray(($analyse_cfg_cam_array), T) -> (port_id); 
+	call $BinarySearchAnalyseCfgCamArray(($analyse_cfg_cam_array), T) -> (port_id);
+    port_id = $analyse_cfg_cam_array[port_id].address;
 	
 	enable_network_A = cast((*(buffer + INTERFACE_ID_ADDR)>>5)&0x1,uint1);
 	enable_network_B = cast((*(buffer + INTERFACE_ID_ADDR)>>6)&0x1,uint1);

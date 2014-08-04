@@ -1,0 +1,15 @@
+dml 1.2;
+
+import "config-tables.dml";
+
+method print_analyse_cfg_cam_table() {
+    local uint8 i = 0;
+    for (; i < $analyse_cfg_cam_index; ++i) {
+        log "info" : "The $analyse_cfg_cam_array[%d].cam_data_part1.RETENTION = %d", i, $analyse_cfg_cam_array[i].cam_data_part1.RETENTION;
+        log "info" : "The $analyse_cfg_cam_array[%d].cam_data_part1.ICMP_TYPE_ID = %d", i, $analyse_cfg_cam_array[i].cam_data_part1.ICMP_TYPE_ID;
+        log "info" : "The $analyse_cfg_cam_array[%d].cam_data_part1.MULTICAST_ID = %d", i, $analyse_cfg_cam_array[i].cam_data_part1.MULTICAST_ID;
+        log "info" : "The $analyse_cfg_cam_array[%d].cam_data_part2.DEST_IP = %d", i, $analyse_cfg_cam_array[i].cam_data_part2.DEST_IP;
+        log "info" : "The $analyse_cfg_cam_array[%d].cam_data_part3.VL = %d", i, $analyse_cfg_cam_array[i].cam_data_part3.VL;
+        log "info" : "The $analyse_cfg_cam_array[%d].cam_data_part3.DEST_UDP = %d", i, $analyse_cfg_cam_array[i].cam_data_part3.DEST_UDP;
+    }
+}

@@ -15,7 +15,7 @@ method BinarySearchAnalyseCfgCamArray(analyse_cfg_cam *array, analyse_cfg_cam T)
     local bool is_bigger;
 
     low = 0;
-	high = ANALYSE_CFG_CAM_MAX_SIZE - 1; // fix me!
+	high = $analyse_cfg_cam_index - 1;
     
 	while (low <= high) {
 		mid = (low + high) / 2;

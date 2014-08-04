@@ -15,7 +15,7 @@ method BinarySearchRMCfgCamArray(rm_cfg_cam *array, rm_cfg_cam T) -> (int result
     local bool is_bigger;
     
 	low = 0;
-	high = RM_CFG_CAM_MAX_SIZE - 1; // fix me
+	high = $rm_cfg_cam_index - 1; // fix me
     
 	while (low <= high)	{
 		mid = (low + high) / 2;

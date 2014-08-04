@@ -3,6 +3,7 @@ dml 1.2;
 import "pci-device.dml";          // Generic PCI device
 import "binary-search.dml";
 import "quick-sort.dml";
+import "log.dml";
 
 // Basic bank declaration
 bank pci_config {
@@ -1348,10 +1349,12 @@ bank pciport{
 		    log "info" ,2: "before write_analyse_cam##########################################################";
 			log "info" ,2:"analyse_cfg_cam_addr =%x",$this;
             //if ($mode == 0) {
-                call $write_analyse_cam();
-                log "info"  ,2: "Method write_analyse_cam has been called";
-                call $QuickSortAnalyseCamArray($analyse_cfg_cam_array);
-                log "info"  ,2: "Method QuickSort has been called";                
+            call $write_analyse_cam();
+            log "info"  ,2: "Method write_analyse_cam has been called";
+            call $QuickSortAnalyseCamArray($analyse_cfg_cam_array);
+            log "info"  ,2: "Method QuickSort has been called";
+            call $print_analyse_cfg_cam_table();
+                
             //} else {
             //    local uint32 length = 4 * 4;
              //   local uint8 *data = new uint8[length];
