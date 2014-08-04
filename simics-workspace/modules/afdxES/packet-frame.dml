@@ -6,6 +6,7 @@ import "constant.dml";
 import "packet-description.dml";
 import "change_endian.dml";
 import "crc.dml";
+import "log.dml";
 
 data bool init_send_time;
 
@@ -31,8 +32,7 @@ method wrapped_frame(uint8 *buffer,uint32 buffer_length)
 	call $send_frame_fragment(&afdx_frame_packet);
 }
 
-method packet_udp_header(Udp_Header_Structure *udp_header_structure)  
-{
+method packet_udp_header(Udp_Header_Structure *udp_header_structure) {
 	local uint2 port_type = 0;
 	local uint16 source_udp_port = 0; 
 	local uint16 dest_udp_port = 0;
@@ -52,16 +52,15 @@ method packet_udp_header(Udp_Header_Structure *udp_header_structure)
 	udp_header_structure->UDP_DESTINATION_ADDRESS = dest_udp_port;
 	udp_header_structure->UDP_LENGTH = UDP_HEADER_LENGTH + $pciport.tx_frame_len.frame_len;  
 	udp_header_structure->UDP_CHECKSUM = 0;
-	log "info" : "=====================udp packet========================";	
-	log "info" : "port_type = %x",port_type;	
-	log "info" : "source_udp_port = %x",source_udp_port;	
-	log "info" : "dest_udp_port = %x",dest_udp_port;	
-	log "info" : "udp_header_structure->UDP_SOURCE_ADDRESS = %x",udp_header_structure->UDP_SOURCE_ADDRESS;	
-	log "info" : "udp_header_structure->UDP_DESTINATION_ADDRESS = %x",udp_header_structure->UDP_DESTINATION_ADDRESS ;	
-	log "info" : "udp_header_structure->UDP_LENGTH = %x",udp_header_structure->UDP_LENGTH;	
-	log "info" : "udp_header_structure->UDP_CHECKSUM =%x",udp_header_structure->UDP_CHECKSUM ;	
-	log "info" : "=====================udp packet========================";	
 
+    if (1) {    // fix me
+        local Upd_Header_Log udp_header_log;
+        udp_header_log.port_type = port_type;
+        udp_header_log.source_udp_port = source_udp_port;
+        udp_header_log.dest_udp_port = dest_udp_port;
+        udp_header_log.udp_header_structure = udp_header_structure;
+        call $print_udp_header(&udp_header_log);
+    }
 }
 
 method packet_ip_header(IP_Header_Structure *ip_header_structure)

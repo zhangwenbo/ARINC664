@@ -1,0 +1,22 @@
+dml 1.2;
+
+import "packet-description.dml";
+
+struct Upd_Header_Log {
+    uint2 port_type;
+    uint16 source_udp_port;
+    uint16 dest_udp_port;
+    Udp_Header_Structure *udp_header_structure;
+}
+    
+method print_udp_header(Upd_Header_Log *udp_header_log) {
+	log "info" : "=====================udp packet========================";	
+	log "info" : "port_type = %x", udp_header_log->port_type;	
+	log "info" : "source_udp_port = %x", udp_header_log->source_udp_port;	
+	log "info" : "dest_udp_port = %x", udp_header_log->dest_udp_port;	
+	log "info" : "udp_header_structure->UDP_SOURCE_ADDRESS = %x", udp_header_log->udp_header_structure->UDP_SOURCE_ADDRESS;	
+	log "info" : "udp_header_structure->UDP_DESTINATION_ADDRESS = %x", udp_header_log->udp_header_structure->UDP_DESTINATION_ADDRESS ;	
+	log "info" : "udp_header_structure->UDP_LENGTH = %x", udp_header_log->udp_header_structure->UDP_LENGTH;	
+	log "info" : "udp_header_structure->UDP_CHECKSUM =%x", udp_header_log->udp_header_structure->UDP_CHECKSUM ;	
+	log "info" : "=====================udp packet========================";	
+}

@@ -238,8 +238,9 @@ implement Send_To_RDC {
 		log "info" : "called by ARINC664 2";
 		log "info" : "The dest_udp is %d", dest_udp;
         // for test begin
-       // $ARINC664_2.Send_To_A664.send_to_A664(0, data, length);/*用于自环测试*/
-        
+       $ARINC664_2.Send_To_A664.send_to_A664(0, data, length);/*用于自环测试*/
+       return;
+       // for test end
 		local uint32 i;
 		for(i=0;i<length;i++) 
 			log "info":"data[%d] = %d",i,*cast(&data[i],uint8*);
