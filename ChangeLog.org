@@ -1,0 +1,9 @@
+# -*- org -*-
+
+# Time-stamp: <2014-08-04 16:33:56 Monday by tyrion>
+
+#+OPTIONS: ^:nil author:nil timestamp:nil creator:nil
+
+2014-08-04
+重构
+1、对afdxES/binary-search.dml文件进行重构，添加函数参数和返回值说明，修改返回值，使函数功能专一，遗留问题:由于返回值大含义已经修改，因此调用此函数的地方需要做相应大修改；
