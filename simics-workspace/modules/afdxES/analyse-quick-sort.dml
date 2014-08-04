@@ -1,0 +1,93 @@
+dml 1.2;
+
+import "config-tables.dml";
+
+method is_bigger_analyse_(analyse_cfg_cam pivotkey, analyse_cfg_cam *L, int position) -> (bool result) {
+    if (cast(L[position].cam_data_part1, uint28) > cast(pivotkey.cam_data_part1, uint28)) 
+        result = false;
+    else if (cast(L[position].cam_data_part1, uint28) < cast(pivotkey.cam_data_part1, uint28))
+        result = true;
+    else 
+    {
+        if (cast(L[position].cam_data_part2, uint32) > cast(pivotkey.cam_data_part2, uint32)) 
+            result = false;
+        else if (cast(L[position].cam_data_part2, uint32) < cast(pivotkey.cam_data_part2, uint32)) 
+            result = true;
+        else 
+        {
+            if (cast(L[position].cam_data_part3, uint32) >= cast(pivotkey.cam_data_part3, uint32)) 
+                result = false;
+            else 
+                result = true;
+        }
+    }
+    
+}
+
+method is_smaller_analyse_(analyse_cfg_cam pivotkey, analyse_cfg_cam *L, int position) -> (bool result) {
+    if (cast(pivotkey.cam_data_part1, uint28) < cast(L[position].cam_data_part1, uint28)) {
+        result = true;
+    } else if (cast(pivotkey.cam_data_part1, uint28) == cast(L[position].cam_data_part1, uint28)) {
+        if (cast(pivotkey.cam_data_part2, uint32) < cast(L[position].cam_data_part2, uint32)) {
+            result = true;
+        } else if (cast(pivotkey.cam_data_part2, uint32) == cast(L[position].cam_data_part2, uint32)) {
+            if (cast(pivotkey.cam_data_part3, uint32) < cast(L[position].cam_data_part3, uint32))  {
+                result = true;
+            } else {
+                result = false;
+            }
+        } else {
+            result = false;
+        }
+    } else {
+        result = false;
+    }
+}
+		
+method swap_analyse_cam_array_item(analyse_cfg_cam *L, int low, int high) {
+    local analyse_cfg_cam tmp = L[low];
+    L[low] = L[high];
+    L[high] = tmp;
+}
+		
+method partition_of_analyse_cam_array(analyse_cfg_cam *L, int low, int high) -> (int position) {
+    local analyse_cfg_cam pivotkey;
+    local bool is_bigger;
+    local bool is_smaller;
+    
+    pivotkey = L[low];
+			
+    while (low < high) {
+        inline $is_bigger_analyse_(pivotkey, L, high) -> (is_bigger);
+        while ((low < high) && !is_bigger) {
+            --high;
+            inline $is_bigger_analyse_(pivotkey, L, high) -> (is_bigger);
+        }
+			
+        call $swap_analyse_cam_array_item(L, low, high);
+				
+        inline $is_smaller_analyse_(pivotkey, L, low) -> (is_smaller);
+        while ((low < high) && !is_smaller) {
+            ++low;
+            inline $is_smaller_analyse_(pivotkey, L, low) -> (is_smaller);
+        }
+				
+        call $swap_analyse_cam_array_item(L, low, high);				
+    }
+			
+    position = low;
+}
+		
+method qsort_analyse_cam_array(analyse_cfg_cam *L, int low, int high) {
+    local int pivot;
+			
+    if (low < high) {
+        call $partition_of_analyse_cam_array(L, low, high) -> (pivot);
+        call $qsort_analyse_cam_array(L, low, pivot - 1);
+        call $qsort_analyse_cam_array(L, pivot + 1, high);
+    }		
+}
+		
+method QuickSortAnalyseCamArray(analyse_cfg_cam *L) {
+    call $qsort_analyse_cam_array(L, 0, $analyse_cfg_cam_index - 1);
+}

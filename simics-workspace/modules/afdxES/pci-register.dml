@@ -1,6 +1,9 @@
 dml 1.2;
 
-import "pci-device.dml";          // Generic PCI device   
+import "pci-device.dml";          // Generic PCI device
+import "binary-search.dml";
+import "quick-sort.dml";
+
 // Basic bank declaration
 bank pci_config {
     // List of base address registers used by the device
@@ -1347,7 +1350,7 @@ bank pciport{
             //if ($mode == 0) {
                 call $write_analyse_cam();
                 log "info"  ,2: "Method write_analyse_cam has been called";
-                call $QuickSort($analyse_cfg_cam_array);
+                call $QuickSortAnalyseCamArray($analyse_cfg_cam_array);
                 log "info"  ,2: "Method QuickSort has been called";                
             //} else {
             //    local uint32 length = 4 * 4;
@@ -1390,103 +1393,7 @@ bank pciport{
             }
         } 
 		
-		method is_bigger(analyse_cfg_cam *L, int position, analyse_cfg_cam pivotkey) -> (bool result) 
-		{
-			if (cast(L[position].cam_data_part1, uint28) > cast(pivotkey.cam_data_part1, uint28)) 
-				result = true;
-			else if (cast(L[position].cam_data_part1, uint28) < cast(pivotkey.cam_data_part1, uint28)) 
-				result = false;
-			else 
-			{
-				if (cast(L[position].cam_data_part2, uint32) > cast(pivotkey.cam_data_part2, uint32)) 
-					result = true;
-				else if (cast(L[position].cam_data_part2, uint32) < cast(pivotkey.cam_data_part2, uint32)) 
-					result = false;
-				else 
-				{
-					if (cast(L[position].cam_data_part3, uint32) >= cast(pivotkey.cam_data_part3, uint32)) 
-						result = true;
-					else
-						result = false;
-				}
-			}
-		}
-		
-		method is_smaller(analyse_cfg_cam *L, int position, analyse_cfg_cam pivotkey) -> (bool result) 
-		{
-			if (cast(L[position].cam_data_part1, uint28) > cast(pivotkey.cam_data_part1, uint28)) 
-				result = false;
-			else if (cast(L[position].cam_data_part1, uint28) < cast(pivotkey.cam_data_part1, uint28))
-				result = true;
-			else 
-			{
-				if (cast(L[position].cam_data_part2, uint32) > cast(pivotkey.cam_data_part2, uint32)) 
-					result = false;
-				else if (cast(L[position].cam_data_part2, uint32) < cast(pivotkey.cam_data_part2, uint32)) 
-					result = true;
-				else 
-				{
-					if (cast(L[position].cam_data_part3, uint32) >= cast(pivotkey.cam_data_part3, uint32)) 
-						result = false;
-					else 
-						result = true;
-				}
-			}
-		}
-		
-		method swap(analyse_cfg_cam *L, int low, int high) 
-		{
-			local analyse_cfg_cam tmp = L[low];
-			L[low] = L[high];
-			L[high] = tmp;
-		}
-		
-		method Partition(analyse_cfg_cam *L, int low, int high) -> (int position) 
-		{
-			local analyse_cfg_cam pivotkey;
-			pivotkey = L[low];
-			
-			while (low < high) 
-			{
-			    local bool compare_result;
-			    inline $is_bigger(L, high, pivotkey) -> (compare_result);
-				while ((low < high) && compare_result) 
-				{
-					--high;
-					inline $is_bigger(L, high, pivotkey) -> (compare_result);
-				}
-			
-				call $swap(L, low, high);
-				
-				inline $is_smaller(L, low, pivotkey) -> (compare_result);
-				while ((low < high) && compare_result) 
-				{
-				    ++low;
-					inline $is_smaller(L, low, pivotkey) -> (compare_result);
-				}
-				
-				call $swap(L, low, high);				
-			}
-			
-			position = low;
-		}
-		
-		method QSort(analyse_cfg_cam *L, int low, int high) 
-		{
-			local int pivot;
-			
-			if (low < high) 
-			{
-				call $Partition(L, low, high) -> (pivot);
-				call $QSort(L, low, pivot - 1);
-			    call $QSort(L, pivot + 1, high);
-			}		
-		}
-		
-		method QuickSort(analyse_cfg_cam *L) 
-		{
-	        call $QSort(L, 0, $analyse_cfg_cam_index - 1);
-        }
+
     }
     
     register analyse_cfg_ram_addr 
@@ -1681,7 +1588,7 @@ bank pciport{
                 log "info" ,2:"rm_cfg_cam_addr";
                 log "info", 2:"rm_cfg_cam_addr = %x",$this;
                 call $write_rm_cam();
-                call $QuickSort($rm_cfg_cam_array);
+                call $QuickSortRMCamArray($rm_cfg_cam_array);
                 // call $print_transfer_table();                
             //} else {
             //    local uint32 length = 4 * 2;
@@ -1698,82 +1605,6 @@ bank pciport{
 		{
             $rm_cfg_cam_array[$rm_cfg_cam_index].VL_ID = $rm_cfg_cam_data.VL_ID;
             $rm_cfg_cam_index++;
-        }
-		
-		method is_bigger(rm_cfg_cam *L, int position, rm_cfg_cam pivotkey) -> (bool result) 
-		{
-			if (L[position].VL_ID >= pivotkey.VL_ID) 
-			{
-				result = true;
-			} else 
-			{
-				result = false;
-			} 
-		}
-		
-		method is_smaller(rm_cfg_cam *L, int position, rm_cfg_cam pivotkey) -> (bool result) 
-		{
-			if (L[position].VL_ID >= pivotkey.VL_ID) 
-			{
-				result = false;
-			} else  
-			{
-				result = true;
-			}
-		}
-		
-		method swap(rm_cfg_cam *L, int low, int high) 
-		{
-			local rm_cfg_cam tmp = L[low];
-			L[low] = L[high];
-			L[high] = tmp;
-		}
-		
-		method Partition(rm_cfg_cam *L, int low, int high) -> (int position) 
-		{
-			local rm_cfg_cam pivotkey;
-			pivotkey = L[low];
-			
-			while (low < high) 
-			{
-			    local bool compare_result;
-			    inline $is_bigger(L, high, pivotkey) -> (compare_result);
-				while ((low < high) && compare_result) 
-				{
-					--high;
-					inline $is_bigger(L, high, pivotkey) -> (compare_result);
-				}
-			
-				call $swap(L, low, high);
-				
-				inline $is_smaller(L, low, pivotkey) -> (compare_result);
-				while ((low < high) && compare_result) 
-				{
-				    ++low;
-					inline $is_smaller(L, low, pivotkey) -> (compare_result);
-				}
-				
-				call $swap(L, low, high);				
-			}
-			
-			position = low;
-		}
-		
-		method QSort(rm_cfg_cam *L, int low, int high) 
-		{
-			local int pivot;
-			
-			if (low < high) 
-			{
-				call $Partition(L, low, high) -> (pivot);
-				call $QSort(L, low, pivot - 1);
-			    call $QSort(L, pivot + 1, high);
-			}		
-		}
-		
-		method QuickSort(rm_cfg_cam *L) 
-		{
-	        call $QSort(L, 0, $rm_cfg_cam_index - 1);
         }
     }
 

@@ -1,0 +1,87 @@
+dml 1.2;
+
+import "config-tables.dml";
+
+//
+// The first parameter is the array looked for
+// The second parameter is the key to search
+// Return the position of the key in the array, if the key not in the array, return -1
+// 
+method BinarySearchAnalyseCfgCamArray(analyse_cfg_cam *array, analyse_cfg_cam T) -> (int result) {
+	local int32 low;
+    local int32 high;
+    local int32 mid;
+    local bool is_smaller;
+    local bool is_bigger;
+
+    low = 0;
+	high = ANALYSE_CFG_CAM_MAX_SIZE - 1; // fix me!
+    
+	while (low <= high) {
+		mid = (low + high) / 2;
+		inline $is_smaller_analyse(T, array, mid) -> (is_smaller);
+		if (is_smaller) {
+			high = mid - 1;
+		} else {
+			inline $is_bigger_analyse(T, array, mid) -> (is_bigger);
+			if (is_bigger) {
+				low = mid + 1;
+			} else {
+			    result = mid;
+                return;
+		    }
+		}
+	}
+    
+	result = -1;
+}
+
+//
+// if pivotkey > L[position] return true, else return false
+// 
+method is_bigger_analyse(analyse_cfg_cam pivotkey, analyse_cfg_cam *L, int position) -> (bool result) {
+    if (pivotkey.cam_data_part1.MULTICAST_ID == 0) { // unicast
+        if (cast(pivotkey.cam_data_part2, uint32) > cast(L[position].cam_data_part2, uint32)) {
+            result = true;
+        } else if (cast(pivotkey.cam_data_part2, uint32) == cast(L[position].cam_data_part2, uint32)) {
+            if (cast(pivotkey.cam_data_part3, uint32) > cast(L[position].cam_data_part3, uint32)) {
+                result = true;
+            } else {
+                result = false;
+            }
+        } else {
+            result = false;
+        }
+    } else {                    // multicast
+        if (cast(pivotkey.cam_data_part3, uint32) > cast(L[position].cam_data_part3, uint32)) {
+            result = true;
+        } else {
+            result = false;
+        }
+    }
+}
+
+//
+// if pivotkey < L[position] return true, else return false
+//
+method is_smaller_analyse(analyse_cfg_cam pivotkey, analyse_cfg_cam *L, int position) -> (bool result) {
+    if (pivotkey.cam_data_part1.MULTICAST_ID == 0) { // unicast
+        if (cast(pivotkey.cam_data_part2, uint32) < cast(L[position].cam_data_part2, uint32)) {
+            result = true;
+        } else if (cast(pivotkey.cam_data_part2, uint32) == cast(L[position].cam_data_part2, uint32)) {
+            if (cast(pivotkey.cam_data_part3, uint32) < cast(L[position].cam_data_part3, uint32)) {
+                result = true;
+            } else {
+                result = false;
+            }
+        } else {
+            result = false;
+        }
+    } else {                    // multicast
+        if (cast(pivotkey.cam_data_part3, uint32) < cast(L[position].cam_data_part3, uint32)) {
+            result = true;
+        } else {
+            result = false;
+        }
+    }
+}
