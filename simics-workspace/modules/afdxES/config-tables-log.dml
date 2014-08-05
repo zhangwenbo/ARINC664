@@ -2,14 +2,83 @@ dml 1.2;
 
 import "config-tables.dml";
 
+
 method print_analyse_cfg_cam_table() {
-    local uint8 i = 0;
+    local uint32 i = 0;
     for (; i < $analyse_cfg_cam_index; ++i) {
-        log "info" : "The $analyse_cfg_cam_array[%d].cam_data_part1.RETENTION = %d", i, $analyse_cfg_cam_array[i].cam_data_part1.RETENTION;
-        log "info" : "The $analyse_cfg_cam_array[%d].cam_data_part1.ICMP_TYPE_ID = %d", i, $analyse_cfg_cam_array[i].cam_data_part1.ICMP_TYPE_ID;
-        log "info" : "The $analyse_cfg_cam_array[%d].cam_data_part1.MULTICAST_ID = %d", i, $analyse_cfg_cam_array[i].cam_data_part1.MULTICAST_ID;
-        log "info" : "The $analyse_cfg_cam_array[%d].cam_data_part2.DEST_IP = %d", i, $analyse_cfg_cam_array[i].cam_data_part2.DEST_IP;
-        log "info" : "The $analyse_cfg_cam_array[%d].cam_data_part3.VL = %d", i, $analyse_cfg_cam_array[i].cam_data_part3.VL;
-        log "info" : "The $analyse_cfg_cam_array[%d].cam_data_part3.DEST_UDP = %d", i, $analyse_cfg_cam_array[i].cam_data_part3.DEST_UDP;
+        log "info" : "The $analyse_cfg_cam_array[%d].cam_data_part1.RETENTION = %x", i, $analyse_cfg_cam_array[i].cam_data_part1.RETENTION;
+        log "info" : "The $analyse_cfg_cam_array[%d].cam_data_part1.ICMP_TYPE_ID = %x", i, $analyse_cfg_cam_array[i].cam_data_part1.ICMP_TYPE_ID;
+        log "info" : "The $analyse_cfg_cam_array[%d].cam_data_part1.MULTICAST_ID = %x", i, $analyse_cfg_cam_array[i].cam_data_part1.MULTICAST_ID;
+        log "info" : "The $analyse_cfg_cam_array[%d].cam_data_part2.DEST_IP = %x", i, $analyse_cfg_cam_array[i].cam_data_part2.DEST_IP;
+        log "info" : "The $analyse_cfg_cam_array[%d].cam_data_part3.VL = %x", i, $analyse_cfg_cam_array[i].cam_data_part3.VL;
+        log "info" : "The $analyse_cfg_cam_array[%d].cam_data_part3.DEST_UDP = %x", i, $analyse_cfg_cam_array[i].cam_data_part3.DEST_UDP;
+    }
+}
+
+method print_analyse_cfg_ram_table() {
+    local uint32 i = 0;
+    for (; i < $analyse_cfg_ram_index; ++i) {
+        log "info" : "The $analyse_cfg_ram_array[%d].RETENTION = %x", i, $analyse_cfg_ram_array[i].RETENTION;
+        log "info" : "The $analyse_cfg_ram_array[%d].NETWORK_B_ENABLE = %x", i, $analyse_cfg_ram_array[i].NETWORK_B_ENABLE;
+        log "info" : "The $analyse_cfg_ram_array[%d].NETWORK_A_ENABLE = %x", i, $analyse_cfg_ram_array[i].NETWORK_A_ENABLE;
+        log "info" : "The $analyse_cfg_ram_array[%d].PORT_TYPE = %x", i, $analyse_cfg_ram_array[i].PORT_TYPE;                        
+    }
+}
+
+method print_transmit_cfg_ram_table() {
+    local uint32 i = 0;
+    for (; i < $transmit_cfg_ram_index; ++i) {
+        log "info" : "$transmit_cfg_ram_array[%d].ram_data_part4.PRIVATE_IP = %x", i, $transmit_cfg_ram_array[i].ram_data_part4.PRIVATE_IP;
+        log "info" : "$transmit_cfg_ram_array[%d].ram_data_part4.USER_DEFINED_ID_H = %x", i, $transmit_cfg_ram_array[i].ram_data_part4.USER_DEFINED_ID_H;
+        log "info" : "$transmit_cfg_ram_array[%d].ram_data_part4.USER_DEFINED_ID_L = %x", i, $transmit_cfg_ram_array[i].ram_data_part4.USER_DEFINED_ID_L;
+        log "info" : "$transmit_cfg_ram_array[%d].ram_data_part4.PARTITION_ID = %x", i, $transmit_cfg_ram_array[i].ram_data_part4.PARTITION_ID;
+        log "info" : "$transmit_cfg_ram_array[%d].ram_data_part1.RETENTION = %x", i, $transmit_cfg_ram_array[i].ram_data_part1.RETENTION;
+        log "info" : "$transmit_cfg_ram_array[%d].ram_data_part1.PORT_TYPE = %x", i, $transmit_cfg_ram_array[i].ram_data_part1.PORT_TYPE;
+        log "info" : "$transmit_cfg_ram_array[%d].ram_data_part1.MIN_FRAME_LENGTH = %x", i, $transmit_cfg_ram_array[i].ram_data_part1.MIN_FRAME_LENGTH;
+        log "info" : "$transmit_cfg_ram_array[%d].ram_data_part1.IP_MULTICAST = %x", i, $transmit_cfg_ram_array[i].ram_data_part1.IP_MULTICAST;
+        log "info" : "$transmit_cfg_ram_array[%d].ram_data_part1.VL_INDEX = %x", i, $transmit_cfg_ram_array[i].ram_data_part1.VL_INDEX;        
+        log "info" : "$transmit_cfg_ram_array[%d].ram_data_part1.VL_ID = %x", i, $transmit_cfg_ram_array[i].ram_data_part1.VL_ID;
+        log "info" : "$transmit_cfg_ram_array[%d].ram_data_part2.USER_DEFINED_ID = %x", i, $transmit_cfg_ram_array[i].ram_data_part2.USER_DEFINED_ID;
+        log "info" : "$transmit_cfg_ram_array[%d].ram_data_part2.PROTOCAL_ID = %x", i, $transmit_cfg_ram_array[i].ram_data_part2.PROTOCAL_ID;
+        log "info" : "$transmit_cfg_ram_array[%d].ram_data_part2.INTERFACE_ID = %x", i, $transmit_cfg_ram_array[i].ram_data_part2.INTERFACE_ID;
+        log "info" : "$transmit_cfg_ram_array[%d].ram_data_part2.PARTITION_ID = %x", i, $transmit_cfg_ram_array[i].ram_data_part2.PARTITION_ID;
+        log "info" : "$transmit_cfg_ram_array[%d].ram_data_part3.SOURCE_UDP_PORT = %x", i, $transmit_cfg_ram_array[i].ram_data_part3.SOURCE_UDP_PORT;
+        log "info" : "$transmit_cfg_ram_array[%d].ram_data_part3.DEST_UDP_PORT = %x", i, $transmit_cfg_ram_array[i].ram_data_part3.DEST_UDP_PORT;
+        log "info" : "$transmit_cfg_ram_array[%d].ram_data_part3.SUB_VL_ID = %x", i, $transmit_cfg_ram_array[i].ram_data_part3.SUB_VL_ID;
+    }
+}
+
+method print_scheduling_cfg_ram_table() {
+    local uint32 i = 0;
+    for (; i < $scheduling_cfg_ram_index; ++i) {
+        log "info" : "$scheduling_cfg_ram_array[%d].BAG = %x", i, $scheduling_cfg_ram_array[i].BAG;
+    }
+}
+
+method print_rm_cfg_cam_table() {
+    local uint32 i = 0;
+    for (; i < $rm_cfg_cam_index; ++i) {
+        log "info" : "The $rm_cfg_cam_array[%d].VL_ID = %x", $rm_cfg_cam_array[i].VL_ID;
+        log "info" : "The $rm_cfg_cam_array[%d].address = %x", $rm_cfg_cam_array[i].address;
+    }
+}
+
+method print_rm_cfg_ram_table() {
+    local uint32 i = 0;
+    for (; i < $rm_cfg_ram_index; ++i) {
+        log "info" : "$rm_cfg_ram_array[%d].ram_data.VL_ENABLE = %x", i, $rm_cfg_ram_array[i].ram_data.VL_ENABLE;
+        log "info" : "$rm_cfg_ram_array[%d].ram_data.SKEW_MAX = %x", i, $rm_cfg_ram_array[i].ram_data.SKEW_MAX;
+        log "info" : "$rm_cfg_ram_array[%d].ram_data.RM_ENABLE = %x", i, $rm_cfg_ram_array[i].ram_data.RM_ENABLE;
+        log "info" : "$rm_cfg_ram_array[%d].ram_data.NETWORK_B_IC_ENABLE = %x", i, $rm_cfg_ram_array[i].ram_data.NETWORK_B_IC_ENABLE;
+        log "info" : "$rm_cfg_ram_array[%d].ram_data.NETWORK_A_IC_ENABLE = %x", i, $rm_cfg_ram_array[i].ram_data.NETWORK_A_IC_ENABLE;
+        log "info" : "$rm_cfg_ram_array[%d].ram_data.NETWORK_B_ENABLE = %x", i, $rm_cfg_ram_array[i].ram_data.NETWORK_B_ENABLE;
+        log "info" : "$rm_cfg_ram_array[%d].ram_data.NETWORK_A_ENABLE = %x", i, $rm_cfg_ram_array[i].ram_data.NETWORK_A_ENABLE;
+    }
+}
+
+method print_fragment_cfg_ram_table() {
+    local uint32 i = 0;
+    for (; i < $fragment_cfg_ram_index; ++i) {
+        log "info" : "$fragment_cfg_ram_array[%d].MAX_FRAME_LENGTH = %x", i, $fragment_cfg_ram_array[i].MAX_FRAME_LENGTH;
     }
 }

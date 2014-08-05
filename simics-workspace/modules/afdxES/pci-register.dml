@@ -1551,8 +1551,7 @@ bank pciport{
                 PARTITION_ID = 	$transmit_cfg_ram_data4.PARTITION_ID;		
 					
 		    $vl[$transmit_cfg_ram_data3.VL_INDEX].valid_id |= (1 << $transmit_cfg_ram_data1.SUB_VL_ID);    //  确认哪些vl是有效的，在event遍历的时候会先判断
-			         
-			         
+            $transmit_cfg_ram_index++;
 			                                                                        // SUB_VL_ID 是怎么取值的？
         }
     }
@@ -1579,6 +1578,7 @@ bank pciport{
         method write_scheduling_ram() 
 		{
             $scheduling_cfg_ram_array[$this].BAG = $scheduling_cfg_data.BAG;
+            $scheduling_cfg_ram_index++;
         }
     }
 
@@ -1646,7 +1646,8 @@ bank pciport{
             $rm_cfg_ram_array[$this].ram_data.
                 NETWORK_B_ENABLE = $rm_cfg_ram_data.NETWORK_B_ENABLE;
             $rm_cfg_ram_array[$this].ram_data.
-                NETWORK_A_ENABLE = $rm_cfg_ram_data.NETWORK_A_ENABLE;   
+                NETWORK_A_ENABLE = $rm_cfg_ram_data.NETWORK_A_ENABLE;
+            $rm_cfg_ram_index++;
         }
     }
 
@@ -1674,6 +1675,7 @@ bank pciport{
 		{
             $fragment_cfg_ram_array[$this].
             MAX_FRAME_LENGTH = $fragment_cfg_data.MAX_FRAME_LENGTH;
+            $fragment_cfg_ram_index++;
         }
     }
     
