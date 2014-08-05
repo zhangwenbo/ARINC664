@@ -132,7 +132,7 @@ method packet_mac_header(MAC_Header_Structrue *mac_header_structure)    //mac he
 	mac_header_structure->CONSTANT_FIELD_4 = 0;
 	mac_header_structure->USER_DEFINED_ID = $transmit_cfg_ram_array[$tx_regs.tx_port_id.id].ram_data_part2.USER_DEFINED_ID>>8;
 	mac_header_structure->USER_DEFINED_ID_2 = $transmit_cfg_ram_array[$tx_regs.tx_port_id.id].ram_data_part2.USER_DEFINED_ID&0xff;
-	mac_header_structure->INTERFACE_CONSTANT = $transmit_cfg_ram_array[$tx_regs.tx_port_id.id].ram_data_part2.INTERFACE_ID ;
+	mac_header_structure->INTERFACE_CONSTANT = $transmit_cfg_ram_array[$tx_regs.tx_port_id.id].ram_data_part2.INTERFACE_ID << 5;
 	
 	log "info" : "=====================mac packet========================";	
 	log "info" : "mac_header_structure.CONSTANT_FIELD_1 =%x",mac_header_structure->CONSTANT_FIELD_1;	
