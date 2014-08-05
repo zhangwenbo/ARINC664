@@ -60,35 +60,28 @@ method unpacket_frame(uint8 *buffer,uint32 size)->(RX_MIB rx_mib)
 	call $BinarySearchAnalyseCfgCamArray(($analyse_cfg_cam_array), T) -> (port_id);
     port_id = $analyse_cfg_cam_array[port_id].address;
 	
-	enable_network_A = cast((*(buffer + INTERFACE_ID_ADDR)>>5)&0x1,uint1);
-	enable_network_B = cast((*(buffer + INTERFACE_ID_ADDR)>>6)&0x1,uint1);
+	enable_network_A = $analyse_cfg_ram_array[port_id].ram_data.NETWORK_A_ENABLE;
+	enable_network_B = $analyse_cfg_ram_array[port_id].ram_data.NETWORK_B_ENABLE;
 	
-	
-	if(enable_network_A !=$analyse_cfg_ram_array[port_id].ram_data.NETWORK_A_ENABLE)
-	{
+	if(enable_network_A !=$analyse_cfg_ram_array[port_id].ram_data.NETWORK_A_ENABLE) {
 		log "info": "enable network A error!";
-        
 		return;
 	}
 
-	if(enable_network_B != $analyse_cfg_ram_array[port_id].ram_data.NETWORK_B_ENABLE)
-	{
+	if(enable_network_B != $analyse_cfg_ram_array[port_id].ram_data.NETWORK_B_ENABLE) {
 		log "info": "enable network B error!";
-        // for test begin
-		//return;
-        // for test end lanxingdong
+		return;
 	}
 
 	udp_item.port_type = $analyse_cfg_ram_array[port_id].ram_data.PORT_TYPE; 
 
     
-	if($udp_first[port_id] == RECEIVE_UDP_FIRST)
-	{
+	if($udp_first[port_id] == RECEIVE_UDP_FIRST) {
 		udp_item.udp_length = *cast(buffer + UDP_LENGTH_ADDR,uint16 *);
 		rx_mib.rx_udp_data_count++;
-	}
-	else
+	} else {
 		udp_item.udp_length = 0;
+    }
 	
 	udp_item.buffer = buffer + UDP_HEADER_ADDR;     
 	udp_item.dest_ip = dest_ip;
@@ -134,10 +127,11 @@ method unpacket_frame(uint8 *buffer,uint32 size)->(RX_MIB rx_mib)
 	}
 	
 	
-	if(mf == 0)
+	if(mf == 0) {
 		$udp_first[port_id] = 1;
-	else 
+    } else {
 		$udp_first[port_id] = 0;
+    }
 }
 
 
