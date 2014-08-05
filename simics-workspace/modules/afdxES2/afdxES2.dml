@@ -24,6 +24,7 @@ import "afdxES-register.dml";
 import "change_endian.dml";
 import "packet-description.dml";
 import "quick-sort.dml";
+import "binary-search.dml";
 
 header %{
 #include <stdio.h>

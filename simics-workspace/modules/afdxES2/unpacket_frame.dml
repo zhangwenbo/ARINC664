@@ -58,7 +58,7 @@ method unpacket_frame(uint8 *buffer,uint32 size)->(RX_MIB rx_mib)
 	
 	
 	call $BinarySearchAnalyseCfgCamArray(($analyse_cfg_cam_array), T) -> (port_id); 
-	
+    port_id = $analyse_cfg_cam_array[port_id].address;
 	
 	//for test start
 	/*
@@ -71,7 +71,7 @@ method unpacket_frame(uint8 *buffer,uint32 size)->(RX_MIB rx_mib)
 	//for test end
 	//for test start
 	// port_id = 0;
-	port_id = 2;
+	// port_id = 2;
 	//for test end
 
 	//verify packet is correct or incorrect

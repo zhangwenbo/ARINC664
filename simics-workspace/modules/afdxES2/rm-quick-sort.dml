@@ -44,24 +44,22 @@ method partition_of_rm_cam_array(rm_cfg_cam *L, int low, int high) -> (int posit
             --high;
             inline $is_bigger_rm_(pivotkey, L, high) -> (is_bigger);
         }
-			
-        call $swap_rm_cam_array_item(L, low, high);
+        L[low] = L[high];
 				
         inline $is_smaller_rm_(pivotkey, L, low) -> (is_smaller);
         while ((low < high) && !is_smaller) {
             ++low;
             inline $is_smaller_rm_(pivotkey, L, low) -> (is_smaller);
         }
-				
-        call $swap_rm_cam_array_item(L, low, high);				
+        L[high] = L[low];
     }
-			
+
+    L[low] = pivotkey;
     position = low;
 }
 		
 method qsort_rm_cam_array(rm_cfg_cam *L, int low, int high) {
     local int pivot;
-			
     if (low < high) {
         call $partition_of_rm_cam_array(L, low, high) -> (pivot);
         call $qsort_rm_cam_array(L, low, pivot - 1);
@@ -70,5 +68,6 @@ method qsort_rm_cam_array(rm_cfg_cam *L, int low, int high) {
 }
 		
 method QuickSortRMCamArray(rm_cfg_cam *L) {
+    local uint8 i = 0;
     call $qsort_rm_cam_array(L, 0, $rm_cfg_cam_index - 1);
 }
