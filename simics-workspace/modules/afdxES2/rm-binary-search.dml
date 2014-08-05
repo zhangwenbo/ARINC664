@@ -1,0 +1,59 @@
+dml 1.2;
+
+import "config-tables.dml";
+
+//
+// The first parameter is the array looked for
+// The second parameter is the key to search
+// Return the position of the key in the array, if the key not in the array, return -1
+// 
+method BinarySearchRMCfgCamArray(rm_cfg_cam *array, rm_cfg_cam T) -> (int result) {
+	local int32 low;
+    local int32 high;
+    local int32 mid;
+    local bool is_smaller;
+    local bool is_bigger;
+    
+	low = 0;
+	high = $rm_cfg_cam_index - 1; // fix me
+    
+	while (low <= high)	{
+		mid = (low + high) / 2;
+		inline $is_smaller_rm(T, array, mid) -> (is_smaller); // T < array[mid] ?
+		if (is_smaller) {
+			high = mid - 1;
+		} else {
+			inline $is_bigger_rm(T, array, mid) -> (is_bigger); // T > array[mid] ?
+			if (is_bigger) {
+				low = mid + 1;
+			} else {
+			    result = mid;
+                return;
+		    }
+		}
+	}
+    
+	result = -1;
+}
+
+//
+// if pivotkey > L[position] return true, else return false
+// 
+method is_bigger_rm(rm_cfg_cam pivotkey, rm_cfg_cam *L, int position) -> (bool result) {
+	if (pivotkey.VL_ID > L[position].VL_ID) {
+		result = true;
+	} else {
+		result = false;
+	} 
+}
+
+//
+// if pivotkey < L[position] return true, else return false
+// 
+method is_smaller_rm(rm_cfg_cam pivotkey, rm_cfg_cam *L, int position) -> (bool result) {
+	if (pivotkey.VL_ID < L[position].VL_ID) {
+		result = true;
+	} else {
+		result = false;
+	}
+}

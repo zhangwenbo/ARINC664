@@ -1,13 +1,14 @@
 dml 1.2;
 
 typedef struct {
-	void (*load_analyse_cam_cfg_table)(conf_object_t *obj, uint32 size, void *data);
-	void (*load_analyse_ram_cfg_table)(conf_object_t *obj, uint32 size, void *data);
-	void (*load_transmit_ram_cfg_table)(conf_object_t *obj, uint32 size, void *data);
-	void (*load_scheduling_ram_cfg_table)(conf_object_t *obj, uint32 size, void *data);
-	void (*load_rm_cam_cfg_table)(conf_object_t *obj, uint32 size, void *data);
-	void (*load_rm_ram_cfg_table)(conf_object_t *obj, uint32 size, void *data);
-	void (*load_fragment_ram_cfg_table)(conf_object_t *obj, uint32 size, void *data);
+	void (*load_analyse_cam_cfg_table)(conf_object_t *obj, uint32 item_num, void *data);
+	void (*load_analyse_ram_cfg_table)(conf_object_t *obj, uint32 item_num, void *data);
+	void (*load_transmit_ram_cfg_table)(conf_object_t *obj, uint32 item_num, void *data);
+	void (*load_scheduling_ram_cfg_table)(conf_object_t *obj, uint32 item_num, void *data);
+	void (*load_rm_cam_cfg_table)(conf_object_t *obj, uint32 item_num, void *data);
+	void (*load_rm_ram_cfg_table)(conf_object_t *obj, uint32 item_num, void *data);
+	void (*load_fragment_ram_cfg_table)(conf_object_t *obj, uint32 item_num, void *data);
+	void (*load_cfg_done)(conf_object_t *obj);
 }load_cfg_table_interface_t;
 
 

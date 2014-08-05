@@ -172,9 +172,19 @@ implement data_exchange {
 		
 		call $change_endian(data,size);
 		 //crc check
-		
-        call $BinarySearchRMCfgCamArray($rm_cfg_cam_array, item) -> (position);
 
+
+        log "info" : "The $rm_cfg_cam_index = %d", $rm_cfg_cam_index;
+
+        /*
+        for (position = 0; position < $rm_cfg_cam_index; ++position) {
+            log "info" : "The $rm_cfg_cam_array[%d].VL_ID = %d", position, $rm_cfg_cam_array[position].VL_ID;
+            log "info" : "The $rm_cfg_cam_array[%d].address = %d", position, $rm_cfg_cam_array[position].address;
+            }*/
+        
+        call $BinarySearchRMCfgCamArray($rm_cfg_cam_array, item) -> (position);
+        position = $rm_cfg_cam_array[position].address;
+        
         log "info" : "The position is %d", position;
         
         local uint8 VL_ENABLE = $rm_cfg_ram_array[position].ram_data.VL_ENABLE;

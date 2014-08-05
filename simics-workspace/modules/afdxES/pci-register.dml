@@ -655,7 +655,10 @@ bank pciport{
 	
 		method after_write(memop)
 		{
-			// call $print_config();
+            call $QuickSortAnalyseCamArray($analyse_cfg_cam_array);
+            call $QuickSortRMCamArray($rm_cfg_cam_array);
+
+            
             if ($mode == 1) {
                 log "info" : "before send analyse";
                 
@@ -670,9 +673,7 @@ bank pciport{
                     log "info" : "analyze_cfg_cam_array[%d].VL: %d", i, $analyse_cfg_cam_array[i].cam_data_part3.VL;
                 }
                 */
-                for (i = 240; i < 255; i++) {
-                    log "info" : "rm_cfg_cam_array[%d].VL_ID: %d", i, $rm_cfg_cam_array[i].VL_ID;
-                }
+     
 /*
                 local uint32 analyse_cfg_ram_data_size = sizeoftype(analyse_cfg_ram) * 128; //ANALYSE_CFG_RAM_MAX_SIZE;
                 data_type = 1;
@@ -1351,9 +1352,7 @@ bank pciport{
             //if ($mode == 0) {
             call $write_analyse_cam();
             log "info"  ,2: "Method write_analyse_cam has been called";
-            call $QuickSortAnalyseCamArray($analyse_cfg_cam_array);
             log "info"  ,2: "Method QuickSort has been called";
-            call $print_analyse_cfg_cam_table();
                 
             //} else {
             //    local uint32 length = 4 * 4;
@@ -1591,7 +1590,6 @@ bank pciport{
                 log "info" ,2:"rm_cfg_cam_addr";
                 log "info", 2:"rm_cfg_cam_addr = %x",$this;
                 call $write_rm_cam();
-                call $QuickSortRMCamArray($rm_cfg_cam_array);
                 // call $print_transfer_table();                
             //} else {
             //    local uint32 length = 4 * 2;
@@ -1607,6 +1605,7 @@ bank pciport{
         method write_rm_cam() 
 		{
             $rm_cfg_cam_array[$rm_cfg_cam_index].VL_ID = $rm_cfg_cam_data.VL_ID;
+            log "info" : "the $rm_cfg_cam_index = %d", $rm_cfg_cam_index;
             $rm_cfg_cam_index++;
         }
     }

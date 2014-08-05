@@ -23,92 +23,93 @@ import "packet-frame.dml";
 import "afdxES-register.dml";
 import "change_endian.dml";
 import "packet-description.dml";
+import "quick-sort.dml";
 
 header %{
-	#include <stdio.h>
+#include <stdio.h>
 	//extern void write_mid(MAC_MIB *maca_mib,MAC_MIB *macb_mib, RX_MIB *rx_mib, TX_MIB *tx_mib);
-%}
+    %}
 
 extern void write_mid(MAC_MIB *maca_mib,MAC_MIB *macb_mib, RX_MIB *rx_mib, TX_MIB *tx_mib);
 
 footer %{
-void write_mid(MAC_MIB *maca_mib,MAC_MIB *macb_mib, RX_MIB *rx_mib, TX_MIB *tx_mib) {
+    void write_mid(MAC_MIB *maca_mib,MAC_MIB *macb_mib, RX_MIB *rx_mib, TX_MIB *tx_mib) {
 
-	FILE *mib_file = fopen("./mib_file", "w");    // look at here!
-	fprintf(mib_file, "========================================= Mac A mib begin ===================================================");
-	fprintf(mib_file, "crc_error: %d\n", maca_mib->crc_error);
-	fprintf(mib_file, "delete_little_64: %d\n", maca_mib->delete_little_64);
-	fprintf(mib_file, "delete_big_1518: %d\n", maca_mib->delete_big_1518);
-	fprintf(mib_file, "input_frame_count: %d\n", maca_mib->input_frame_count);
-	fprintf(mib_file, "input_64_127_count: %d\n", maca_mib->input_64_127_count);
-	fprintf(mib_file, "input_128_255_count: %d\n", maca_mib->input_128_255_count);
-	fprintf(mib_file, "input_256_511_count: %d\n", maca_mib->input_256_511_count);
-	fprintf(mib_file, "input_512_1023_count: %d\n", maca_mib->input_512_1023_count);
-	fprintf(mib_file, "input_1024_1518_count: %d\n", maca_mib->input_1024_1518_count);
-	fprintf(mib_file, "input_frame_byte_count: %d\n", maca_mib->input_frame_byte_count);
-	fprintf(mib_file, "output_frame_count: %d\n", maca_mib->output_frame_count);
-	fprintf(mib_file, "output_64_127_count: %d\n", maca_mib->output_64_127_count);
-	fprintf(mib_file, "output_128_255_count: %d\n", maca_mib->output_128_255_count);
-	fprintf(mib_file, "output_256_511_count: %d\n", maca_mib->output_256_511_count);
-	fprintf(mib_file, "output_512_1023_count: %d\n", maca_mib->output_512_1023_count);
-	fprintf(mib_file, "output_1024_1518_count: %d\n", maca_mib->output_1024_1518_count);
-	fprintf(mib_file, "output_frame_byte_count: %d\n", maca_mib->output_frame_byte_count);
-	fprintf(mib_file, "first_bit_error_count: %d\n", maca_mib->first_bit_error_count);
-	fprintf(mib_file, "ipchecksum_error_count: %d\n", maca_mib->ipchecksum_error_count);
-	fprintf(mib_file, "delete_bit_2048_count: %d\n", maca_mib->delete_bit_2048_count);
+        FILE *mib_file = fopen("./mib_file", "w");    // look at here!
+        fprintf(mib_file, "========================================= Mac A mib begin ===================================================");
+        fprintf(mib_file, "crc_error: %d\n", maca_mib->crc_error);
+        fprintf(mib_file, "delete_little_64: %d\n", maca_mib->delete_little_64);
+        fprintf(mib_file, "delete_big_1518: %d\n", maca_mib->delete_big_1518);
+        fprintf(mib_file, "input_frame_count: %d\n", maca_mib->input_frame_count);
+        fprintf(mib_file, "input_64_127_count: %d\n", maca_mib->input_64_127_count);
+        fprintf(mib_file, "input_128_255_count: %d\n", maca_mib->input_128_255_count);
+        fprintf(mib_file, "input_256_511_count: %d\n", maca_mib->input_256_511_count);
+        fprintf(mib_file, "input_512_1023_count: %d\n", maca_mib->input_512_1023_count);
+        fprintf(mib_file, "input_1024_1518_count: %d\n", maca_mib->input_1024_1518_count);
+        fprintf(mib_file, "input_frame_byte_count: %d\n", maca_mib->input_frame_byte_count);
+        fprintf(mib_file, "output_frame_count: %d\n", maca_mib->output_frame_count);
+        fprintf(mib_file, "output_64_127_count: %d\n", maca_mib->output_64_127_count);
+        fprintf(mib_file, "output_128_255_count: %d\n", maca_mib->output_128_255_count);
+        fprintf(mib_file, "output_256_511_count: %d\n", maca_mib->output_256_511_count);
+        fprintf(mib_file, "output_512_1023_count: %d\n", maca_mib->output_512_1023_count);
+        fprintf(mib_file, "output_1024_1518_count: %d\n", maca_mib->output_1024_1518_count);
+        fprintf(mib_file, "output_frame_byte_count: %d\n", maca_mib->output_frame_byte_count);
+        fprintf(mib_file, "first_bit_error_count: %d\n", maca_mib->first_bit_error_count);
+        fprintf(mib_file, "ipchecksum_error_count: %d\n", maca_mib->ipchecksum_error_count);
+        fprintf(mib_file, "delete_bit_2048_count: %d\n", maca_mib->delete_bit_2048_count);
 	
-	fprintf(mib_file, "========================================= Mac B mib begin ===================================================");
-	fprintf(mib_file, "crc_error: %d\n", macb_mib->crc_error);
-	fprintf(mib_file, "delete_little_64: %d\n", macb_mib->delete_little_64);
-	fprintf(mib_file, "delete_big_1518: %d\n", macb_mib->delete_big_1518);
-	fprintf(mib_file, "input_frame_count: %d\n", macb_mib->input_frame_count);
-	fprintf(mib_file, "input_64_127_count: %d\n", macb_mib->input_64_127_count);
-	fprintf(mib_file, "input_128_255_count: %d\n", macb_mib->input_128_255_count);
-	fprintf(mib_file, "input_256_511_count: %d\n", macb_mib->input_256_511_count);
-	fprintf(mib_file, "input_512_1023_count: %d\n", macb_mib->input_512_1023_count);
-	fprintf(mib_file, "input_1024_1518_count: %d\n", macb_mib->input_1024_1518_count);
-	fprintf(mib_file, "input_frame_byte_count: %d\n", macb_mib->input_frame_byte_count);
-	fprintf(mib_file, "output_frame_count: %d\n", macb_mib->output_frame_count);
-	fprintf(mib_file, "output_64_127_count: %d\n", macb_mib->output_64_127_count);
-	fprintf(mib_file, "output_128_255_count: %d\n", macb_mib->output_128_255_count);
-	fprintf(mib_file, "output_256_511_count: %d\n", macb_mib->output_256_511_count);
-	fprintf(mib_file, "output_512_1023_count: %d\n", macb_mib->output_512_1023_count);
-	fprintf(mib_file, "output_1024_1518_count: %d\n", macb_mib->output_1024_1518_count);
-	fprintf(mib_file, "output_frame_byte_count: %d\n", macb_mib->output_frame_byte_count);
-	fprintf(mib_file, "first_bit_error_count: %d\n", macb_mib->first_bit_error_count);
-	fprintf(mib_file, "ipchecksum_error_count: %d\n", macb_mib->ipchecksum_error_count);
-	fprintf(mib_file, "delete_bit_2048_count: %d\n", macb_mib->delete_bit_2048_count);
+        fprintf(mib_file, "========================================= Mac B mib begin ===================================================");
+        fprintf(mib_file, "crc_error: %d\n", macb_mib->crc_error);
+        fprintf(mib_file, "delete_little_64: %d\n", macb_mib->delete_little_64);
+        fprintf(mib_file, "delete_big_1518: %d\n", macb_mib->delete_big_1518);
+        fprintf(mib_file, "input_frame_count: %d\n", macb_mib->input_frame_count);
+        fprintf(mib_file, "input_64_127_count: %d\n", macb_mib->input_64_127_count);
+        fprintf(mib_file, "input_128_255_count: %d\n", macb_mib->input_128_255_count);
+        fprintf(mib_file, "input_256_511_count: %d\n", macb_mib->input_256_511_count);
+        fprintf(mib_file, "input_512_1023_count: %d\n", macb_mib->input_512_1023_count);
+        fprintf(mib_file, "input_1024_1518_count: %d\n", macb_mib->input_1024_1518_count);
+        fprintf(mib_file, "input_frame_byte_count: %d\n", macb_mib->input_frame_byte_count);
+        fprintf(mib_file, "output_frame_count: %d\n", macb_mib->output_frame_count);
+        fprintf(mib_file, "output_64_127_count: %d\n", macb_mib->output_64_127_count);
+        fprintf(mib_file, "output_128_255_count: %d\n", macb_mib->output_128_255_count);
+        fprintf(mib_file, "output_256_511_count: %d\n", macb_mib->output_256_511_count);
+        fprintf(mib_file, "output_512_1023_count: %d\n", macb_mib->output_512_1023_count);
+        fprintf(mib_file, "output_1024_1518_count: %d\n", macb_mib->output_1024_1518_count);
+        fprintf(mib_file, "output_frame_byte_count: %d\n", macb_mib->output_frame_byte_count);
+        fprintf(mib_file, "first_bit_error_count: %d\n", macb_mib->first_bit_error_count);
+        fprintf(mib_file, "ipchecksum_error_count: %d\n", macb_mib->ipchecksum_error_count);
+        fprintf(mib_file, "delete_bit_2048_count: %d\n", macb_mib->delete_bit_2048_count);
 	
 	
-	fprintf(mib_file, "========================================= rx mib begin =====================================================");
-	fprintf(mib_file, "disable_A_filt_count: %d\n", rx_mib->disable_A_filt_count);
-	fprintf(mib_file, "disable_B_filt_count: %d\n", rx_mib->disable_B_filt_count);
-	fprintf(mib_file, "A_integrated_filt_count: d\n", rx_mib->A_integrated_filt_count);
-	fprintf(mib_file, "B_integrated_filt_count: %d\n", rx_mib->B_integrated_filt_count);
-	fprintf(mib_file, "vl_id_filt_count: %d\n", rx_mib->vl_id_filt_count);
-	fprintf(mib_file, "redunt_filt_count: %d\n", rx_mib->redunt_filt_count);
-	fprintf(mib_file, "port_filt_count: %d\n", rx_mib->port_filt_count);
-	fprintf(mib_file, "ip_checksum_filt_count: %d\n", rx_mib->ip_checksum_filt_count);
-	fprintf(mib_file, "ip_length_error_filt_count: %d\n", rx_mib->ip_length_error_filt_count);
-	fprintf(mib_file, "udp_length_error_filt_count: %d\n", rx_mib->udp_length_error_filt_count);
-	fprintf(mib_file, "ip_fragment_error_filt_count: %d\n", rx_mib->ip_fragment_error_filt_count);
-	fprintf(mib_file, "overflow_count: %d\n", rx_mib->overflow_count);
-	fprintf(mib_file, "rx_icmp_reback_count: %d\n", rx_mib->rx_icmp_reback_count);
-	fprintf(mib_file, "rx_ip_data_count: %d\n", rx_mib->rx_ip_data_count);
-	fprintf(mib_file, "rx_udp_data_count: %d\n", rx_mib->rx_udp_data_count);
-	fprintf(mib_file, "rx_icmp_data_count: %d\n", rx_mib->rx_icmp_data_count);
-	fprintf(mib_file, "icmp_overflow_count: %d\n", rx_mib->icmp_overflow_count);
-	fprintf(mib_file, "rx_icmp_big_max_count: %d\n", rx_mib->rx_icmp_big_max_count);
-	fprintf(mib_file, "rx_buffer_clear_delete_count: %d\n", rx_mib->rx_buffer_clear_delete_count);
+        fprintf(mib_file, "========================================= rx mib begin =====================================================");
+        fprintf(mib_file, "disable_A_filt_count: %d\n", rx_mib->disable_A_filt_count);
+        fprintf(mib_file, "disable_B_filt_count: %d\n", rx_mib->disable_B_filt_count);
+        fprintf(mib_file, "A_integrated_filt_count: d\n", rx_mib->A_integrated_filt_count);
+        fprintf(mib_file, "B_integrated_filt_count: %d\n", rx_mib->B_integrated_filt_count);
+        fprintf(mib_file, "vl_id_filt_count: %d\n", rx_mib->vl_id_filt_count);
+        fprintf(mib_file, "redunt_filt_count: %d\n", rx_mib->redunt_filt_count);
+        fprintf(mib_file, "port_filt_count: %d\n", rx_mib->port_filt_count);
+        fprintf(mib_file, "ip_checksum_filt_count: %d\n", rx_mib->ip_checksum_filt_count);
+        fprintf(mib_file, "ip_length_error_filt_count: %d\n", rx_mib->ip_length_error_filt_count);
+        fprintf(mib_file, "udp_length_error_filt_count: %d\n", rx_mib->udp_length_error_filt_count);
+        fprintf(mib_file, "ip_fragment_error_filt_count: %d\n", rx_mib->ip_fragment_error_filt_count);
+        fprintf(mib_file, "overflow_count: %d\n", rx_mib->overflow_count);
+        fprintf(mib_file, "rx_icmp_reback_count: %d\n", rx_mib->rx_icmp_reback_count);
+        fprintf(mib_file, "rx_ip_data_count: %d\n", rx_mib->rx_ip_data_count);
+        fprintf(mib_file, "rx_udp_data_count: %d\n", rx_mib->rx_udp_data_count);
+        fprintf(mib_file, "rx_icmp_data_count: %d\n", rx_mib->rx_icmp_data_count);
+        fprintf(mib_file, "icmp_overflow_count: %d\n", rx_mib->icmp_overflow_count);
+        fprintf(mib_file, "rx_icmp_big_max_count: %d\n", rx_mib->rx_icmp_big_max_count);
+        fprintf(mib_file, "rx_buffer_clear_delete_count: %d\n", rx_mib->rx_buffer_clear_delete_count);
 	
-	fprintf(mib_file, "========================================= tx mib begin =====================================================");
-	fprintf(mib_file, "tx_ip_count: %d\n", tx_mib->tx_ip_count);
-	fprintf(mib_file, "tx_udp_count: %d\n", tx_mib->tx_udp_count);
-	fprintf(mib_file, "tx_icmp_count: %d\n", tx_mib->tx_icmp_count);
+        fprintf(mib_file, "========================================= tx mib begin =====================================================");
+        fprintf(mib_file, "tx_ip_count: %d\n", tx_mib->tx_ip_count);
+        fprintf(mib_file, "tx_udp_count: %d\n", tx_mib->tx_udp_count);
+        fprintf(mib_file, "tx_icmp_count: %d\n", tx_mib->tx_icmp_count);
 	
-	fclose(mib_file);
-}
-%}
+        fclose(mib_file);
+    }
+    %}
 
 attribute debug_cfg {
     parameter allocate_type = "bool";
@@ -133,9 +134,11 @@ data uint32 fragment_ram_index;
 
 implement load_cfg_table {
 	
-	method load_analyse_cam_cfg_table(uint32 size, void *data) {
-		local uint32 item_num = size * sizeoftype(analyse_cfg_cam);    // notice
-		memcpy($analyse_cfg_cam_array + $analyse_cam_index, data, item_num);
+	method load_analyse_cam_cfg_table(uint32 item_num, void *data) {
+		local uint32 data_size = item_num * sizeoftype(analyse_cfg_cam);
+
+        memcpy($analyse_cfg_cam_array + $analyse_cfg_cam_index, data, data_size);
+        $analyse_cfg_cam_index += item_num;
         
         if ($debug_cfg) {
 		    log "info" : "========================= analyse_cfg_cam  begin ========================";
@@ -146,17 +149,14 @@ implement load_cfg_table {
 		    log "info" : "%d.DEST_UDP = %d", $analyse_cam_index, $analyse_cfg_cam_array[$analyse_cam_index].cam_data_part3.DEST_UDP;
 		    log "info" : "========================= analyse_cfg_cam  end ========================";
 		}
-        
-        $analyse_cfg_cam_index++;
-		$analyse_cam_index++;
-		
-		call $cfg_table_regs.analyse_cfg_cam_addr.QuickSort($analyse_cfg_cam_array);
 	}
 	
-	method load_analyse_ram_cfg_table(uint32 size, void *data) {
-		local uint32 item_num = size * sizeoftype(analyse_cfg_ram);
-		
-		memcpy($analyse_cfg_ram_array + $analyse_ram_index, data, item_num);
+	method load_analyse_ram_cfg_table(uint32 item_num, void *data) {
+		local uint32 data_size = item_num * sizeoftype(analyse_cfg_ram);
+        
+		memcpy($analyse_cfg_ram_array + $analyse_cfg_ram_index, data, data_size);
+        $analyse_cfg_ram_index += item_num;
+        
 		if ($debug_cfg) {
             log "info" : "========================= analyse_cfg_ram  begin ========================";
 		    log "info" : "%d.NETWORK_B_ENABLE = %d", $analyse_ram_index, $analyse_cfg_ram_array[$analyse_ram_index].ram_data.NETWORK_B_ENABLE;
@@ -164,15 +164,15 @@ implement load_cfg_table {
 		    log "info" : "%d.PORT_TYPE = %d", $analyse_ram_index, $analyse_cfg_ram_array[$analyse_ram_index].ram_data.PORT_TYPE;
 		    log "info" : "========================= analyse_cfg_ram  end ========================";
         }
-		$analyse_ram_index++;
-	
 	}
 	
-	method load_transmit_ram_cfg_table(uint32 size, void *data) {
-		local uint32 item_num = size * sizeoftype(transmit_cfg_ram);
-		local uint32 i;
+	method load_transmit_ram_cfg_table(uint32 item_num, void *data) {
+		local uint32 data_size = item_num * sizeoftype(transmit_cfg_ram);
+		local uint32 i = 0;
 			
-		memcpy($transmit_cfg_ram_array + $transmit_ram_index, data, item_num);
+		memcpy($transmit_cfg_ram_array + $transmit_cfg_ram_index, data, data_size);
+        $transmit_cfg_ram_index += item_num;
+        
 		if ($debug_cfg) {
             log "info" : "========================= transmit_cfg_ram begin ========================";
             log "info" : "%d.PORT_TYPE = %d", $transmit_ram_index, $transmit_cfg_ram_array[$transmit_ram_index].ram_data_part1.PORT_TYPE;
@@ -189,42 +189,44 @@ implement load_cfg_table {
             log "info" : "%d.SUB_VL_ID = %d", $transmit_ram_index, $transmit_cfg_ram_array[$transmit_ram_index].ram_data_part3.SUB_VL_ID;
             log "info" : "========================= transmit_cfg_ram  end ========================";
 		}
-        $transmit_ram_index++;
 		
-		for(i=0;i<1024;i++)
-			$vl[$transmit_cfg_ram_array[i].ram_data_part1.VL_INDEX].valid_id |= (1 << $transmit_cfg_ram_array[i].ram_data_part3.SUB_VL_ID);    //  确认哪些vl是有效的，在event遍历的时候会先判断
-			                                                                                               // SUB_VL_ID 是怎么取值的？
-		
+		for(i=0;i<$transmit_cfg_ram_index; i++) {
+			$vl[$transmit_cfg_ram_array[i].ram_data_part1.VL_INDEX].valid_id |= (1 << $transmit_cfg_ram_array[i].ram_data_part3.SUB_VL_ID);
+        }
 	}
 	
-	method load_scheduling_ram_cfg_table(uint32 size, void *data) {
-		local uint32 item_num = size * sizeoftype(scheduling_cfg_ram);
-		memcpy($scheduling_cfg_ram_array + $scheduling_ram_index, data, item_num);
+	method load_scheduling_ram_cfg_table(uint32 item_num, void *data) {
+		local uint32 data_size = item_num * sizeoftype(scheduling_cfg_ram);
+
+        memcpy($scheduling_cfg_ram_array + $scheduling_cfg_ram_index, data, data_size);
+        $scheduling_cfg_ram_index += item_num;
+        
 		if ($debug_cfg) {
             log "info" : "========================= scheduling_cfg_ram begin ========================";
             log "info" : "%d.BAG = %d", $scheduling_ram_index, $scheduling_cfg_ram_array[$scheduling_ram_index].BAG;
             log "info" : "========================= scheduling_cfg_ram  end ========================";
 		}
-        $scheduling_ram_index++;
 	}
 	
-	method load_rm_cam_cfg_table(uint32 size, void *data) {
-		local uint32 item_num = size * sizeoftype(rm_cfg_cam);
-		memcpy($rm_cfg_cam_array + $rm_cam_index, data, item_num);
+	method load_rm_cam_cfg_table(uint32 item_num, void *data) {
+		local uint32 data_size = item_num * sizeoftype(rm_cfg_cam);
+
+        memcpy($rm_cfg_cam_array + $rm_cfg_cam_index, data, data_size);
+        $rm_cfg_cam_index += item_num;
+        
 		if ($debug_cfg) {
             log "info" : "========================= rm_cfg_cam begin ========================";
             log "info" : "$rm_cfg_cam_array[%d].VL_ID = %d", $rm_cam_index, $rm_cfg_cam_array[$rm_cam_index].VL_ID;
             log "info" : "========================= rm_cfg_cam  end ========================";
 		}
-        $rm_cfg_cam_index++;
-		call $cfg_table_regs.rm_cfg_cam_addr.QuickSort($rm_cfg_cam_array);
-		$rm_cam_index++;
-	
 	}
 	
-	method load_rm_ram_cfg_table(uint32 size, void *data) {
-		local uint32 item_num = size * sizeoftype(rm_cfg_ram);
-		memcpy($rm_cfg_ram_array + $rm_ram_index, data, item_num);
+	method load_rm_ram_cfg_table(uint32 item_num, void *data) {
+		local uint32 data_size = item_num * sizeoftype(rm_cfg_ram);
+        
+		memcpy($rm_cfg_ram_array + $rm_cfg_ram_index, data, data_size);
+        $rm_cfg_ram_index += item_num;
+        
         if ($debug_cfg) {
             log "info" : "====rm_cfg_ram begin ====";
             log "info" : "%d VL_ENABLE = %d", $rm_ram_index, $rm_cfg_ram_array[$rm_ram_index].ram_data.VL_ENABLE;
@@ -236,20 +238,26 @@ implement load_cfg_table {
             log "info" : "%d NETWORK_A_ENABLE = %d", $rm_ram_index, $rm_cfg_ram_array[$rm_ram_index].ram_data.NETWORK_A_ENABLE;	
             log "info" : "==== rm_cfg_ram  end ===";
 		}
-        $rm_ram_index++;
 	}
 	
-	method load_fragment_ram_cfg_table(uint32 size, void *data) {
-		local uint32 item_num = size * sizeoftype(fragment_cfg_ram);
-		memcpy($fragment_cfg_ram_array + $fragment_ram_index, data, item_num);
+	method load_fragment_ram_cfg_table(uint32 item_num, void *data) {
+		local uint32 data_size = item_num * sizeoftype(fragment_cfg_ram);
+        
+		memcpy($fragment_cfg_ram_array + $fragment_cfg_ram_index, data, data_size);
+        $fragment_cfg_ram_index += item_num;
+        
         if ($debug_cfg) {
             log "info" : "========================= fragment_cfg_ram begin ========================";
             log "info" : "========================= fragment_cfg_ram begin ========================";
             log "info" : "%d.MAX_FRAME_LENGTH = %d", $fragment_ram_index, $fragment_cfg_ram_array[$fragment_ram_index].MAX_FRAME_LENGTH;
             log "info" : "========================= fragment_cfg_ram end ========================";
 		}
-        $fragment_ram_index++;
 	}
+
+    method load_cfg_done() {
+        call $QuickSortAnalyseCamArray($analyse_cfg_cam_array);
+        call $QuickSortRMCamArray($rm_cfg_cam_array);
+    }
 }
 
 //called by RDC
@@ -284,44 +292,33 @@ implement data_exchange {
 	method send_frame(uint8 *data, uint32 size) {
 		log "info" : "called by nic1";
         
-        
-           // for test mwg begin
-       //  $phyA.data_exchange.send_frame(data,size);   
-        // return;
-        // for test mwg end
-	
-    
-    
         local rm_cfg_cam item;
         
         local uint8 position;
 		local bool crc;
-	
-    /*
-	local uint32 i;
-	for(i = 0;i<size; i++)
-		log "info":"recv data[%d] = %x",i,data[i];
-    */
-			 //crc checksum
     
-	call $recv_crc_check(data,size,$Table)->(crc);
+        call $recv_crc_check(data,size,$Table)->(crc);
 
-	if(crc == false) 
-	{
-	    log "info":"crc check failed";
-	    return ;
-	}
+        if(crc == false) 
+        {
+            log "info":"crc check failed";
+            return ;
+        }
 	
-	call $change_endian(data,size);
+        call $change_endian(data,size);
 	
-	item.VL_ID = *cast(&data[4],uint16*);
+        item.VL_ID = *cast(&data[4],uint16*);
 
-	
+
+        for (position = 0; position < $rm_cfg_cam_index; ++position) {
+            log "info" : "The $rm_cfg_cam_array[%d].VL_ID = %x", position, $rm_cfg_cam_array[position].VL_ID;
+            log "info" : "The $rm_cfg_cam_array[%d].address = %x", position, $rm_cfg_cam_array[position].address;
+        }
+        
         call $BinarySearchRMCfgCamArray($rm_cfg_cam_array, item) -> (position);
-		position = $rm_cfg_cam_array[0].address;
+        
+		position = $rm_cfg_cam_array[position].address;
 	
-		
-		
         local uint8 VL_ENABLE = $rm_cfg_ram_array[position].ram_data.VL_ENABLE;
         local uint8 RM_ENABLE = $rm_cfg_ram_array[position].ram_data.RM_ENABLE;
         local uint8 NETWORK_A_IC_ENABLE = $rm_cfg_ram_array[position].ram_data.NETWORK_A_IC_ENABLE;
@@ -388,8 +385,8 @@ implement data_exchange {
 			if(interface_id == A_Interface_ID) call $mib_in_sum(&($maca_mib),size);
 			else if(interface_id == B_Interface_ID) call $mib_in_sum(&($macb_mib),size);
         } else {
-	    if (frame_sn != $recv_vl[position].expect_sn) 
-			log "info":"^^^^^^^^^^abort interface id = %d,sn = %d^^^^^^^^^^^^",interface_id,$recv_vl[position].expect_sn;
+            if (frame_sn != $recv_vl[position].expect_sn) 
+                log "info":"^^^^^^^^^^abort interface id = %d,sn = %d^^^^^^^^^^^^",interface_id,$recv_vl[position].expect_sn;
 		
             return;
         }
@@ -407,32 +404,32 @@ implement config_mac_mode {
 
 method post_init()
 {
-   memset($udp_first,1,PORT_SIZE);
+    memset($udp_first,1,PORT_SIZE);
    	call $gen_normal_table($Table);
-   local uint32 i = 0;
-   for (; i < PORT_SIZE; ++i) {
-       call $InitPortQueue() -> ($port[i].queue);
-   }
-   local uint32 j = 0;
-   for (; j < SEND_VL_NUM; ++j) {
-       $vl_index_array[j] = new uint8;
-   }
-   local uint32 k = 0;
-   for (; k < RECV_VL_NUM; ++k) {
-       $recv_vl[k].expect_sn = 0;
-   }
+    local uint32 i = 0;
+    for (; i < PORT_SIZE; ++i) {
+        call $InitPortQueue() -> ($port[i].queue);
+    }
+    local uint32 j = 0;
+    for (; j < SEND_VL_NUM; ++j) {
+        $vl_index_array[j] = new uint8;
+    }
+    local uint32 k = 0;
+    for (; k < RECV_VL_NUM; ++k) {
+        $recv_vl[k].expect_sn = 0;
+    }
    
-   log "info": "called ";
-   write_mid(&($maca_mib),&($macb_mib) ,&($rx_mib), &($tx_mib));
+    log "info": "called ";
+    write_mid(&($maca_mib),&($macb_mib) ,&($rx_mib), &($tx_mib));
    
-   $analyse_cam_index = 0;
-   $analyse_ram_index = 0;
-   $transmit_ram_index = 0;
-   $scheduling_ram_index = 0;
-   $rm_cam_index = 0;
-   $rm_ram_index = 0;
-   $fragment_ram_index = 0;
+    $analyse_cam_index = 0;
+    $analyse_ram_index = 0;
+    $transmit_ram_index = 0;
+    $scheduling_ram_index = 0;
+    $rm_cam_index = 0;
+    $rm_ram_index = 0;
+    $fragment_ram_index = 0;
    
-   $phy_max_bandwidth = 200;
+    $phy_max_bandwidth = 200;
 }
 

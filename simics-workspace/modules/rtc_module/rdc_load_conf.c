@@ -308,7 +308,7 @@ int hwa_load_conf_file()
 	printf("ch is:0x%x\n",ch);
 	*/
 	FILE *fp;
-	fp=fopen("d:\\CARRDC_L_CFG.bin","rb");
+	fp=fopen("c:\\CARRDC_L_CFG.bin","rb");
 	memset(&A429ToUdpArry,0,sizeof(A429ToUdpArry));
 //	memset(nA429ToA429,0,20*256*sizeof(A429TOA429_STRUCT_t));
 	ReadSoftCfg(fp);

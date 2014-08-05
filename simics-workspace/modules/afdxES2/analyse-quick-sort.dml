@@ -63,17 +63,18 @@ method partition_of_analyse_cam_array(analyse_cfg_cam *L, int low, int high) -> 
             --high;
             inline $is_bigger_analyse_(pivotkey, L, high) -> (is_bigger);
         }
-        L[low] = L[high];
+			
+        call $swap_analyse_cam_array_item(L, low, high);
 				
         inline $is_smaller_analyse_(pivotkey, L, low) -> (is_smaller);
         while ((low < high) && !is_smaller) {
             ++low;
             inline $is_smaller_analyse_(pivotkey, L, low) -> (is_smaller);
         }
-        L[high] = L[low];
+				
+        call $swap_analyse_cam_array_item(L, low, high);				
     }
-
-    L[low] = pivotkey;
+			
     position = low;
 }
 		

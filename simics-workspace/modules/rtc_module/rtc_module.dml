@@ -913,7 +913,7 @@ method load_afdx_config()
 	
 	}
 	
-
+    $LoadCfg.load_cfg_table.load_cfg_done();
 
 }
 

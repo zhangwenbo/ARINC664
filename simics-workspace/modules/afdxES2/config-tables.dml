@@ -36,6 +36,7 @@ struct analyse_cfg_ram {
 }
 
 data analyse_cfg_ram analyse_cfg_ram_array[ANALYSE_CFG_RAM_MAX_SIZE];
+data uint32 analyse_cfg_ram_index;
 /////////////////////////////////////  analyse_cfg_cam  end  //////////////////////////////////////
 
 
@@ -75,6 +76,7 @@ struct transmit_cfg_ram {
 
 
 data transmit_cfg_ram transmit_cfg_ram_array[TRANSMIT_CFG_RAM_MAX_SIZE];
+data uint32 transmit_cfg_ram_index;
 /////////////////////////////////////  transmit_cfg_ram  end  //////////////////////////////////////
 
 
@@ -86,6 +88,7 @@ struct scheduling_cfg_ram {
 }
 
 data scheduling_cfg_ram scheduling_cfg_ram_array[SCHEDULING_CFG_RAM_MAX_SIZE];
+data uint32 scheduling_cfg_ram_index;
 /////////////////////////////////////  scheduling_cfg_ram  end  //////////////////////////////////////
 
 
@@ -115,6 +118,7 @@ struct rm_cfg_ram {
 }
 
 data rm_cfg_ram rm_cfg_ram_array[RM_CFG_RAM_MAX_SIZE];
+data uint32 rm_cfg_ram_index;
 /////////////////////////////////////  rm_cfg_cam  end  //////////////////////////////////////
 
 
@@ -127,5 +131,6 @@ struct fragment_cfg_ram {
 
 
 data fragment_cfg_ram fragment_cfg_ram_array[FRAGMENT_CFG_RAM_MAX_SIZE];
+data uint32 fragment_cfg_ram_index;
 /////////////////////////////////////  fragment_cfg_ram  end  //////////////////////////////////////
 
