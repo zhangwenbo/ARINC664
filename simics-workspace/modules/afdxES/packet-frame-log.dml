@@ -41,3 +41,14 @@ method print_ip_header(IP_Header_Log *ip_header_log) {
     log "info" : " ip_header_structure->IP_DESTINATION_ADDRESS = %x", ip_header_log->ip_header_structure->IP_DESTINATION_ADDRESS;	
     log "info" : "=====================ip packet========================";	    
 }
+
+method print_mac_header(MAC_Header_Structrue *mac_header_structure) {
+    log "info" : "=====================mac packet========================";	
+	log "info" : "mac_header_structure.CONSTANT_FIELD_1 =%x",mac_header_structure->CONSTANT_FIELD_1;	
+	log "info" : "mac_header_structure.VIRTUAL_LINK_IDENTIFER =%x",mac_header_structure->VIRTUAL_LINK_IDENTIFER;	
+	log "info" : "mac_header_structure.CONSTANT_FIELD_2 =%x",mac_header_structure->CONSTANT_FIELD_2 ;	
+	log "info" : "mac_header_structure.USER_DEFINED_ID  =%x",mac_header_structure->USER_DEFINED_ID ;	
+	log "info" : "mac_header_structure.USER_DEFINED_ID_2  =%x",mac_header_structure->USER_DEFINED_ID_2;
+	log "info" : "mac_header_structure.INTERFACE_CONSTANT =%x",mac_header_structure->INTERFACE_CONSTANT ;		
+	log "info" : "=====================mac packet========================";	
+}

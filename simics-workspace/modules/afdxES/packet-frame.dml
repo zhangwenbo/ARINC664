@@ -99,8 +99,7 @@ method packet_ip_header(IP_Header_Structure *ip_header_structure) {
     }
 }
 
-method packet_mac_header(MAC_Header_Structrue *mac_header_structure)    //mac header packet
-{
+method packet_mac_header(MAC_Header_Structrue *mac_header_structure) {
 	mac_header_structure->CONSTANT_FIELD_1 = 0x3000000;
 	mac_header_structure->VIRTUAL_LINK_IDENTIFER = $transmit_cfg_ram_array[$pciport.tx_port_id.id].ram_data_part1.VL_ID;
 	mac_header_structure->CONSTANT_FIELD_2 = 0x2;
@@ -110,14 +109,10 @@ method packet_mac_header(MAC_Header_Structrue *mac_header_structure)    //mac he
 	mac_header_structure->USER_DEFINED_ID_2 = $transmit_cfg_ram_array[$pciport.tx_port_id.id].ram_data_part2.USER_DEFINED_ID&0xff;
 	
 	mac_header_structure->INTERFACE_CONSTANT = $transmit_cfg_ram_array[$pciport.tx_port_id.id].ram_data_part2.INTERFACE_ID<<5 ;
-	log "info" : "=====================mac packet========================";	
-	log "info" : "mac_header_structure-.CONSTANT_FIELD_1 =%x",mac_header_structure->CONSTANT_FIELD_1;	
-	log "info" : "mac_header_structure.VIRTUAL_LINK_IDENTIFER =%x",mac_header_structure->VIRTUAL_LINK_IDENTIFER;	
-	log "info" : "mac_header_structure.CONSTANT_FIELD_2 =%x",mac_header_structure->CONSTANT_FIELD_2 ;	
-	log "info" : "mac_header_structure.USER_DEFINED_ID  =%x",mac_header_structure->USER_DEFINED_ID ;	
-	log "info" : "mac_header_structure.USER_DEFINED_ID_2  =%x",mac_header_structure->USER_DEFINED_ID_2;
-	log "info" : "mac_header_structure.INTERFACE_CONSTANT =%x",mac_header_structure->INTERFACE_CONSTANT ;		
-	log "info" : "=====================mac packet========================";	
+
+    if (0) {
+        call $print_mac_header(mac_header_structure);
+    }
 }
 
 method packet_data(Item *afdx_frame, Afdx_Frame_Packet* afdx_frame_packet,int first) {

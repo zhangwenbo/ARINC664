@@ -890,8 +890,8 @@ bank pciport{
     register transmit_cfg_ram_data4   // [109:66]
 	{ 
         //field RETENTION [31:8] is (reserved);
-		field USER_DEFINED_ID_L[26:13] "User Defined ID Low";
-		field PARTITION_ID [12:8] "Partition ID";
+		field USER_DEFINED_ID_L[31:19] "User Defined ID Low";
+		field PARTITION_ID [18:14] "Partition ID";
         field PORT_TYPE [7:6] "Port Type";
         field MIN_FRAME_LENGTH_PART2 [5:0] "Min Frame Length Part2"; 
 		
