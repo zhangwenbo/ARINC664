@@ -658,7 +658,14 @@ bank pciport{
             call $QuickSortAnalyseCamArray($analyse_cfg_cam_array);
             call $QuickSortRMCamArray($rm_cfg_cam_array);
 
-            
+            local analyse_cfg_cam T;
+            T.cam_data_part1.MULTICAST_ID = 0;
+            T.cam_data_part2.DEST_IP = 167846145;
+            T.cam_data_part3.VL= 1;
+            T.cam_data_part3.DEST_UDP = 1002;
+            local int position;
+            call $BinarySearchAnalyseCfgCamArray($analyse_cfg_cam_array, T) -> (position);
+            log "info" : "The positon = %d", position;
             if ($mode == 1) {
                 log "info" : "before send analyse";
                 

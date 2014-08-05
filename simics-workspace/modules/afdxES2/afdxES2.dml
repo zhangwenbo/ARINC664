@@ -402,6 +402,11 @@ implement config_mac_mode {
     }
 }
 
+method record_mib() {
+    write_mid(&($maca_mib),&($macb_mib) ,&($rx_mib), &($tx_mib));
+    after (1) call $record_mib();
+}
+
 method post_init()
 {
     memset($udp_first,1,PORT_SIZE);
@@ -418,9 +423,9 @@ method post_init()
     for (; k < RECV_VL_NUM; ++k) {
         $recv_vl[k].expect_sn = 0;
     }
-   
+
+    call $record_mib();
     log "info": "called ";
-    write_mid(&($maca_mib),&($macb_mib) ,&($rx_mib), &($tx_mib));
    
     $analyse_cam_index = 0;
     $analyse_ram_index = 0;
