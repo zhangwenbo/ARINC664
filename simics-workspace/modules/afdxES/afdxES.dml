@@ -19,8 +19,6 @@ import "afdx-exchange.dml";
 import "pci-action.dml";
 import "pci-register.dml";
 import "change_endian.dml";
-//import "crc.dml";
-
 
 header %{
     #include <stdio.h>
@@ -176,12 +174,6 @@ implement data_exchange {
 
         log "info" : "The $rm_cfg_cam_index = %d", $rm_cfg_cam_index;
 
-        /*
-        for (position = 0; position < $rm_cfg_cam_index; ++position) {
-            log "info" : "The $rm_cfg_cam_array[%d].VL_ID = %d", position, $rm_cfg_cam_array[position].VL_ID;
-            log "info" : "The $rm_cfg_cam_array[%d].address = %d", position, $rm_cfg_cam_array[position].address;
-            }*/
-        
         call $BinarySearchRMCfgCamArray($rm_cfg_cam_array, item) -> (position);
         position = $rm_cfg_cam_array[position].address;
         
@@ -198,7 +190,6 @@ implement data_exchange {
        
 	   
         if (VL_ENABLE == 0) {
-	   	    log "info" : "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$VL_Disable!$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$";
             return;
         }
        
@@ -256,52 +247,9 @@ method socket_loop_recv() {
     length = socket_recv(buf, PORT_DATA_SIZE);
     
     if (length > 0) {
-	// local exception_type_t ex;
-	  //  local dbuffer_t *dbuf = new_dbuffer();
-		//local uint8 *buf;
-		//local uint8 i =0;
-        // for test begin
-		// buf = dbuffer_append(dbuf, item.size);
-       // buf = dbuffer_append(dbuf, item.size-8);
-        // for test end 
-        // for test begin
-       // for (; i < item.size-8; ++i) {
-          //buf[i] = item.frame[item.size-i-1];
-         // buf[i] = item.frame[i+8];
-          //buf[i] = 0xff;
-         // log "info" : "The buf[%d] = %x", i, buf[i];
-       // }
-		// for test end
-        // memcpy(buf, item.frame, item.size);
-			
-        //call $pci_data_to_memory(Sim_Addr_Space_Memory,
-         //                        buf,
-         //                       $pci9056.dmapadr0.padr0,
-         //                       //$pci9056.dmasiz0.siz0
-         //                       item.size-8) -> (ex);
-        //log "info": "write to pci memory space";
-        // for test begin
-        //log "info": "The $pci9056.dmasiz0.siz0 is %d", //  $pci9056.dmasiz0.siz0;
-//        log "info" : "The item size is %d", item.size;
-                
-        // for test end
-//        dbuffer_free(dbuf);//free dbuf
 
-  //      if (ex != Sim_PE_No_Exception) {
-    //        throw;
-      //      log "error": "write data to memory fail";
-       // }
-                
-       // log "info": "set DMA done status";
-       // $pciport.rx_rec_state = 1;
-                
-       // log "info" : "The item size is %d", item.size-8;
-        // for test
-	    // $pciport.rx_frame_len = item.size;
-       // $pciport.rx_frame_len = item.size-8;        
-        //log "info" : "Need to change";
     }
-        after (1) call $socket_loop_recv();
+    after (1) call $socket_loop_recv();
     
 }
 

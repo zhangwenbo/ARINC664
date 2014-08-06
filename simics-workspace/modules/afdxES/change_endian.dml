@@ -1,7 +1,6 @@
 dml 1.2;
 
-method change_endian(uint8 *buffer,uint32 size)
-{
+method change_endian(uint8 *buffer,uint32 size) {
     local uint32 constant_field;
     local uint16 vl_id;
     local uint16 user_define_id;

@@ -238,16 +238,23 @@ implement Send_To_RDC {
 		log "info" : "called by ARINC664 2";
 		log "info" : "The dest_udp is %d", dest_udp;
         // for test begin
-       $ARINC664_2.Send_To_A664.send_to_A664(0, data, length);/*用于自环测试*/
-       return;
-       // for test end
-		local uint32 i;
-		for(i=0;i<length;i++) 
-			log "info":"data[%d] = %d",i,*cast(&data[i],uint8*);
-         for (i=0;i<length/4;i++)
-            log "info":"data[%d] = %x",i,*cast(&data[4*i],uint32*);
+       // $ARINC664_2.Send_To_A664.send_to_A664(0, data, length);/*用于自环测试*/
         
-        call $AfdxTo429(dest_udp, cast(data, uint32*), length);
+        //	local uint32 i;
+		//for(i=0;i<length;i++) 
+			// log "info":"data[%d] = %d",i,*cast(&data[i],uint8*);
+         // for (i=0;i<length/4;i++)
+            // log "info":"data[%d] = %x",i,*cast(&data[4*i],uint32*);
+
+        
+        // call $AfdxTo429(dest_udp, cast(data, uint32*), length);
+
+        local uint8 portid = 2;
+        local uint32 d = 0xacacac58;
+        local uint32 *data = &d;
+        local uint8 datalen = 2;
+        $ARINC664_2.Send_To_A664.send_to_A664(portid,cast(data,void *),datalen);
+
         
         // for test end
 	}
@@ -413,8 +420,7 @@ method nSendToAfdx(uint8 portid,uint32 * data,uint8 datalen)
 
 method A429ToAfdx(uint8 channel,uint32 data)
 {
-	channel = 7;
-log "info": "Received:Channel:%d,data:0x%x",channel,data;
+    log "info": "Received:Channel:%d,data:0x%x",channel,data;
   
 	local int i = 0;
 	local nFrameR * pFrameR;
@@ -690,7 +696,7 @@ log "info" : "usetype is %d, channel is %d, length is %d",nUdpTo429Arry[dest_udp
         for (i=1; i<=(length/4); i++) {
 		Channel = nUdpTo429Arry[dest_udp].nA429SendChannel1;
             for (j=1;j<=16;j++) {
-			log "info": "channel is %d", Channel;
+			log "info": "channel is %d,j is:%d\n", Channel,j;
                 if ((Channel & 0x1) == 1)
                 {
                     log "info": "Before call send429 ##########################";
@@ -876,9 +882,9 @@ method load_afdx_config()
 	  send_cfg_table.ram_data_part1.VL_ID =pHwaCfg->sendVlSet[VlIndex>>2].vlNum;
 	  send_cfg_table.ram_data_part1.VL_INDEX=VlIndex>>2;
 	  
-	  send_cfg_table.ram_data_part4.PARTITION_ID = (SendCfgUdp[i].nDstIP&0x1f);
-	  send_cfg_table.ram_data_part4.USER_DEFINED_ID_L=(SendCfgUdp[i].nDstIP>>5)&0x3ff8;
-	  send_cfg_table.ram_data_part4.USER_DEFINED_ID_H=(SendCfgUdp[i].nDstIP>>19)&0x3;
+	  send_cfg_table.ram_data_part4.PARTITION_ID = (SendCfgUdp[i].nDstIP&0x1f);/*0~4*/
+	  send_cfg_table.ram_data_part4.USER_DEFINED_ID_L=(SendCfgUdp[i].nDstIP>>8)&0x3ff9;/*8~21*/
+	  send_cfg_table.ram_data_part4.USER_DEFINED_ID_H=(SendCfgUdp[i].nDstIP>>22)&0x3;/*22~23*/
 	  send_cfg_table.ram_data_part4.PRIVATE_IP= 0x0a;
 	  
 	  if(((( SendCfgUdp[i].nDstIP & 0xff000000) >> 24) == 224) &&
@@ -895,6 +901,7 @@ method load_afdx_config()
 	  send_cfg_table.ram_data_part1.PORT_TYPE=SendCfgUdp[i].nPortType;
 	  send_cfg_table.ram_data_part2.PARTITION_ID=SendCfgUdp[i].nDataSrcPatition;
 	  send_cfg_table.ram_data_part2.INTERFACE_ID=pHwaCfg->sendVlSet[VlIndex>>2].netSelect;/*网络选择*/
+	  log "info" : "Debug INTERFACE_ID = %d",  send_cfg_table.ram_data_part2.INTERFACE_ID;
 	  send_cfg_table.ram_data_part2.PROTOCAL_ID=0x11;/*只有UDP*/
 	  send_cfg_table.ram_data_part2.USER_DEFINED_ID=userid;
 	  send_cfg_table.ram_data_part3.SUB_VL_ID = (VlIndex&0x03);
@@ -908,12 +915,17 @@ method load_afdx_config()
       //  while(1);
       }
 	  
+	
+	  log "info" : "SendCfgUdp[i].nDstIP = %x", SendCfgUdp[i].nDstIP;
+	  log "info" : "From RDC dest_ip is %x", (0x0 << 31) |  (0xa << 24) | (send_cfg_table.ram_data_part4.USER_DEFINED_ID_H << 22) | (send_cfg_table.ram_data_part4.USER_DEFINED_ID_L << 8) | (send_cfg_table.ram_data_part4.PARTITION_ID);
+	  
 	  $LoadCfg.load_cfg_table.load_transmit_ram_cfg_table(1,&send_cfg_table);
 	  $LoadCfg.load_cfg_table.load_fragment_ram_cfg_table(1,&send_frame_length);
 	
 	}
 	
-    $LoadCfg.load_cfg_table.load_cfg_done();
+	$LoadCfg.load_cfg_table.load_cfg_done();
+
 
 }
 
@@ -925,6 +937,7 @@ method load_afdx_config()
 // initial configuration is set and when the configuration is loaded from a
 // checkpoint.
 method post_init() {
+    log "info" : "hehe"; 
     hwa_load_conf_file();
 	call $load_afdx_config();
     socket_init();

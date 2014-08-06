@@ -125,14 +125,6 @@ connect RDC {
 	}
 }
 
-data uint32 analyse_cam_index;
-data uint32 analyse_ram_index;
-data uint32 transmit_ram_index;
-data uint32 scheduling_ram_index;
-data uint32 rm_cam_index;
-data uint32 rm_ram_index;
-data uint32 fragment_ram_index;
-
 implement load_cfg_table {
 	
 	method load_analyse_cam_cfg_table(uint32 item_num, void *data) {
@@ -140,16 +132,6 @@ implement load_cfg_table {
 
         memcpy($analyse_cfg_cam_array + $analyse_cfg_cam_index, data, data_size);
         $analyse_cfg_cam_index += item_num;
-        
-        if ($debug_cfg) {
-		    log "info" : "========================= analyse_cfg_cam  begin ========================";
-		    log "info" : "%d.ICMP_TYPE_ID = %d", $analyse_cam_index, $analyse_cfg_cam_array[$analyse_cam_index].cam_data_part1.ICMP_TYPE_ID;
-		    log "info" : "%d.MULTICAST_ID = %d", $analyse_cam_index, $analyse_cfg_cam_array[$analyse_cam_index].cam_data_part1.MULTICAST_ID;
-		    log "info" : "%d.DEST_IP = %d", $analyse_cam_index, $analyse_cfg_cam_array[$analyse_cam_index].cam_data_part2.DEST_IP;
-		    log "info" : "%d.VL = %d", $analyse_cam_index, $analyse_cfg_cam_array[$analyse_cam_index].cam_data_part3.VL;
-		    log "info" : "%d.DEST_UDP = %d", $analyse_cam_index, $analyse_cfg_cam_array[$analyse_cam_index].cam_data_part3.DEST_UDP;
-		    log "info" : "========================= analyse_cfg_cam  end ========================";
-		}
 	}
 	
 	method load_analyse_ram_cfg_table(uint32 item_num, void *data) {
@@ -157,14 +139,6 @@ implement load_cfg_table {
         
 		memcpy($analyse_cfg_ram_array + $analyse_cfg_ram_index, data, data_size);
         $analyse_cfg_ram_index += item_num;
-        
-		if ($debug_cfg) {
-            log "info" : "========================= analyse_cfg_ram  begin ========================";
-		    log "info" : "%d.NETWORK_B_ENABLE = %d", $analyse_ram_index, $analyse_cfg_ram_array[$analyse_ram_index].ram_data.NETWORK_B_ENABLE;
-		    log "info" : "%d.NETWORK_A_ENABLE = %d", $analyse_ram_index, $analyse_cfg_ram_array[$analyse_ram_index].ram_data.NETWORK_A_ENABLE;
-		    log "info" : "%d.PORT_TYPE = %d", $analyse_ram_index, $analyse_cfg_ram_array[$analyse_ram_index].ram_data.PORT_TYPE;
-		    log "info" : "========================= analyse_cfg_ram  end ========================";
-        }
 	}
 	
 	method load_transmit_ram_cfg_table(uint32 item_num, void *data) {
@@ -174,23 +148,6 @@ implement load_cfg_table {
 		memcpy($transmit_cfg_ram_array + $transmit_cfg_ram_index, data, data_size);
         $transmit_cfg_ram_index += item_num;
         
-		if ($debug_cfg) {
-            log "info" : "========================= transmit_cfg_ram begin ========================";
-            log "info" : "%d.PORT_TYPE = %d", $transmit_ram_index, $transmit_cfg_ram_array[$transmit_ram_index].ram_data_part1.PORT_TYPE;
-            log "info" : "%d.MIN_FRAME_LENGTH = %d", $transmit_ram_index, $transmit_cfg_ram_array[$transmit_ram_index].ram_data_part1.MIN_FRAME_LENGTH;
-            log "info" : "%d.IP_MULTICAST = %d", $transmit_ram_index, $transmit_cfg_ram_array[$transmit_ram_index].ram_data_part1.IP_MULTICAST;
-            log "info" : "%d.VL_INDEX = %d", $transmit_ram_index, $transmit_cfg_ram_array[$transmit_ram_index].ram_data_part1.VL_INDEX;
-            log "info" : "%d.VL_ID = %d", $transmit_ram_index, $transmit_cfg_ram_array[$transmit_ram_index].ram_data_part1.VL_ID;
-            log "info" : "%d.USER_DEFINED_ID = %d", $transmit_ram_index, $transmit_cfg_ram_array[$transmit_ram_index].ram_data_part2.USER_DEFINED_ID;
-            log "info" : "%d.PROTOCAL_ID = %d", $transmit_ram_index, $transmit_cfg_ram_array[$analyse_ram_index].ram_data_part2.PROTOCAL_ID;
-            log "info" : "%d.INTERFACE_ID = %d", $transmit_ram_index, $transmit_cfg_ram_array[$transmit_ram_index].ram_data_part2.INTERFACE_ID;
-            log "info" : "%d.PARTITION_ID = %d", $transmit_ram_index, $transmit_cfg_ram_array[$transmit_ram_index].ram_data_part2.PARTITION_ID;
-            log "info" : "%d.SOURCE_UDP_PORT = %d", $transmit_ram_index, $transmit_cfg_ram_array[$transmit_ram_index].ram_data_part3.SOURCE_UDP_PORT;
-            log "info" : "%d.DEST_UDP_PORT = %d", $transmit_ram_index, $transmit_cfg_ram_array[$transmit_ram_index].ram_data_part3.DEST_UDP_PORT;
-            log "info" : "%d.SUB_VL_ID = %d", $transmit_ram_index, $transmit_cfg_ram_array[$transmit_ram_index].ram_data_part3.SUB_VL_ID;
-            log "info" : "========================= transmit_cfg_ram  end ========================";
-		}
-		
 		for(i=0;i<$transmit_cfg_ram_index; i++) {
 			$vl[$transmit_cfg_ram_array[i].ram_data_part1.VL_INDEX].valid_id |= (1 << $transmit_cfg_ram_array[i].ram_data_part3.SUB_VL_ID);
         }
@@ -201,12 +158,6 @@ implement load_cfg_table {
 
         memcpy($scheduling_cfg_ram_array + $scheduling_cfg_ram_index, data, data_size);
         $scheduling_cfg_ram_index += item_num;
-        
-		if ($debug_cfg) {
-            log "info" : "========================= scheduling_cfg_ram begin ========================";
-            log "info" : "%d.BAG = %d", $scheduling_ram_index, $scheduling_cfg_ram_array[$scheduling_ram_index].BAG;
-            log "info" : "========================= scheduling_cfg_ram  end ========================";
-		}
 	}
 	
 	method load_rm_cam_cfg_table(uint32 item_num, void *data) {
@@ -214,12 +165,6 @@ implement load_cfg_table {
 
         memcpy($rm_cfg_cam_array + $rm_cfg_cam_index, data, data_size);
         $rm_cfg_cam_index += item_num;
-        
-		if ($debug_cfg) {
-            log "info" : "========================= rm_cfg_cam begin ========================";
-            log "info" : "$rm_cfg_cam_array[%d].VL_ID = %d", $rm_cam_index, $rm_cfg_cam_array[$rm_cam_index].VL_ID;
-            log "info" : "========================= rm_cfg_cam  end ========================";
-		}
 	}
 	
 	method load_rm_ram_cfg_table(uint32 item_num, void *data) {
@@ -227,18 +172,6 @@ implement load_cfg_table {
         
 		memcpy($rm_cfg_ram_array + $rm_cfg_ram_index, data, data_size);
         $rm_cfg_ram_index += item_num;
-        
-        if ($debug_cfg) {
-            log "info" : "====rm_cfg_ram begin ====";
-            log "info" : "%d VL_ENABLE = %d", $rm_ram_index, $rm_cfg_ram_array[$rm_ram_index].ram_data.VL_ENABLE;
-            log "info" : "%d SKEW_MAX = %d", $rm_ram_index, $rm_cfg_ram_array[$rm_ram_index].ram_data.SKEW_MAX;
-            log "info" : "%d RM_ENABLE = %d", $rm_ram_index, $rm_cfg_ram_array[$rm_ram_index].ram_data.RM_ENABLE;
-            log "info" : "%d NETWORK_B_IC_ENABLE = %d", $rm_ram_index, $rm_cfg_ram_array[$rm_ram_index].ram_data.NETWORK_B_IC_ENABLE;
-            log "info" : "%d NETWORK_A_IC_ENABLE = %d", $rm_ram_index, $rm_cfg_ram_array[$rm_ram_index].ram_data.NETWORK_A_IC_ENABLE;
-            log "info" : "%d NETWORK_B_ENABLE = %d", $rm_ram_index, $rm_cfg_ram_array[$rm_ram_index].ram_data.NETWORK_B_ENABLE;
-            log "info" : "%d NETWORK_A_ENABLE = %d", $rm_ram_index, $rm_cfg_ram_array[$rm_ram_index].ram_data.NETWORK_A_ENABLE;	
-            log "info" : "==== rm_cfg_ram  end ===";
-		}
 	}
 	
 	method load_fragment_ram_cfg_table(uint32 item_num, void *data) {
@@ -246,13 +179,6 @@ implement load_cfg_table {
         
 		memcpy($fragment_cfg_ram_array + $fragment_cfg_ram_index, data, data_size);
         $fragment_cfg_ram_index += item_num;
-        
-        if ($debug_cfg) {
-            log "info" : "========================= fragment_cfg_ram begin ========================";
-            log "info" : "========================= fragment_cfg_ram begin ========================";
-            log "info" : "%d.MAX_FRAME_LENGTH = %d", $fragment_ram_index, $fragment_cfg_ram_array[$fragment_ram_index].MAX_FRAME_LENGTH;
-            log "info" : "========================= fragment_cfg_ram end ========================";
-		}
 	}
 
     method load_cfg_done() {
@@ -328,16 +254,6 @@ implement data_exchange {
         local uint8 NETWORK_B_ENABLE = $rm_cfg_ram_array[position].ram_data.NETWORK_B_ENABLE;
         local uint8 A_Interface_ID;
         local uint8 B_Interface_ID;
-        /*
-		//for test init start
-       	VL_ENABLE = 1;
-        RM_ENABLE = 1;
-        NETWORK_A_IC_ENABLE = 1;
-        NETWORK_B_IC_ENABLE = 1;
-        NETWORK_A_ENABLE = 1;
-        NETWORK_B_ENABLE = 1;
-		//for test init end
-		*/
 		
 		log "info" : "position=%d", position;
 		log "info" : "VL_ENABLE=%d",VL_ENABLE;
@@ -395,7 +311,16 @@ implement data_exchange {
      
 }
 
+attribute record_mib_cycle {
+    parameter documentation = "";
+    parameter type = "f";
+    parameter allocate_type = "double";
+    parameter configuration = "optional";
 
+    method after_set() {
+        call $record_mib();
+    }
+}
 
 implement config_mac_mode {
     method config_mac_mode(uint32 max_bandwidth) {
@@ -405,7 +330,7 @@ implement config_mac_mode {
 
 method record_mib() {
     write_mid(&($maca_mib),&($macb_mib) ,&($rx_mib), &($tx_mib));
-    after (1) call $record_mib();
+    after ($record_mib_cycle) call $record_mib();
 }
 
 method post_init()
@@ -428,14 +353,7 @@ method post_init()
     call $record_mib();
     log "info": "called ";
    
-    $analyse_cam_index = 0;
-    $analyse_ram_index = 0;
-    $transmit_ram_index = 0;
-    $scheduling_ram_index = 0;
-    $rm_cam_index = 0;
-    $rm_ram_index = 0;
-    $fragment_ram_index = 0;
-   
     $phy_max_bandwidth = 200;
+    $record_mib_cycle = 0.1;
 }
 

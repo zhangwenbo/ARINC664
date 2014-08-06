@@ -85,7 +85,7 @@ method packet_ip_header(IP_Header_Structure *ip_header_structure) {
 		ip_header_structure->IP_DESTINATION_ADDRESS = (0x0 << 31) | 
 		                                               (0xa << 24) | 
 													   ($transmit_cfg_ram_array[$pciport.tx_port_id.id].ram_data_part4.USER_DEFINED_ID_H  << 22) |
-													   ($transmit_cfg_ram_array[$pciport.tx_port_id.id].ram_data_part4.USER_DEFINED_ID_L << 8);               
+													   ($transmit_cfg_ram_array[$pciport.tx_port_id.id].ram_data_part4.USER_DEFINED_ID_L << 8) |
 													   ($transmit_cfg_ram_array[$pciport.tx_port_id.id].ram_data_part4.PARTITION_ID);
 	} else {
 		ip_header_structure->IP_DESTINATION_ADDRESS = (0xe << 28) | (0xe0 << 16) | ($transmit_cfg_ram_array[$pciport.tx_port_id.id].ram_data_part1.VL_ID);    
@@ -168,8 +168,8 @@ method send_frame_fragment(Afdx_Frame_Packet* afdx_frame_packet) {
 	
 	afdx_frame_packet->send_frame_packet.header_length = MAC_HEADER_LENGTH + IP_HEADER_LENGTH +  IPV4_LENGTH + SN_CRC_LENGTH;
 	header_length =  afdx_frame_packet->send_frame_packet.header_length ;
-	min_frame_length = $transmit_cfg_ram_array[$pciport.tx_port_id.id].ram_data_part1.MIN_FRAME_LENGTH - header_length;     // 获得UDP有效载荷的最小长度
-	max_frame_length = $fragment_cfg_ram_array[$pciport.tx_port_id.id].MAX_FRAME_LENGTH - header_length;     // 获得UDP有效载荷的最大长度
+	min_frame_length = $transmit_cfg_ram_array[$pciport.tx_port_id.id].ram_data_part1.MIN_FRAME_LENGTH - header_length;     
+	max_frame_length = $fragment_cfg_ram_array[$pciport.tx_port_id.id].MAX_FRAME_LENGTH - header_length;     
 	send_frame_length =afdx_frame_packet->udp_header_structure.UDP_LENGTH;  
 	afdx_frame_packet->send_frame_packet.udp_offset = 0;
 	
@@ -305,8 +305,6 @@ event send_phy {
                 $phyB_already_send_byte = 0;
                 $send_phy_delay = 0.001;
             }
-            // for test make interface_id = 3;
-            //interface_id = 3;
 			
             switch (interface_id) {
             case 1:
@@ -374,8 +372,7 @@ event send_phy {
         inline $send_phy.post($send_phy_delay, NULL);
     }
 }
-method mib_out_sum(MAC_MIB *mib,int size)
-{
+method mib_out_sum(MAC_MIB *mib,int size) {
 	mib->output_frame_count++;  
 	mib->output_frame_byte_count+=size;  		
 	if(size <128)
@@ -390,8 +387,7 @@ method mib_out_sum(MAC_MIB *mib,int size)
 		mib->output_1024_1518_count++;		
 }
 
-method mib_in_sum(MAC_MIB *mib,int size)
-{	
+method mib_in_sum(MAC_MIB *mib,int size) {	
 	mib->input_frame_byte_count+=size; 			
 	mib->input_frame_count++;  
 	if(size < 64)

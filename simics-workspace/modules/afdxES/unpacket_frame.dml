@@ -10,8 +10,7 @@ import "packet-description.dml";
 
 data uint8 udp_first[PORT_SIZE];   //init with 1;
 
-method unpacket_frame(uint8 *buffer,uint32 size)->(RX_MIB rx_mib)
-{
+method unpacket_frame(uint8 *buffer,uint32 size)->(RX_MIB rx_mib) {
 	log "info" : "called by ARINC2 to unpacket_frame";
     
 	local uint16 dest_udp;
@@ -48,12 +47,6 @@ method unpacket_frame(uint8 *buffer,uint32 size)->(RX_MIB rx_mib)
 	T.cam_data_part2.DEST_IP = dest_ip;
 	T.cam_data_part3.VL= vl;
 	T.cam_data_part3.DEST_UDP = dest_udp;
-    // for test begin
-	T.cam_data_part1.MULTICAST_ID = 0;
-	T.cam_data_part2.DEST_IP = 167846145;
-	T.cam_data_part3.VL= 1;
-	T.cam_data_part3.DEST_UDP = 1002;
-    // for test end
     
 	//find port through  item group. single has IP dest address ,mulitple hasn't IP dest address
 
@@ -90,11 +83,6 @@ method unpacket_frame(uint8 *buffer,uint32 size)->(RX_MIB rx_mib)
 	udp_item.mf =mf;
     udp_item.dest_udp = dest_udp;
 	
-    log "info" : "The port_id is %d ####################################################################################", port_id;
-    log "info" : "The udp_item.port_type is %d &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&", udp_item.port_type;
-    
-   
-    
 	if (port_id >= 0 && port_id < 128) {
 		switch (udp_item.port_type) {
    
@@ -133,5 +121,3 @@ method unpacket_frame(uint8 *buffer,uint32 size)->(RX_MIB rx_mib)
 		$udp_first[port_id] = 0;
     }
 }
-
-
