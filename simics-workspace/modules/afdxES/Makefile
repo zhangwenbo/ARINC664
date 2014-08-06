@@ -5,7 +5,7 @@
 #
 
 MODULE_CLASSES = afdxES
-SRC_FILES = 
+SRC_FILES = to429middle.c
 DML_FILES = afdxES.dml
 DMLC_FLAGS = -m -I$(SIMICS_WORKSPACE)/include
 
