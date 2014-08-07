@@ -53,28 +53,20 @@ connect phyB {
 
 implement data_exchange {
 	method send_frame(uint8 *data, uint32 size) {
-        log "info" : "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ called by nic2  @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@";
         local rm_cfg_cam item;
         item.VL_ID = data[4];
         local uint8 position;
 		local bool crc;
 		local RX_MIB rx_mib_temp;
 
-        log "info" : "The size is %d", size;
-      
-
-       
 	    call $recv_crc_check(data,size,$Table)->(crc);
        
-		if(crc == false) 
-		{
+		if(crc == false) {
 			log "info":"crc check failed";
-            return ;
+            return;
 		}
 		
 		call $change_endian(data,size);
-        //crc check
-
 
         log "info" : "The $rm_cfg_cam_index = %d", $rm_cfg_cam_index;
 
@@ -141,7 +133,8 @@ connect config_mac_mode {
     }
 }
 
-attribute mode "Used to switch work mode" { // 0 and 1
+attribute middleware_mode "Used to switch middleware mode" { 
+    parameter documentation = "Used to switch work mode (to664middleware/to429middleware)";
     parameter allocate_type = "uint32";
 }
 
@@ -157,6 +150,30 @@ method socket_loop_recv() {
     
 }
 
+method init_port_queue() {
+    local uint32 i = 0;
+    for (; i < PORT_SIZE; ++i) {
+        call $InitPortQueue() -> ($port[i].queue);
+    }    
+}
+
+method init_middleware_mode() {
+    if ($middleware_mode == To664Middleware) {
+        socket_init();
+        call $socket_loop_recv();
+    }    
+}
+
+method init_vl_cfg() {
+    local uint32 i = 0;
+    for (; i < SEND_VL_NUM; ++i) {
+        $vl_index_array[i] = new uint8;
+    }
+    for (i = 0; i < RECV_VL_NUM; ++i) {
+        $recv_vl[i].expect_sn = 0;
+    }    
+}
+
 // USER-TODO: Add init() and post_init() methods here, if needed.
 // init() will be run to set the empty state of the model, before any
 // configuration or checkpointed attributes are set.  post_init() is run after
@@ -164,28 +181,13 @@ method socket_loop_recv() {
 // initial configuration is set and when the configuration is loaded from a
 // checkpoint.
 
-
-method post_init() 
-{
-    call $pci_config.update_all_mappings();   //测试需要，暂时先注释掉
+method post_init() {
+    call $pci_config.update_all_mappings();   
 	call $gen_normal_table($Table);
     memset($udp_first,1,PORT_SIZE);
-    local uint32 i = 0;
-    for (; i < PORT_SIZE; ++i) {
-        call $InitPortQueue() -> ($port[i].queue);
-    }
-    if ($mode == 1) {
-        socket_init();
-        call $socket_loop_recv();
-    }
-    local uint32 j = 0;
-    for (; j < SEND_VL_NUM; ++j) {
-        $vl_index_array[j] = new uint8;
-    }
-    local uint32 k = 0;
-    for (; k < RECV_VL_NUM; ++k) {
-        $recv_vl[k].expect_sn = 0;
-    }
+    call $init_port_queue();
+    call $init_middleware_mode();
+    call $init_vl_cfg();
 	
 	$phy_max_bandwidth = 200;
 }

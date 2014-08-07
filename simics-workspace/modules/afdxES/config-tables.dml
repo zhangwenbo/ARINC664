@@ -133,3 +133,15 @@ data fragment_cfg_ram fragment_cfg_ram_array[FRAGMENT_CFG_RAM_MAX_SIZE];
 data uint32 fragment_cfg_ram_index;
 /////////////////////////////////////  fragment_cfg_ram  end  //////////////////////////////////////
 
+constant ANALYSE_CFG_CAM = 0;
+constant ANALYSE_CFG_RAM = 1;
+constant TRANSMIT_CFG_RAM = 2;
+constant SCHEDULING_CFG_RAM = 3;
+constant RM_CFG_CAM = 4;
+constant RM_CFG_RAM = 5;
+constant FRAGMENT_CFG_RAM = 6;
+constant PACKET_SEND = 7;
+constant PACKET_RECV = 8;
+constant DO_LOAD_CONF = 9;
+constant CFG_TYPE_SIZE = 4;
+constant CFG_NUM = 128;

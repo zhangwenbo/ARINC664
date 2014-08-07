@@ -75,6 +75,12 @@ constant SEND_VL_NUM = 128;
 // for recv vl
 constant RECV_VL_NUM = 256;
 
+
+// for work mode
+constant To429Middleware = 0;
+constant To664Middleware = 1;
+
+
 data uint32 tx_buf_overflow_number[256];
 data uint32 rx_buf_overflow_number[256];
 data MAC_MIB maca_mib;

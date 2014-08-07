@@ -36,32 +36,17 @@ method transmit() {
             throw;
             log "error": "tr Read data from memory fail";
         }
-        /*
-		log "info",2,0: "wrap frame";
-        // the name of connector line 90 add ".memory_space.asscee_simple()"
-        exn = $local_space.memory_space.access_simple($dev.obj,
-                                                $pci9056.dmaladr1.ladr1,
-                                                buf,
-                                                length,
-                                                Sim_RW_Write,Sim_Endian_Target);
-        log "info",2,0: "tr wirte to local space";
-    
-        if (exn != Sim_PE_No_Exception) {
-            log "error": "tr unknown exception (%d) on local space write", cast (exn, int);
-        }
-        */
-        if ($mode == 0) {
-            
-            // for debug begin
-            local uint8 aa = 0;
-            for (; aa < length; ++aa) {
-                log "info" : "The send_buf[%d] = %x", aa, buf[aa];
-            } 
-            log "info" : "The send length is %d", length;
-            // for debug end
+
+        switch ($middleware_mode) {
+        case To429Middleware:
             call $wrapped_frame(buf, length);
-        } else {
-            call $send_to_middleware(buf, length); //  这个地方想一下，是否需要增加一些信息
+            break;
+        case To664Middleware:
+            // fix me !!!
+            break;
+        default:
+            log "error" : "Unsupported work mode";
+            break;
         }
 		
         log "info",2,0: "tr set DMA done status";
@@ -73,7 +58,8 @@ method transmit() {
 	        $pciport.tx_buf_overflow.del_frame_id_valid_bit = 1;
             log "info",2,0: "tr raise pci interrupt";
         }
-        else {log "error" : "tr Unable to raise PCI interrupt!";
+        else {
+            log "error" : "tr Unable to raise PCI interrupt!";
         }
     }
     else{
