@@ -3,10 +3,7 @@ import "config-tables.dml";
 import "constant.dml";
 import "packet-description.dml";
 
-
-
-method InitPortQueue()->(PortQueue *initqueue)
-{
+method InitPortQueue()->(PortQueue *initqueue) {
 	local PortQueue *queue;
 	queue = new PortQueue;
 	queue->queue_size = 0;
@@ -18,18 +15,11 @@ method InitPortQueue()->(PortQueue *initqueue)
 	initqueue = queue;
 }
 
-method EnPortQueue(PortQueue *queue,UDP_Item item) ->(bool result)
-{
-    // for test begin
-    log "info" : "Begin EnPortQueue";
-    // for test end
-    
+method EnPortQueue(PortQueue *queue,UDP_Item item) ->(bool result) {
 	local QueueItem *tail;
 
-	if(item.udp_length == 0)
-	{
-		if(queue->queue_full == 1)
-		{
+	if(item.udp_length == 0) {
+		if(queue->queue_full == 1) {
 			log "info" : "queue is full";
 			result = false;
 			return ;
@@ -44,18 +34,15 @@ method EnPortQueue(PortQueue *queue,UDP_Item item) ->(bool result)
 		queue->tail = tail;
 		log "info" : "tail whole size = %d",tail->whole_size;
 		log "info" : "tail single size =%d",tail->single_size;
-	}
-	else
-	{
-		if(item.udp_length > PORT_ITEM_SIZE || item.udp_length + queue->queue_size > PORT_QUEUE_MAX_SIZE)
-		{
+	} else {
+		if(item.udp_length > PORT_ITEM_SIZE || item.udp_length + queue->queue_size > PORT_QUEUE_MAX_SIZE) {
 			log "info": "queue is full or single queue is too big!";
 			queue->queue_full = 1;
 			result = false;
 			return;
-		}
-		else
+		} else {
 			queue->queue_full = 0;
+        }
 
 		queue->tail->next = new QueueItem;
 		tail = queue->tail->next;
@@ -75,8 +62,7 @@ method EnPortQueue(PortQueue *queue,UDP_Item item) ->(bool result)
 		queue->item_length  = tail->whole_size;
 	}
     
-	if(item.mf == 0)
-	{
+	if(item.mf == 0) {
 		tail->last = 1;
 		local bool check_result;
         // notice !!!!!!!!!!!!!!!!!!!!!!!!
@@ -97,8 +83,7 @@ method EnPortQueue(PortQueue *queue,UDP_Item item) ->(bool result)
 	result = true;
 }
 
-method LeavePortQueue(PortQueue *queue)
-{
+method LeavePortQueue(PortQueue *queue) {
 	local QueueItem *leaveitem;
 	local QueueItem *p;
 
@@ -106,8 +91,7 @@ method LeavePortQueue(PortQueue *queue)
 	queue->tail= queue->tail->prev_whole;
 	queue->tail->next = NULL;
 	queue->tail->next = NULL;
-	while(leaveitem)
-	{
+	while(leaveitem) {
 			p = leaveitem->next;
 			delete leaveitem->buffer;
 			delete leaveitem;
@@ -115,16 +99,14 @@ method LeavePortQueue(PortQueue *queue)
 	}
 }
 
-method DePortQueue(PortQueue *queue,PortItem *port_item)->(bool result)
-{
+method DePortQueue(PortQueue *queue,PortItem *port_item)->(bool result) {
 	local QueueItem *item;
 	local QueueItem *delete_item;
 	local uint32 offset =0;	
     local uint32 whole_size;
 
 	item = queue->head->next;
-	if(!item)
-	{
+	if(!item) {
 		log "info" : "queue is empty";
         result = false;
 		return;
@@ -135,8 +117,7 @@ method DePortQueue(PortQueue *queue,PortItem *port_item)->(bool result)
 	log "info":"queue size = %d",queue->queue_size;
 
  
-	if(item->whole_size!=0 && queue->queue_size>=item->whole_size)
-	{
+	if(item->whole_size!=0 && queue->queue_size>=item->whole_size) {
 		port_item->frame = new uint8[item->whole_size];
 		port_item->size = item->whole_size;
 		port_item->dest_ip = item->dest_ip;
@@ -144,8 +125,7 @@ method DePortQueue(PortQueue *queue,PortItem *port_item)->(bool result)
         port_item->dest_udp = item->dest_udp;
         log "info" : "single size is %d ,whole size is %d",item->single_size,item->whole_size;
 		whole_size = item->whole_size;
-        while(item)
-		{
+        while(item) {
             if(whole_size < item->single_size)
                 item->single_size = whole_size;
              whole_size -= item->single_size;
@@ -157,8 +137,7 @@ method DePortQueue(PortQueue *queue,PortItem *port_item)->(bool result)
 
 			delete delete_item;
 			
-			if(item && item->whole_size!=0)
-			{
+			if(item && item->whole_size!=0) {
 				queue->head->next = item;
 				item->prev_whole = queue->head;
 				queue->queue_size -=port_item->size;
@@ -178,20 +157,16 @@ method DePortQueue(PortQueue *queue,PortItem *port_item)->(bool result)
 		queue->head->prev_whole = NULL;
 		queue->queue_size -= port_item->size;
 		result = true;
-	}
-	else
-	{
+	} else {
 		result = false;
 	}
 }
 
-method IsPortQueueEmpty(PortQueue *queue) ->(bool result)
-{
+method IsPortQueueEmpty(PortQueue *queue) ->(bool result) {
 	result = queue->head == queue->tail;
 }
 
-method RefreshPortData(Receive_Port *port, UDP_Item udp_item) 
-{
+method RefreshPortData(Receive_Port *port, UDP_Item udp_item) {
 	port->port_type = 2;
 	
 	if (port->frame != NULL) 
@@ -205,16 +180,14 @@ method RefreshPortData(Receive_Port *port, UDP_Item udp_item)
 }
 
 
-method IsPortSampleEmpty(Receive_Port *port) -> (bool result) 
-{
+method IsPortSampleEmpty(Receive_Port *port) -> (bool result) {
 	if (port->frame == NULL) 
 		result = true;
 	else 
 		result = false;
 }
 
-struct Receive_Port
-{
+struct Receive_Port {
 	uint2 port_type;
 	PortQueue *queue;
 	dbuffer_t *dbuf;
@@ -222,4 +195,3 @@ struct Receive_Port
 }
 
 data Receive_Port port[4096];
-

@@ -2,78 +2,75 @@ dml 1.2;
 import "constant.dml";
 import "port-queue.dml";
 
-method udp_check_sum(Item *afdx_frame, Afdx_Frame_Packet* afdx_frame_packet)
-{
-		local uint32 sum =0;
-		local uint32 i=0;
-		local uint16 udp_checksum;
-		local uint16 *address;
-		local uint16 *udp_address_in_afdx;
-		local uint16 *udp_check_in_afdx;
+method udp_check_sum(Item *afdx_frame, Afdx_Frame_Packet* afdx_frame_packet) {
+    local uint32 sum =0;
+    local uint32 i=0;
+    local uint16 udp_checksum;
+    local uint16 *address;
+    local uint16 *udp_address_in_afdx;
+    local uint16 *udp_check_in_afdx;
 
-		//sum dest ip , source ip, udp_protocal,udp_length
-		address = cast(&afdx_frame_packet->ip_header_structure.IP_SOURCE_ADDRESS,uint16 *);
-		for(i=0; i < IP_ADDRESS_LENGTH/2; i++ )
-			sum += address[i];
-		sum += UPD_PROTOCAL_SUM;
-		sum +=afdx_frame_packet->udp_header_structure.UDP_LENGTH;
+    //sum dest ip , source ip, udp_protocal,udp_length
+    address = cast(&afdx_frame_packet->ip_header_structure.IP_SOURCE_ADDRESS,uint16 *);
+    for(i=0; i < IP_ADDRESS_LENGTH/2; i++ )
+        sum += address[i];
+    sum += UPD_PROTOCAL_SUM;
+    sum +=afdx_frame_packet->udp_header_structure.UDP_LENGTH;
 
-		udp_address_in_afdx = cast(afdx_frame->frame + (MAC_HEADER_LENGTH + IPV4_LENGTH + IP_HEADER_LENGTH), uint16*);   
-		call $part_udp_check_sum(udp_address_in_afdx,
-								 afdx_frame_packet->udp_header_structure.UDP_LENGTH,sum)
-								 ->(udp_checksum);
-		udp_check_in_afdx= cast(afdx_frame->frame+UDP_CHECKSUM_ADDR, uint16 *);
-		*udp_check_in_afdx = udp_checksum;
+    udp_address_in_afdx = cast(afdx_frame->frame + (MAC_HEADER_LENGTH + IPV4_LENGTH + IP_HEADER_LENGTH), uint16*);   
+    call $part_udp_check_sum(udp_address_in_afdx,
+                             afdx_frame_packet->udp_header_structure.UDP_LENGTH,sum)
+        ->(udp_checksum);
+    udp_check_in_afdx= cast(afdx_frame->frame+UDP_CHECKSUM_ADDR, uint16 *);
+    *udp_check_in_afdx = udp_checksum;
 }
 
-method receive_udp_check_sum(PortQueue* queue)->(bool result)
-{
-		local uint32 sum =0;
-		local uint32 i=0;
-		local uint16 old_udp_checksum;
-		local uint16 new_udp_checksum;
-		local uint16 udp_check_in_item;
-		local uint16* address;
-		local uint16* checksum_data;
-		local PortItem port_item;
-		local QueueItem *checksumitem;
-		local uint32 offset = 0;
-		local int32  whole_size;
+method receive_udp_check_sum(PortQueue* queue)->(bool result) {
+    local uint32 sum =0;
+    local uint32 i=0;
+    local uint16 old_udp_checksum;
+    local uint16 new_udp_checksum;
+    local uint16 udp_check_in_item;
+    local uint16* address;
+    local uint16* checksum_data;
+    local PortItem port_item;
+    local QueueItem *checksumitem;
+    local uint32 offset = 0;
+    local int32  whole_size;
 		
-		checksumitem = queue->tail->prev_whole->next;
-		port_item.dest_ip = checksumitem->dest_ip;
-		port_item.src_ip = checksumitem->src_ip;
-		port_item.size = checksumitem->whole_size;
-		port_item.frame = new uint8[checksumitem->whole_size];
-		whole_size = checksumitem->whole_size;
-		while(checksumitem&&whole_size>0)
-		{
-			if(checksumitem->single_size > whole_size)
-			checksumitem->single_size = whole_size;
-			whole_size -= checksumitem->single_size;
-			memcpy(port_item.frame+offset,checksumitem->buffer,checksumitem->single_size);
-			offset += checksumitem->single_size;
-			checksumitem = checksumitem->next;
-		}
-		old_udp_checksum = *cast(port_item.frame+UDP_CHECKSUM_OFFSET,uint16 *);
-		*cast(port_item.frame+UDP_CHECKSUM_OFFSET,uint16 *) = 0;
+    checksumitem = queue->tail->prev_whole->next;
+    port_item.dest_ip = checksumitem->dest_ip;
+    port_item.src_ip = checksumitem->src_ip;
+    port_item.size = checksumitem->whole_size;
+    port_item.frame = new uint8[checksumitem->whole_size];
+    whole_size = checksumitem->whole_size;
+    while(checksumitem&&whole_size>0) {
+        if(checksumitem->single_size > whole_size)
+            checksumitem->single_size = whole_size;
+        whole_size -= checksumitem->single_size;
+        memcpy(port_item.frame+offset,checksumitem->buffer,checksumitem->single_size);
+        offset += checksumitem->single_size;
+        checksumitem = checksumitem->next;
+    }
+    old_udp_checksum = *cast(port_item.frame+UDP_CHECKSUM_OFFSET,uint16 *);
+    *cast(port_item.frame+UDP_CHECKSUM_OFFSET,uint16 *) = 0;
 		
-		address = cast(&port_item.dest_ip,uint16 *);
-		for(i=0; i < DEST_IP_ADDR_LENGTH/2; i++ )
-			sum += address[i];
-		address = cast(&port_item.src_ip,uint16 *);
-		for(i=0; i < SRC_IP_ADDR_LENGTH/2; i++ )
-			sum += address[i];
-		sum += UPD_PROTOCAL_SUM;
-		sum += port_item.size;
-		checksum_data = cast(port_item.frame,uint16 *);
-		call $part_udp_check_sum(checksum_data,
-								 port_item.size,sum)
-								 ->(new_udp_checksum);
-		log "info" : "new_udp_checksum =%x", new_udp_checksum;
-		log "info" : "new_udp_checksum =%x", old_udp_checksum;
-		if(new_udp_checksum != old_udp_checksum) result = false;
-		else result = true;
+    address = cast(&port_item.dest_ip,uint16 *);
+    for(i=0; i < DEST_IP_ADDR_LENGTH/2; i++ )
+        sum += address[i];
+    address = cast(&port_item.src_ip,uint16 *);
+    for(i=0; i < SRC_IP_ADDR_LENGTH/2; i++ )
+        sum += address[i];
+    sum += UPD_PROTOCAL_SUM;
+    sum += port_item.size;
+    checksum_data = cast(port_item.frame,uint16 *);
+    call $part_udp_check_sum(checksum_data,
+                             port_item.size,sum)
+        ->(new_udp_checksum);
+    log "info" : "new_udp_checksum =%x", new_udp_checksum;
+    log "info" : "new_udp_checksum =%x", old_udp_checksum;
+    if(new_udp_checksum != old_udp_checksum) result = false;
+    else result = true;
 }
 
 
@@ -179,9 +176,9 @@ method gen_normal_table(uint32 *table)
 			flag=table[i]&0x80000000;
 			t1=(table[i] << 1);
 			if(flag==0)
-			t2=0;
+                t2=0;
 			else
-			t2=gx;
+                t2=gx;
 			table[i] =t1^t2 ;
 		}
 		crc=table[i];
@@ -217,8 +214,8 @@ method crc_check(uint8 *data,uint32 size,uint32* table)
 	log "info": "crc=%x.",*crc1;
 	
 }
-method recv_crc_check(uint8 *data,uint32 size,uint32* table)->(bool check)
-{
+
+method recv_crc_check(uint8 *data,uint32 size,uint32* table)->(bool check) {
 	local uint32 old_crc;
 	local uint32 new_crc;
 	local uint32 crc = 0xffffffff;
@@ -232,8 +229,9 @@ method recv_crc_check(uint8 *data,uint32 size,uint32* table)->(bool check)
         while(1);
     }
     
-	for(i=0; i <size-4; i++)
+	for(i=0; i <size-4; i++) {
 		crc =  table[( crc ^( p[i]) ) & 0xff] ^ (crc >> 8);
+    }
 	crc_value =  ~crc ;
 	crc1 = cast(data+size-4,uint32*);
 	old_crc = *crc1;

@@ -24,21 +24,10 @@ extern int socket_init(void);
 extern int socket_recv(char *recvbuf, int size);
 extern int socket_send(char *sendbuf, int size);
 
-connect local_space {
-    parameter documentation = "The local-space the device uses to send/receive"
-        + "data to/from PCI memory space.";
-    parameter configuration = "optional";
-    interface memory_space 
-	{
-        parameter c_type = "memory_space_interface_t";
-    }
-}
-
 connect phyA {
 	parameter documentation = "Send data to ARINC664 2";
     parameter configuration = "optional";
-    interface data_exchange 
-	{
+    interface data_exchange	{
         parameter c_type = "data_exchange_interface_t";
     }
 }
@@ -138,6 +127,10 @@ attribute middleware_mode "Used to switch middleware mode" {
     parameter allocate_type = "uint32";
 }
 
+attribute is_cfg_done "If true, don't change cfg table index and write cfg table again!" {
+    parameter allocate_type = "bool";
+}
+
 method socket_loop_recv() {
     local int length;
     local uint8 *buf = new uint8 [PORT_DATA_SIZE];
@@ -172,6 +165,17 @@ method init_vl_cfg() {
     for (i = 0; i < RECV_VL_NUM; ++i) {
         $recv_vl[i].expect_sn = 0;
     }    
+}
+
+method cfg_table_index {
+    $analyse_cfg_cam_index = 0;
+    $analyse_cfg_ram_index = 0;
+    $transmit_cfg_ram_index = 0;
+    $scheduling_cfg_ram_index = 0;
+    $rm_cfg_cam_indexq = 0;
+    $rm_cfg_ram_index = 0;
+    $fragment_cfg_ram_index = 0;
+    $is_cfg_done = false;
 }
 
 // USER-TODO: Add init() and post_init() methods here, if needed.

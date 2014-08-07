@@ -45,10 +45,4 @@ method change_endian(uint8 *buffer,uint32 size) {
     STORE_BE16(cast(buffer+36,uint16*),udp_dest_addr);
     STORE_BE16(cast(buffer+38,uint16*),udp_length);
     STORE_BE16(cast(buffer+40,uint16*),udp_checksum);
-	/*
-	local uint8 temp;
-	temp=*cast(buffer+27,uint8*);
-	*cast(buffer+27,uint8*)=*cast(buffer+28,uint8*);
-	*cast(buffer+28,uint8*)=temp;
-   */
 }
