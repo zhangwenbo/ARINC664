@@ -19,10 +19,7 @@ import "afdx-exchange.dml";
 import "pci-action.dml";
 import "pci-register.dml";
 import "change_endian.dml";
-
-extern int socket_init(void);
-extern int socket_recv(char *recvbuf, int size);
-extern int socket_send(char *sendbuf, int size);
+import "tomiddleware.dml";
 
 connect phyA {
 	parameter documentation = "Send data to the second ARINC664 card";
@@ -125,24 +122,6 @@ attribute is_cfg_done "If true, don't change cfg table index and write cfg table
     parameter allocate_type = "bool";
 }
 
-method socket_loop_recv() {
-    local int length;
-    local uint8 *buf = new uint8 [PORT_DATA_SIZE];
-    length = socket_recv(buf, PORT_DATA_SIZE);
-    
-    if (length > 0) {
-
-    }
-    after (1) call $socket_loop_recv();
-    
-}
-
-method init_middleware_mode() {
-    if ($middleware_mode == To664Middleware) {
-        socket_init();
-        call $socket_loop_recv();
-    }    
-}
 
 // USER-TODO: Add init() and post_init() methods here, if needed.
 // init() will be run to set the empty state of the model, before any

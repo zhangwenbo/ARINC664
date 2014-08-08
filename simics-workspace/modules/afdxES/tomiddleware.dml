@@ -1,0 +1,24 @@
+dml 1.2;
+
+extern int socket_init(void);
+extern int socket_recv(char *recvbuf, int size);
+extern int socket_send(char *sendbuf, int size);
+
+method socket_loop_recv() {
+    local int length;
+    local uint8 *buf = new uint8 [PORT_DATA_SIZE];
+    length = socket_recv(buf, PORT_DATA_SIZE);
+    
+    if (length > 0) {
+
+    }
+    after (1) call $socket_loop_recv();
+   
+}
+
+method init_middleware_mode() {
+    if ($middleware_mode == To664Middleware) {
+        socket_init();
+        call $socket_loop_recv();
+    }    
+}
