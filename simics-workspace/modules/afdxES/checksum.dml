@@ -1,4 +1,5 @@
 dml 1.2;
+
 import "constant.dml";
 import "port-queue.dml";
 
@@ -74,8 +75,7 @@ method receive_udp_check_sum(PortQueue* queue)->(bool result) {
 }
 
 
-method part_udp_check_sum(uint16* a, uint32 len, uint32 sum) -> (uint16 checksum)
-{
+method part_udp_check_sum(uint16* a, uint32 len, uint32 sum) -> (uint16 checksum) {
     while (len > 1) {
         sum += *a++;
         len -= 2;
@@ -93,8 +93,7 @@ method part_udp_check_sum(uint16* a, uint32 len, uint32 sum) -> (uint16 checksum
 	checksum = cast(sum, uint16);
 }
 
-method ip_check_sum(uint8 *ptr, uint32 size)->(uint16 checksum)  
-{  
+method ip_check_sum(uint8 *ptr, uint32 size)->(uint16 checksum) {  
 
     local uint32 cksum = 0;  
     local uint32 index = 0;  
@@ -105,16 +104,14 @@ method ip_check_sum(uint8 *ptr, uint32 size)->(uint16 checksum)
     if(size % 2 != 0)  
         return;  
       
-    while(index < size)  
-    {          
+    while(index < size) {          
         cksum += *(ptr + index + 1);  
         cksum += *(ptr + index) << 8;  
   
         index += 2;  
     }  
   
-    while(cksum > 0xffff)  
-    {  
+    while(cksum > 0xffff) {  
         cksum = (cksum >> 16) + (cksum & 0xffff);  
     }  
 	
@@ -123,8 +120,7 @@ method ip_check_sum(uint8 *ptr, uint32 size)->(uint16 checksum)
 }  
 
 
-method unpacket_ip_checksum(uint8 *buffer)->(uint8 correct)
-{
+method unpacket_ip_checksum(uint8 *buffer)->(uint8 correct) {
 	local uint16 old_ip_checksum;
 	local uint16 new_ip_checksum;
 	local uint8* ip_header_addr;
@@ -144,12 +140,10 @@ method unpacket_ip_checksum(uint8 *buffer)->(uint8 correct)
 		correct = CORRECT;
 }
 
-method Reflect(uint64 ref,uint8 ch)->(uint64 value)
-{
+method Reflect(uint64 ref,uint8 ch)->(uint64 value) {
 	local int i;
 	value = 0;
-	for( i = 1; i < ( ch + 1 ); i++ )
-	{
+	for( i = 1; i < ( ch + 1 ); i++ ) {
 		if( (ref & 1 )== 1)
 			value |= 1 << ( ch - i );
 		ref >>= 1;
@@ -157,8 +151,7 @@ method Reflect(uint64 ref,uint8 ch)->(uint64 value)
 }
 
 // 生成CRC32 翻转表 第二项是77073096
-method gen_normal_table(uint32 *table)
-{
+method gen_normal_table(uint32 *table) {
 	local uint32 gx = 0x04c11db7;
 	local uint32 temp;
 	local uint32 crc;
@@ -166,13 +159,11 @@ method gen_normal_table(uint32 *table)
 	local uint32 t1;
 	local uint32 t2;
 	local uint32 flag;
-	for(i = 0; i <= 0xFF; i++)
-	{
+	for(i = 0; i <= 0xFF; i++) {
 		call $Reflect(i, 8)->(temp);
 		table[i]= temp<< 24;
 		local int j;
-		for (j = 0; j < 8; j++)
-		{
+		for (j = 0; j < 8; j++) {
 			flag=table[i]&0x80000000;
 			t1=(table[i] << 1);
 			if(flag==0)

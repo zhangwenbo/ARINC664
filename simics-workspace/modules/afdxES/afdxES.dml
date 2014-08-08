@@ -80,7 +80,7 @@ implement data_exchange {
        
         local uint8 frame_sn = data[size-5];
 		local uint8 interface_id;
-		interface_id = data[11]>>5;
+		interface_id = data[11] >> 5;
 		log "info" : "interace_ido = %d", interface_id;
 
         if (NETWORK_A_ENABLE == 1) {
@@ -95,12 +95,10 @@ implement data_exchange {
             B_Interface_ID = 0;
         }
 		
-		//for mib
 		if((interface_id ==1) && (A_Interface_ID ==0))
 			$rx_mib.disable_A_filt_count++;
 		if((interface_id ==2) && (B_Interface_ID ==0))
 			$rx_mib.disable_B_filt_count++;
-        
 	
         if ((frame_sn == $recv_vl[position].expect_sn) && ((interface_id == A_Interface_ID) || (interface_id == B_Interface_ID))) {
 			$rx_mib.size = size;
