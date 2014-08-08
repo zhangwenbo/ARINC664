@@ -29,7 +29,6 @@ class myhello_component(StandardConnectorComponent):
         afdxES2.phyA = afdxES
         afdxES.phyB = afdxES2
         afdxES2.phyB = afdxES
-        afdxES.config_mac_mode = afdxES2
         #afdxES.mode = 1
 		
     class component_connector(Interface):

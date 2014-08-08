@@ -314,7 +314,7 @@ event send_phy {
 					call $mib_out_sum(&($maca_mib),item.size);
                     // do CRC Check!
 					call $crc_check(item.frame,item.size,$Table);
-                    $phyA.data_exchange.send_frame(cast(&item.frame, uint8*), item.size);
+                    $phyA.ieee_802_3_mac.send_frame(cast(&item.frame, uint8*), item.size);
                     $phyA_already_send_byte += item.size; 
                 } else {
                     $send_phy_delay = 0.1;
@@ -327,7 +327,7 @@ event send_phy {
                     // do CRC Check!
 					call $crc_check(item.frame,item.size,$Table);
 					call $mib_out_sum(&($macb_mib),item.size);
-                    $phyB.data_exchange.send_frame(cast(&item.frame, uint8*), item.size);
+                    $phyB.ieee_802_3_mac.send_frame(cast(&item.frame, uint8*), item.size);
                     $phyB_already_send_byte += item.size; 
                 } else {
                     $send_phy_delay = 0.1;
@@ -350,11 +350,11 @@ event send_phy {
 					call $mib_out_sum(&($macb_mib),item2.size);
                     // do CRC Check
 					call $crc_check(item.frame,item.size,$Table);
-                    $phyA.data_exchange.send_frame(cast(&item.frame, uint8*), item.size);
+                    $phyA.ieee_802_3_mac.send_frame(cast(&item.frame, uint8*), item.size);
 
                     // do CRC Check
 					call $crc_check(item2.frame,item2.size,$Table);
-                    $phyB.data_exchange.send_frame(cast(&item2.frame, uint8*), item2.size);
+                    $phyB.ieee_802_3_mac.send_frame(cast(&item2.frame, uint8*), item2.size);
 
                     $phyA_already_send_byte += item.size; 
                     $phyB_already_send_byte += item2.size; 

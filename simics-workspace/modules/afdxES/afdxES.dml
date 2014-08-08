@@ -25,22 +25,24 @@ extern int socket_recv(char *recvbuf, int size);
 extern int socket_send(char *sendbuf, int size);
 
 connect phyA {
-	parameter documentation = "Send data to ARINC664 2";
+	parameter documentation = "Send data to the second ARINC664 card";
     parameter configuration = "optional";
-    interface data_exchange	{
-        parameter c_type = "data_exchange_interface_t";
+
+    interface ieee_802_3_mac {
+        parameter c_type = "ieee_802_3_mac_interface_t";
     }
 }
 
 connect phyB {
-	parameter documentation = "Send data to ARINC664 2";
+	parameter documentation = "Send data to the second ARINC664 card";
     parameter configuration = "optional";
-    interface data_exchange	{
-        parameter c_type = "data_exchange_interface_t";
+
+    interface ieee_802_3_mac {
+        parameter c_type = "ieee_802_3_mac_interface_t";
     }
 }
 
-implement data_exchange {
+implement ieee_802_3_mac {
 	method send_frame(uint8 *data, uint32 size) {
         local rm_cfg_cam item;
         item.VL_ID = data[4];
@@ -114,12 +116,6 @@ implement data_exchange {
 	}
 }
 
-connect config_mac_mode {
-    interface config_mac_mode {
-        parameter c_type = "config_mac_mode_interface_t";
-    }
-}
-
 attribute middleware_mode "Used to switch middleware mode" { 
     parameter documentation = "Used to switch work mode (to664middleware/to429middleware)";
     parameter allocate_type = "uint32";
@@ -141,39 +137,11 @@ method socket_loop_recv() {
     
 }
 
-method init_port_queue() {
-    local uint32 i = 0;
-    for (; i < PORT_SIZE; ++i) {
-        call $InitPortQueue() -> ($port[i].queue);
-    }    
-}
-
 method init_middleware_mode() {
     if ($middleware_mode == To664Middleware) {
         socket_init();
         call $socket_loop_recv();
     }    
-}
-
-method init_vl_cfg() {
-    local uint32 i = 0;
-    for (; i < SEND_VL_NUM; ++i) {
-        $vl_index_array[i] = new uint8;
-    }
-    for (i = 0; i < RECV_VL_NUM; ++i) {
-        $recv_vl[i].expect_sn = 0;
-    }    
-}
-
-method cfg_table_index {
-    $analyse_cfg_cam_index = 0;
-    $analyse_cfg_ram_index = 0;
-    $transmit_cfg_ram_index = 0;
-    $scheduling_cfg_ram_index = 0;
-    $rm_cfg_cam_indexq = 0;
-    $rm_cfg_ram_index = 0;
-    $fragment_cfg_ram_index = 0;
-    $is_cfg_done = false;
 }
 
 // USER-TODO: Add init() and post_init() methods here, if needed.

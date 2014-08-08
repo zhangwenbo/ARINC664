@@ -3,6 +3,13 @@ import "config-tables.dml";
 import "constant.dml";
 import "packet-description.dml";
 
+method init_port_queue() {
+    local uint32 i = 0;
+    for (; i < PORT_SIZE; ++i) {
+        call $InitPortQueue() -> ($port[i].queue);
+    }    
+}
+
 method InitPortQueue()->(PortQueue *initqueue) {
 	local PortQueue *queue;
 	queue = new PortQueue;

@@ -187,10 +187,8 @@ implement load_cfg_table {
     }
 }
 
-//called by RDC
 implement Send_To_A664{
-	method send_to_A664(int port_id,void *data,int length)
-	{
+	method send_to_A664(int port_id,void *data,int length) {
 		$tx_regs.tx_port_id.id = port_id;
         $tx_regs.tx_frame_len.frame_len=length *4;
 		call $wrapped_frame(cast(data,uint8*), length *4);
@@ -198,24 +196,24 @@ implement Send_To_A664{
 }
 
 connect phyA {
-	parameter documentation = "Send data to ARINC664 1";
+	parameter documentation = "Send data to the first ARINC664 card";
     parameter configuration = "optional";
-    interface data_exchange {
-        parameter c_type = "data_exchange_interface_t";
+
+    interface ieee_802_3_mac {
+        parameter c_type = "ieee_802_3_mac_interface_t";
     }
 }
 
 connect phyB {
-	parameter documentation = "Send data to ARINC664 1";
+	parameter documentation = "Send data to the fisrt ARINC664 card";
     parameter configuration = "optional";
-    interface data_exchange {
-        parameter c_type = "data_exchange_interface_t";
+
+    interface ieee_802_3_mac {
+        parameter c_type = "ieee_802_3_mac_interface_t";
     }
 }
 
-
-// called by ARINC664
-implement data_exchange {
+implement ieee_802_3_mac {
 	method send_frame(uint8 *data, uint32 size) {
 		log "info" : "called by nic1";
         
@@ -307,8 +305,11 @@ implement data_exchange {
 		
             return;
         }
-    }    
-     
+    }
+
+    method config_bandwidth(uint32 max_bandwidth) {
+        $phy_max_bandwidth = max_bandwidth;
+    }
 }
 
 attribute record_mib_cycle {
@@ -322,19 +323,12 @@ attribute record_mib_cycle {
     }
 }
 
-implement config_mac_mode {
-    method config_mac_mode(uint32 max_bandwidth) {
-        $phy_max_bandwidth = max_bandwidth;
-    }
-}
-
 method record_mib() {
     write_mid(&($maca_mib),&($macb_mib) ,&($rx_mib), &($tx_mib));
     after ($record_mib_cycle) call $record_mib();
 }
 
-method post_init()
-{
+method post_init() {
     memset($udp_first,1,PORT_SIZE);
    	call $gen_normal_table($Table);
     local uint32 i = 0;

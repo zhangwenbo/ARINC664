@@ -145,3 +145,14 @@ constant PACKET_RECV = 8;
 constant DO_LOAD_CONF = 9;
 constant CFG_TYPE_SIZE = 4;
 constant CFG_NUM = 128;
+
+method cfg_table_index {
+    $analyse_cfg_cam_index = 0;
+    $analyse_cfg_ram_index = 0;
+    $transmit_cfg_ram_index = 0;
+    $scheduling_cfg_ram_index = 0;
+    $rm_cfg_cam_indexq = 0;
+    $rm_cfg_ram_index = 0;
+    $fragment_cfg_ram_index = 0;
+    $is_cfg_done = false;
+}

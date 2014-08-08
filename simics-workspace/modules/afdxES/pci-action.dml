@@ -4,8 +4,6 @@ import "utility.dml";
 import "io-memory.dml";
 import "pci-register.dml";
 import "simics/devs/memory-space.dml";
-import "ethernet.dml";                       // Ethernet common definitions
-import "ieee-802-3.dml";                     // Communications with PHY
 import "simics/devs/mii.dml";                // MII management bus
 import "packet-frame.dml";
 
