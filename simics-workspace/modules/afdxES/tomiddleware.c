@@ -20,7 +20,7 @@ int socket_init(void) {
     SOCKADDR_IN serveraddr;   
     memset(&serveraddr, 0, sizeof(serveraddr));
     serveraddr.sin_family = AF_INET;
-    serveraddr.sin_port = htons(9750);
+    serveraddr.sin_port = htons(10087);
     serveraddr.sin_addr.S_un.S_addr = inet_addr("127.0.0.1");   
 
     if (connect(client_socket, (struct sockaddr *) &serveraddr, sizeof(serveraddr)) != 0) {

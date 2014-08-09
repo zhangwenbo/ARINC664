@@ -5,7 +5,7 @@ constant ANALYSE_CFG_CAM_MAX_SIZE = 4096;
 constant ANALYSE_CFG_RAM_MAX_SIZE = 4096;
 
 struct analyse_cfg_cam {    
-    physical_address_t address;
+    uint32 address;
     
     bitfields 28 {
         uint26 RETENTION                @ [27:2];   // [91:66];        
@@ -90,11 +90,11 @@ data scheduling_cfg_ram scheduling_cfg_ram_array[SCHEDULING_CFG_RAM_MAX_SIZE];
 
 
 /////////////////////////////////////  rm_cfg_cam  begin  //////////////////////////////////////
-constant RM_CFG_CAM_MAX_SIZE = 128;
-constant RM_CFG_RAM_MAX_SIZE = 128;
+constant RM_CFG_CAM_MAX_SIZE = 256;
+constant RM_CFG_RAM_MAX_SIZE = 256;
 
 struct rm_cfg_cam {    
-    physical_address_t address;
+    uint32 address;
     uint16 VL_ID;
 }
 

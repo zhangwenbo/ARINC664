@@ -10,6 +10,10 @@ import "packet-description.dml";
 
 data uint8 udp_first[PORT_SIZE];   //init with 1;
 
+method init_udp_flag() {
+    memset($udp_first,1,PORT_SIZE);
+}
+
 method unpacket_frame(uint8 *buffer,uint32 size)->(RX_MIB rx_mib) {
 	local uint8 correct;
 	local uint16 dest_udp;
@@ -27,15 +31,12 @@ method unpacket_frame(uint8 *buffer,uint32 size)->(RX_MIB rx_mib) {
 	local UDP_Item udp_item;
 	
 	call $unpacket_ip_checksum(buffer)->(correct);		//IP checksum
-	if(correct == INCORRECT)
-	{
+	if (correct == INCORRECT) {
 		log "info": "ip checksum error!";
 		rx_mib.ip_checksum_filt_count++;
 		return ;
-	}
-	else 
-	{
-	log "info": "ip checksum correct!";
+	} else {
+        log "info": "ip checksum correct!";
 	}
 	rx_mib.rx_ip_data_count++;
 	dest_udp =*cast((buffer + UDP_DEST_ADDR),uint16*);
@@ -51,8 +52,6 @@ method unpacket_frame(uint8 *buffer,uint32 size)->(RX_MIB rx_mib) {
 	T.cam_data_part3.DEST_UDP = dest_udp;
 	//find port through  item group. single has IP dest address ,mulitple hasn't IP dest address
 
-	
-	
 	call $BinarySearchAnalyseCfgCamArray(($analyse_cfg_cam_array), T) -> (port_id);
     if (port_id == -1) {
         log "error" : "Can't find this conf in current analyse cfg cam table, please check!";
@@ -63,19 +62,19 @@ method unpacket_frame(uint8 *buffer,uint32 size)->(RX_MIB rx_mib) {
 	enable_network_A =$analyse_cfg_ram_array[port_id].ram_data.NETWORK_A_ENABLE;
 	enable_network_B = $analyse_cfg_ram_array[port_id].ram_data.NETWORK_B_ENABLE;
 	
-	if(enable_network_A !=$analyse_cfg_ram_array[port_id].ram_data.NETWORK_A_ENABLE) {
+	if (enable_network_A != $analyse_cfg_ram_array[port_id].ram_data.NETWORK_A_ENABLE) {
 		log "info": "enable network A error!";
 		return;
 	}
 
-	if(enable_network_B != $analyse_cfg_ram_array[port_id].ram_data.NETWORK_B_ENABLE) {
+	if (enable_network_B != $analyse_cfg_ram_array[port_id].ram_data.NETWORK_B_ENABLE) {
 		log "info": "enable network B error!";
 		return;
 	}
 
 	udp_item.port_type = $analyse_cfg_ram_array[port_id].ram_data.PORT_TYPE; 
 
-	if($udp_first[port_id] == RECEIVE_UDP_FIRST) {
+	if ($udp_first[port_id] == RECEIVE_UDP_FIRST) {
 		udp_item.udp_length = *cast(buffer + UDP_LENGTH_ADDR,uint16 *);
 		rx_mib.rx_udp_data_count++;
 	} else {
@@ -96,8 +95,7 @@ method unpacket_frame(uint8 *buffer,uint32 size)->(RX_MIB rx_mib) {
 		switch (udp_item.port_type) {
 			case 0: case 1:
 			    call $EnPortQueue(($port[port_id].queue),udp_item)->(result);
-				if(result == false)
-				{
+				if(result == false) {
 					log "info": "port queue is full";
 				}
 				break;
@@ -111,7 +109,7 @@ method unpacket_frame(uint8 *buffer,uint32 size)->(RX_MIB rx_mib) {
 		log "info": "wrong port id";
 	}
 	
-	if(mf == 0) {
+	if (mf == 0) {
 		$udp_first[port_id] = 1;
     } else {
 		$udp_first[port_id] = 0;

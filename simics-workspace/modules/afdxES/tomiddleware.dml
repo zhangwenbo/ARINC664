@@ -22,3 +22,46 @@ method init_middleware_mode() {
         call $socket_loop_recv();
     }    
 }
+
+method LoadCfgTo664Middleware() {
+    local uint32 data_type = 0;
+    local uint32 cfg_table_size = 0;
+
+    data_type = ANALYSE_CFG_CAM;
+    cfg_table_size = sizeoftype(analyse_cfg_cam) * CFG_NUM;
+    socket_send(cast(&data_type, uint8*), CFG_TYPE_SIZE);
+    socket_send(cast(&$analyse_cfg_cam_array, uint8*), cfg_table_size);
+
+    data_type = ANALYSE_CFG_RAM;
+    cfg_table_size = sizeoftype(analyse_cfg_ram) * CFG_NUM; 
+    socket_send(cast(&data_type, uint8*), CFG_TYPE_SIZE);
+    socket_send(cast(&$analyse_cfg_ram_array, uint8*), cfg_table_size);
+
+    data_type = TRANSMIT_CFG_RAM;
+    cfg_table_size = sizeoftype(transmit_cfg_ram) * CFG_NUM; 
+    socket_send(cast(&data_type, uint8*), CFG_TYPE_SIZE);
+    socket_send(cast(&$transmit_cfg_ram_array, uint8*), cfg_table_size);
+
+    data_type = SCHEDULING_CFG_RAM;
+    cfg_table_size = sizeoftype(scheduling_cfg_ram) * CFG_NUM; 
+    socket_send(cast(&data_type, uint8*), CFG_TYPE_SIZE);
+    socket_send(cast(&$scheduling_cfg_ram_array, uint8*), cfg_table_size);
+
+    data_type = RM_CFG_CAM;
+    cfg_table_size = sizeoftype(rm_cfg_cam) * CFG_NUM;
+    socket_send(cast(&data_type, uint8*), CFG_TYPE_SIZE);
+    socket_send(cast(&$rm_cfg_cam_array, uint8*), cfg_table_size);
+
+    data_type = RM_CFG_RAM;
+    cfg_table_size = sizeoftype(rm_cfg_ram) * CFG_NUM; 
+    socket_send(cast(&data_type, uint8*), CFG_TYPE_SIZE);
+    socket_send(cast(&$rm_cfg_ram_array, uint8*), cfg_table_size);
+
+    data_type = FRAGMENT_CFG_RAM;
+    cfg_table_size = sizeoftype(fragment_cfg_ram) * CFG_NUM;
+    socket_send(cast(&data_type, uint8*), CFG_TYPE_SIZE);
+    socket_send(cast(&$fragment_cfg_ram_array, uint8*), cfg_table_size);
+
+    data_type = DO_LOAD_CONF;
+    socket_send(cast(&data_type, uint8*), CFG_TYPE_SIZE);
+}

@@ -15,8 +15,6 @@ method init_udp_flag() {
 }
 
 method unpacket_frame(uint8 *buffer,uint32 size)->(RX_MIB rx_mib) {
-	log "info" : "called by ARINC2 to unpacket_frame";
-    
 	local uint16 dest_udp;
 	local uint16 vl;
 	local uint32 dest_ip;
@@ -34,13 +32,13 @@ method unpacket_frame(uint8 *buffer,uint32 size)->(RX_MIB rx_mib) {
 	local UDP_Item udp_item;
 	
 	call $unpacket_ip_checksum(buffer)->(correct);		//IP checksum
-    if(correct ==  INCORRECT)
-    {
+    if (correct == INCORRECT) {
         log "info": "ip checksum error";
 		rx_mib.ip_checksum_filt_count++;
-        return ;
+        return;
     }
-	rx_mib. rx_ip_data_count++;
+    
+	rx_mib.rx_ip_data_count++;
 	dest_udp =*cast((buffer + UDP_DEST_ADDR),uint16*);
 	dest_ip = *cast(buffer + IP_DEST_ADDR,uint32 *);
 	vl	= *(buffer + VL_ADDR);
@@ -64,12 +62,12 @@ method unpacket_frame(uint8 *buffer,uint32 size)->(RX_MIB rx_mib) {
 	enable_network_A = $analyse_cfg_ram_array[port_id].ram_data.NETWORK_A_ENABLE;
 	enable_network_B = $analyse_cfg_ram_array[port_id].ram_data.NETWORK_B_ENABLE;
 	
-	if(enable_network_A !=$analyse_cfg_ram_array[port_id].ram_data.NETWORK_A_ENABLE) {
+	if (enable_network_A !=$analyse_cfg_ram_array[port_id].ram_data.NETWORK_A_ENABLE) {
 		log "info": "enable network A error!";
 		return;
 	}
 
-	if(enable_network_B != $analyse_cfg_ram_array[port_id].ram_data.NETWORK_B_ENABLE) {
+	if (enable_network_B != $analyse_cfg_ram_array[port_id].ram_data.NETWORK_B_ENABLE) {
 		log "info": "enable network B error!";
 		return;
 	}
@@ -77,7 +75,7 @@ method unpacket_frame(uint8 *buffer,uint32 size)->(RX_MIB rx_mib) {
 	udp_item.port_type = $analyse_cfg_ram_array[port_id].ram_data.PORT_TYPE; 
 
     
-	if($udp_first[port_id] == RECEIVE_UDP_FIRST) {
+	if ($udp_first[port_id] == RECEIVE_UDP_FIRST) {
 		udp_item.udp_length = *cast(buffer + UDP_LENGTH_ADDR,uint16 *);
 		rx_mib.rx_udp_data_count++;
 	} else {
@@ -91,9 +89,8 @@ method unpacket_frame(uint8 *buffer,uint32 size)->(RX_MIB rx_mib) {
 	udp_item.mf =mf;
     udp_item.dest_udp = dest_udp;
 	
-	if (port_id >= 0 && port_id < 128) {
+	if (port_id >= 0 && port_id < 4096) {
 		switch (udp_item.port_type) {
-   
 			case 0: case 1:
 			    call $EnPortQueue(($port[port_id].queue),udp_item)->(result);
                   //for test start

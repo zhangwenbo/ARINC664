@@ -22,3 +22,13 @@ struct Recv_VL {
 }
 
 data Recv_VL recv_vl[RECV_VL_NUM];
+
+method init_vl_cfg() {
+    local uint32 i = 0;
+    for (; i < SEND_VL_NUM; ++i) {
+        $vl_index_array[i] = new uint8;
+    }
+    for (i = 0; i < RECV_VL_NUM; ++i) {
+        $recv_vl[i].expect_sn = 0;
+    }    
+}
