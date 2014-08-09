@@ -1,0 +1,68 @@
+dml 1.2;
+
+struct RM_INFO {
+    uint8 VL_ENABLE;
+    uint8 RM_ENABLE;
+    uint8 NETWORK_A_IC_ENABLE;
+    uint8 NETWORK_B_IC_ENABLE;
+    uint8 NETWORK_A_ENABLE;
+    uint8 NETWORK_B_ENABLE;
+    uint8 A_Interface_ID;
+    uint8 B_Interface_ID;
+    uint8 rm_index;
+    uint32 frame_size;
+}
+
+method Init_RM_INFO(RM_INFO *rm_info, uint8 rm_index, uint32 frame_size) {
+    rm_info->VL_ENABLE = $rm_cfg_ram_array[rm_index].ram_data.VL_ENABLE;
+    rm_info->RM_ENABLE = $rm_cfg_ram_array[rm_index].ram_data.RM_ENABLE;
+    rm_info->NETWORK_A_IC_ENABLE = $rm_cfg_ram_array[rm_index].ram_data.NETWORK_A_IC_ENABLE;
+    rm_info->NETWORK_B_IC_ENABLE = $rm_cfg_ram_array[rm_index].ram_data.NETWORK_B_IC_ENABLE;
+    rm_info->NETWORK_A_ENABLE = $rm_cfg_ram_array[rm_index].ram_data.NETWORK_A_ENABLE;
+    rm_info->NETWORK_B_ENABLE = $rm_cfg_ram_array[rm_index].ram_data.NETWORK_B_ENABLE;
+    rm_info->rm_index = rm_index;
+    rm_info->frame_size = frame_size;
+}
+
+method RM_Handler(RM_INFO *rm_info, uint8 interface_id, uint8 frame_sn) -> (bool result) {
+    if (rm_info->VL_ENABLE == 0) {
+        result = false;
+        return;
+    }
+
+    if (rm_info->NETWORK_A_ENABLE == 1) {
+        rm_info->A_Interface_ID = 1;
+    } else {
+        rm_info->A_Interface_ID = 0;
+    }
+    
+    if (rm_info->NETWORK_B_ENABLE == 1) {
+        rm_info->B_Interface_ID = 2;
+    } else {
+        rm_info->B_Interface_ID = 0;
+    }
+
+    if (interface_id != rm_info->A_Interface_ID) {
+        $rx_mib.disable_A_filt_count++;
+    }
+
+    if (interface_id != rm_info->B_Interface_ID) {
+        $rx_mib.disable_B_filt_count++;
+    }
+    
+    if ((frame_sn == $recv_vl[rm_info->rm_index].expect_sn) &&
+        ((interface_id == rm_info->A_Interface_ID) ||
+         (interface_id == rm_info->B_Interface_ID))) {
+        $rx_mib.size = rm_info->frame_size;
+        $recv_vl[rm_info->rm_index].expect_sn++;
+        $recv_vl[rm_info->rm_index].expect_sn %= 256;
+        if (interface_id == rm_info->A_Interface_ID) {
+            call $mib_in_sum(&($maca_mib), rm_info->frame_size);
+        } else if (interface_id == rm_info->B_Interface_ID) {
+            call $mib_in_sum(&($macb_mib), rm_info->frame_size);
+        }
+        result = true;
+    } else {
+        result = false;
+    }
+}
