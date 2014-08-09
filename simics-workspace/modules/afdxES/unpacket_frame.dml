@@ -10,6 +10,10 @@ import "packet-description.dml";
 
 data uint8 udp_first[PORT_SIZE];   //init with 1;
 
+method init_udp_flag() {
+    memset($udp_first,1,PORT_SIZE);
+}
+
 method unpacket_frame(uint8 *buffer,uint32 size)->(RX_MIB rx_mib) {
 	log "info" : "called by ARINC2 to unpacket_frame";
     

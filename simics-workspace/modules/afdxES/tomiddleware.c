@@ -66,8 +66,8 @@ int socket_recv(unsigned char *recvbuf, int size) {
             memset(recvbuf, 0, size);
 
             len = recv(client_socket, (char *)recvbuf, size, 0);
-            if (len == size) {
-                fprintf(stdout, "Socket recv sucessfully!\n", WSAGetLastError());
+            if (len > 0) {
+                fprintf(stdout, "Socket recv sucessfully, send %d sizes!\n", len);
             } else {
                 fprintf("Socket recv failed, error code is %d.\n", WSAGetLastError());
             }

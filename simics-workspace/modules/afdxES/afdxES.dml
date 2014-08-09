@@ -20,6 +20,7 @@ import "pci-action.dml";
 import "pci-register.dml";
 import "change_endian.dml";
 import "tomiddleware.dml";
+import "rm-handler.dml";
 
 connect phyA {
 	parameter documentation = "Send data to the second ARINC664 card";
@@ -39,76 +40,42 @@ connect phyB {
     }
 }
 
+
 implement ieee_802_3_mac {
 	method send_frame(uint8 *data, uint32 size) {
         local rm_cfg_cam item;
-        item.VL_ID = data[4];
-        local uint8 position;
-		local bool crc;
-		local RX_MIB rx_mib_temp;
+        local uint8 rm_index;
+		local bool is_crc_ok;
+        local RM_INFO rm_info;
 
-	    call $recv_crc_check(data,size,$Table)->(crc);
+	    call $recv_crc_check(data,size,$Table)->(is_crc_ok);
        
-		if(crc == false) {
+		if (is_crc_ok == false) {
 			log "info":"crc check failed";
             return;
 		}
 		
-		call $change_endian(data,size);
+		call $change_endian(data, size);
 
-        log "info" : "The $rm_cfg_cam_index = %d", $rm_cfg_cam_index;
-
-        call $BinarySearchRMCfgCamArray($rm_cfg_cam_array, item) -> (position);
-        position = $rm_cfg_cam_array[position].address;
-        
-        log "info" : "The position is %d", position;
-        
-        local uint8 VL_ENABLE = $rm_cfg_ram_array[position].ram_data.VL_ENABLE;
-        local uint8 RM_ENABLE = $rm_cfg_ram_array[position].ram_data.RM_ENABLE;
-        local uint8 NETWORK_A_IC_ENABLE = $rm_cfg_ram_array[position].ram_data.NETWORK_A_IC_ENABLE;
-        local uint8 NETWORK_B_IC_ENABLE = $rm_cfg_ram_array[position].ram_data.NETWORK_B_IC_ENABLE;
-        local uint8 NETWORK_A_ENABLE = $rm_cfg_ram_array[position].ram_data.NETWORK_A_ENABLE;
-        local uint8 NETWORK_B_ENABLE = $rm_cfg_ram_array[position].ram_data.NETWORK_B_ENABLE;        
-        local uint8 A_Interface_ID;
-        local uint8 B_Interface_ID;
-       
-	   
-        if (VL_ENABLE == 0) {
-            return;
+        item.VL_ID = data[4];
+        call $BinarySearchRMCfgCamArray($rm_cfg_cam_array, item) -> (rm_index);
+        if (rm_index == -1) {
+            log "error" : "Can't find this conf in current rm cfg cam table, please check!";
+        } else {
+            rm_index = $rm_cfg_cam_array[rm_index].address;
         }
-       
+        
+        call $Init_RM_INFO(&rm_info, rm_index, size);
+
+		local uint8 interface_id = data[11] >> 5;
         local uint8 frame_sn = data[size-5];
-		local uint8 interface_id;
-		interface_id = data[11] >> 5;
-		log "info" : "interace_ido = %d", interface_id;
-
-        if (NETWORK_A_ENABLE == 1) {
-            A_Interface_ID = 1;
-        } else {
-            A_Interface_ID = 0;
-        }
-
-        if (NETWORK_B_ENABLE == 1) {
-            B_Interface_ID = 2;
-        } else {
-            B_Interface_ID = 0;
-        }
-		
-		if((interface_id ==1) && (A_Interface_ID ==0))
-			$rx_mib.disable_A_filt_count++;
-		if((interface_id ==2) && (B_Interface_ID ==0))
-			$rx_mib.disable_B_filt_count++;
-	
-        if ((frame_sn == $recv_vl[position].expect_sn) && ((interface_id == A_Interface_ID) || (interface_id == B_Interface_ID))) {
-			$rx_mib.size = size;
+        local bool is_rm_ok;
+        
+        call $RM_Handler(&rm_info, interface_id, frame_sn) -> (is_rm_ok);
+        if (is_rm_ok) {
             call $unpacket_frame(data, size)->($rx_mib);
-            $recv_vl[position].expect_sn++;
-            $recv_vl[position].expect_sn %= 256;
-			if(interface_id == A_Interface_ID) call $mib_in_sum(&($maca_mib),size);
-			else if(interface_id == B_Interface_ID) call $mib_in_sum(&($macb_mib),size);
         } else {
-			log "info" : "Send from error network";
-            return;
+			log "error" : "Send from unkown network";
         }
 	}
 }
@@ -133,10 +100,8 @@ attribute is_cfg_done "If true, don't change cfg table index and write cfg table
 method post_init() {
     call $pci_config.update_all_mappings();   
 	call $gen_normal_table($Table);
-    memset($udp_first,1,PORT_SIZE);
     call $init_port_queue();
     call $init_middleware_mode();
+    call $init_udp_flag();
     call $init_vl_cfg();
-	
-	$phy_max_bandwidth = 200;
 }
