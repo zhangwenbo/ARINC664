@@ -89,6 +89,18 @@ attribute is_cfg_done "If true, don't change cfg table index and write cfg table
     parameter allocate_type = "bool";
 }
 
+attribute is_packet_udp_log_on "If true, print the packeted udp info" {
+    parameter allocate_type = "bool";
+}
+
+attribute is_packet_ip_log_on "If true, print the packeted ip info" {
+    parameter allocate_type = "bool";
+}
+
+attribute is_packet_mac_log_on "If true, print the packeted mac info" {
+    parameter allocate_type = "bool";
+}
+
 
 // USER-TODO: Add init() and post_init() methods here, if needed.
 // init() will be run to set the empty state of the model, before any

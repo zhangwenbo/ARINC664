@@ -54,7 +54,7 @@ method packet_udp_header(Udp_Header_Structure *udp_header_structure) {
 	udp_header_structure->UDP_LENGTH = UDP_HEADER_LENGTH + $pciport.tx_frame_len.frame_len;  
 	udp_header_structure->UDP_CHECKSUM = 0;
 
-    if (1) {    // fix me
+    if ($is_packet_udp_log_on) {
         local Upd_Header_Log udp_header_log;
         udp_header_log.port_type = port_type;
         udp_header_log.source_udp_port = source_udp_port;
@@ -91,7 +91,7 @@ method packet_ip_header(IP_Header_Structure *ip_header_structure) {
 		ip_header_structure->IP_DESTINATION_ADDRESS = (0xe << 28) | (0xe0 << 16) | ($transmit_cfg_ram_array[$pciport.tx_port_id.id].ram_data_part1.VL_ID);    
 	}
 
-    if (0) {                    // fix me
+    if ($is_packet_ip_log_on) {
         local IP_Header_Log ip_header_log;
         ip_header_log.ip_multicast = ip_multicast;
         ip_header_log.ip_header_structure = ip_header_structure;
@@ -110,7 +110,7 @@ method packet_mac_header(MAC_Header_Structrue *mac_header_structure) {
 	
 	mac_header_structure->INTERFACE_CONSTANT = $transmit_cfg_ram_array[$pciport.tx_port_id.id].ram_data_part2.INTERFACE_ID<<5 ;
 
-    if (0) {
+    if ($is_packet_mac_log_on) {
         call $print_mac_header(mac_header_structure);
     }
 }
@@ -126,7 +126,6 @@ method packet_data(Item *afdx_frame, Afdx_Frame_Packet* afdx_frame_packet,int fi
 	memcpy(afdx_frame->frame + memcpy_offset, &ipv4, IPV4_LENGTH);
 	memcpy_offset += IPV4_LENGTH;
 
-	//ip checksum
 	local uint16 ip_check_sum = 0; 
 	afdx_frame_packet->ip_header_structure.TOTAL_LENGTH = IP_HEADER_LENGTH + UDP_HEADER_LENGTH + afdx_frame_packet->send_frame_packet.afdx_payload_length;
 	call $ip_check_sum(cast(&afdx_frame_packet->ip_header_structure, uint8*), IP_HEADER_LENGTH) -> (ip_check_sum);
@@ -135,7 +134,7 @@ method packet_data(Item *afdx_frame, Afdx_Frame_Packet* afdx_frame_packet,int fi
 	memcpy(afdx_frame->frame + memcpy_offset, &afdx_frame_packet->ip_header_structure, IP_HEADER_LENGTH);
 
 	memcpy_offset += IP_HEADER_LENGTH;
-	if(afdx_frame_packet->send_frame_packet.first == FIRST)	{
+	if (afdx_frame_packet->send_frame_packet.first == FIRST)	{
 		memcpy(afdx_frame->frame + memcpy_offset, &afdx_frame_packet->udp_header_structure, UDP_HEADER_LENGTH);
 		memcpy_offset += UDP_HEADER_LENGTH;		   
 		afdx_frame->size =afdx_frame_packet->send_frame_packet.header_length + UDP_HEADER_LENGTH + 
@@ -226,11 +225,8 @@ method send_frame_fragment(Afdx_Frame_Packet* afdx_frame_packet) {
 		local uint2 sub_vl_id = $transmit_cfg_ram_array[$pciport.tx_port_id.id].ram_data_part3.SUB_VL_ID;
 		
 		$tx_mib.tx_ip_count++;
-		log "info" : "nic1 send to nic2";
 		call $EnQueue(&($vl[vl_index].sub_queue[sub_vl_id]), afdx_frame);	
-		log "info" : "init send time start!";
 		if (!$init_send_time) {
-		log "info" : "init send end!";
 		    call $init_event();
             call $init_phy();
 			$init_send_time = true;
