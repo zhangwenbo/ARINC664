@@ -95,7 +95,7 @@ method packet_ip_header(IP_Header_Structure *ip_header_structure) {
         local IP_Header_Log ip_header_log;
         ip_header_log.ip_multicast = ip_multicast;
         ip_header_log.ip_header_structure = ip_header_structure;
-        call $print_ip_heaer(&ip_header_log);
+        call $print_ip_header(&ip_header_log);
     }
 }
 
