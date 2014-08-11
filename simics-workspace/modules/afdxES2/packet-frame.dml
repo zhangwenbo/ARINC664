@@ -217,9 +217,6 @@ method init_event() {
     local double bag;
 
 	for (; i < $vl_enable_info.enable_num; ++i) {
-		local dbuffer_t *dbuf = new_dbuffer();
-		local uint8 *index = dbuffer_append(dbuf, sizeoftype(uint8));
-
         if ($scheduling_cfg_ram_array[i].BAG == 0) {
             bag = 0.005;
         } else {
