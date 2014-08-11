@@ -2,3 +2,44 @@ dml 1.2;
 
 import "config-tables-log.dml";
 import "packet-frame-log.dml";
+
+
+attribute is_packet_udp_log_on "If true, print the packeted udp info" {
+    parameter allocate_type = "bool";
+}
+
+attribute is_packet_ip_log_on "If true, print the packeted ip info" {
+    parameter allocate_type = "bool";
+}
+
+attribute is_packet_mac_log_on "If true, print the packeted mac info" {
+    parameter allocate_type = "bool";
+}
+
+attribute is_analyse_cfg_cam_table_log_on "If true, print the analyse_cfg_cam_table info" {
+    parameter allocate_type = "bool";
+}
+
+attribute is_analyse_cfg_ram_table_log_on "If true, print the analyse_cfg_ram_table info" {
+    parameter allocate_type = "bool";
+}
+
+attribute is_transmit_cfg_ram_table_log_on "If true, print the transmit_cfg_ram_table info" {
+    parameter allocate_type = "bool";
+}
+
+attribute is_scheduling_cfg_ram_table_log_on "If true, print the scheduling_cfg_ram_table info" {
+    parameter allocate_type = "bool";
+}
+
+attribute is_rm_cfg_cam_table_log_on "If true, print the rm_cfg_cam_table info" {
+    parameter allocate_type = "bool";
+}
+
+attribute is_rm_cfg_ram_table_log_on "If true, print the rm_cfg_ram_table info" {
+    parameter allocate_type = "bool";
+}
+
+attribute is_fragment_cfg_ram_table_log_on "If true, print the fragment_cfg_ram_table info" {
+    parameter allocate_type = "bool";
+}

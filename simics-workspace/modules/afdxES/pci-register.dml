@@ -519,6 +519,7 @@ bank pciport{
 	register cfg_done_host @ 0x1004 "cfg_done_host"	{
 		method after_write(memop) {
             $is_cfg_done = true;
+            call $Print_Cfg_Table();
             switch ($middleware_mode) {
             case To429Middleware:
                 call $QuickSortAnalyseCamArray($analyse_cfg_cam_array);

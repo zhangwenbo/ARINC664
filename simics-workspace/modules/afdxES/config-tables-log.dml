@@ -18,10 +18,10 @@ method print_analyse_cfg_cam_table() {
 method print_analyse_cfg_ram_table() {
     local uint32 i = 0;
     for (; i < $analyse_cfg_ram_index; ++i) {
-        log "info" : "The $analyse_cfg_ram_array[%d].RETENTION = %x", i, $analyse_cfg_ram_array[i].RETENTION;
-        log "info" : "The $analyse_cfg_ram_array[%d].NETWORK_B_ENABLE = %x", i, $analyse_cfg_ram_array[i].NETWORK_B_ENABLE;
-        log "info" : "The $analyse_cfg_ram_array[%d].NETWORK_A_ENABLE = %x", i, $analyse_cfg_ram_array[i].NETWORK_A_ENABLE;
-        log "info" : "The $analyse_cfg_ram_array[%d].PORT_TYPE = %x", i, $analyse_cfg_ram_array[i].PORT_TYPE;                        
+        log "info" : "The $analyse_cfg_ram_array[%d].ram_data.RETENTION = %x", i, $analyse_cfg_ram_array[i].ram_data.RETENTION;
+        log "info" : "The $analyse_cfg_ram_array[%d].ram_data.NETWORK_B_ENABLE = %x", i, $analyse_cfg_ram_array[i].ram_data.NETWORK_B_ENABLE;
+        log "info" : "The $analyse_cfg_ram_array[%d].ram_data.NETWORK_A_ENABLE = %x", i, $analyse_cfg_ram_array[i].ram_data.NETWORK_A_ENABLE;
+        log "info" : "The $analyse_cfg_ram_array[%d].ram_data.PORT_TYPE = %x", i, $analyse_cfg_ram_array[i].ram_data.PORT_TYPE;                        
     }
 }
 
@@ -58,8 +58,8 @@ method print_scheduling_cfg_ram_table() {
 method print_rm_cfg_cam_table() {
     local uint32 i = 0;
     for (; i < $rm_cfg_cam_index; ++i) {
-        log "info" : "The $rm_cfg_cam_array[%d].VL_ID = %x", $rm_cfg_cam_array[i].VL_ID;
-        log "info" : "The $rm_cfg_cam_array[%d].address = %x", $rm_cfg_cam_array[i].address;
+        log "info" : "The $rm_cfg_cam_array[%d].VL_ID = %x", i, $rm_cfg_cam_array[i].VL_ID;
+        log "info" : "The $rm_cfg_cam_array[%d].address = %x", i, $rm_cfg_cam_array[i].address;
     }
 }
 
@@ -80,5 +80,29 @@ method print_fragment_cfg_ram_table() {
     local uint32 i = 0;
     for (; i < $fragment_cfg_ram_index; ++i) {
         log "info" : "$fragment_cfg_ram_array[%d].MAX_FRAME_LENGTH = %x", i, $fragment_cfg_ram_array[i].MAX_FRAME_LENGTH;
+    }
+}
+
+method Print_Cfg_Table() {
+    if ($is_analyse_cfg_cam_table_log_on) {
+        call $print_analyse_cfg_cam_table();
+    }
+    if ($is_analyse_cfg_ram_table_log_on) {
+        call $print_analyse_cfg_ram_table();
+    }
+    if ($is_transmit_cfg_ram_table_log_on) {
+        call $print_transmit_cfg_ram_table();
+    }
+    if ($is_scheduling_cfg_ram_table_log_on) {
+        call $print_scheduling_cfg_ram_table();
+    }
+    if ($is_rm_cfg_cam_table_log_on) {
+        call $print_rm_cfg_cam_table();
+    }
+    if ($is_rm_cfg_ram_table_log_on) {
+        call $print_rm_cfg_ram_table();
+    }
+    if ($is_fragment_cfg_ram_table_log_on) {
+        call $print_fragment_cfg_ram_table();
     }
 }
