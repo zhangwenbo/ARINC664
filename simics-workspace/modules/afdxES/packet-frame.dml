@@ -246,7 +246,7 @@ method init_event() {
         if ($scheduling_cfg_ram_array[i].BAG == 0) {
             bag = 0.005;
         } else {
-            bag = $scheduling_cfg_ram_array[i].BAG / 1000000;
+            bag = $scheduling_cfg_ram_array[i].BAG / 1000000.0;
         }
         
 		inline $send_frame.post(bag, &($vl_enable_info.vl[i]));
