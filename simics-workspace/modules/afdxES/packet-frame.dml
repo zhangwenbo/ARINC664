@@ -239,13 +239,20 @@ method send_frame_fragment(Afdx_Frame_Packet* afdx_frame_packet) {
 }
 
 method init_event() {
-	local uint8 k = 0;
-	for (; k < 128; ++k) {
+	local uint8 i = 0;
+    local double bag;
+    
+	for (; i < $vl_enable_info.enable_num; ++i) {
 		local dbuffer_t *dbuf = new_dbuffer();
 		local uint8 *index = dbuffer_append(dbuf, sizeoftype(uint8));
-		
-		*index = k;
-		inline $send_frame.post($scheduling_cfg_ram_array[k].BAG / 1000000, index);
+
+        if ($scheduling_cfg_ram_array[i].BAG == 0) {
+            bag = 0.005;
+        } else {
+            bag = $scheduling_cfg_ram_array[i].BAG / 1000000;
+        }
+        
+		inline $send_frame.post(bag, &($vl_enable_info.vl[i]));
 	}	
 }
 

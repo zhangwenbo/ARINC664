@@ -2,6 +2,7 @@ dml 1.2;
 
 import "queue.dml";
 import "constant.dml";
+import "config-tables.dml";
 
 struct VL {
 	Queue sub_queue[4];   
@@ -12,6 +13,13 @@ struct VL {
 
 data VL vl[128];
 
+struct VL_Enable_Info {
+    uint8 enable_num;
+    uint8 vl[128];
+}
+    
+data VL_Enable_Info vl_enable_info;
+    
 struct PHY_FIFO {
     Queue queue;
 }
@@ -32,4 +40,21 @@ method init_vl_cfg() {
     for (i = 0; i < RECV_VL_NUM; ++i) {
         $recv_vl[i].expect_sn = 0;
     }    
+}
+
+method InitVLEnableInfo() {
+    local uint32 i;
+    local uint32 j;
+    
+    for (i = 0; i < $transmit_cfg_ram_index; ++i) {
+        for (j = 0; j < $vl_enable_info.enable_num; ++j) {
+            if ($transmit_cfg_ram_array[i].ram_data_part1.VL_INDEX == $vl_enable_info.vl[j]) {
+                break;
+            }
+        }
+        if (j == $vl_enable_info.enable_num) {
+            $vl_enable_info.vl[j] = $transmit_cfg_ram_array[i].ram_data_part1.VL_INDEX;
+            $vl_enable_info.enable_num++;
+        }
+    }
 }

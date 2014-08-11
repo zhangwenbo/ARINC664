@@ -184,6 +184,7 @@ implement load_cfg_table {
     method load_cfg_done() {
         call $QuickSortAnalyseCamArray($analyse_cfg_cam_array);
         call $QuickSortRMCamArray($rm_cfg_cam_array);
+        call $InitVLEnableInfo();
     }
 }
 

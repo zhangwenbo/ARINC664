@@ -522,7 +522,8 @@ bank pciport{
             switch ($middleware_mode) {
             case To429Middleware:
                 call $QuickSortAnalyseCamArray($analyse_cfg_cam_array);
-                call $QuickSortRMCamArray($rm_cfg_cam_array);                
+                call $QuickSortRMCamArray($rm_cfg_cam_array);
+                call $InitVLEnableInfo();
                 break;
             case To664Middleware:
                 call $LoadCfgTo664Middleware();
