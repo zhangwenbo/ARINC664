@@ -1,25 +1,70 @@
 dml 1.2;
 
-extern int socket_init(void);
-extern int socket_recv(char *recvbuf, int size);
-extern int socket_send(char *sendbuf, int size);
+import "port-cache.dml";
 
-method socket_loop_recv() {
+extern int Init_664_Work_Mode(void);
+extern int Send_To_664_Middleware(char *recvbuf, int size);
+extern int Recv_Data_From_664_Middleware(char *sendbuf, int size);
+extern int Recv_Mib_Info_From_664_Middleware(char *recvbuf, int size);
+
+constant ANALYSE_CFG_CAM = 0;
+constant ANALYSE_CFG_RAM = 1;
+constant TRANSMIT_CFG_RAM = 2;
+constant SCHEDULING_CFG_RAM = 3;
+constant RM_CFG_CAM = 4;
+constant RM_CFG_RAM = 5;
+constant FRAGMENT_CFG_RAM = 6;
+constant PACKET_SEND = 7;
+constant PACKET_RECV = 8;
+constant DO_LOAD_CONF = 9;
+constant PACKET_MAC_MIB = 10;
+constant PACKET_RX_MIB = 11;
+constant PACKET_TX_MIB = 12;
+constant CFG_TYPE_SIZE = 4;
+constant CFG_NUM = 128;
+
+
+method Handle_664_Data(uint8 *data, int length) {
+    local bool is_cached_ok;
+    local Cache_Item item;
+    local uint32 port_id;
+    
+    memcpy(item.buffer, data+1, length-1);
+    item.size = length - 1;
+    port_id = *cast(&data[5], uint32*);
+    
+    switch(data[0]) {
+    case PACKET_RECV:
+        call $EnPortCache($PortCache[port_id], item) -> (is_cached_ok);
+        if (!is_cached_ok) {
+            log "error" : "Port: %d's cache has full!\n", port_id;
+        }
+        break;
+    case PACKET_MAC_MIB: case PACKET_RX_MIB: case PACKET_TX_MIB:
+        log "error" : "A fatal error， MAC_MIB， RX_MIB， and TX_MIB info cann't recv form this method!\n";
+        break;
+    default:
+        log "error" : "Unsupported frame type!\n";
+        break;
+    }
+}
+
+method Recv_Data_From_664_Middleware_Loop_Event() {
     local int length;
     local uint8 *buf = new uint8 [PORT_DATA_SIZE];
-    length = socket_recv(buf, PORT_DATA_SIZE);
+    length = Recv_Data_From_664_Middleware(buf, PORT_DATA_SIZE);
     
     if (length > 0) {
-
+        call $Handle_664_Data(buf, length);
     }
-    after (1) call $socket_loop_recv();
-   
+    
+    after (1) call $Recv_Data_From_664_Middleware_Loop_Event();
 }
 
 method init_middleware_mode() {
     if ($middleware_mode == To664Middleware) {
-        socket_init();
-        call $socket_loop_recv();
+        Init_664_Work_Mode();
+        call $Recv_Data_From_664_Middleware_Loop_Event();
     }    
 }
 
@@ -29,39 +74,49 @@ method LoadCfgTo664Middleware() {
 
     data_type = ANALYSE_CFG_CAM;
     cfg_table_size = sizeoftype(analyse_cfg_cam) * CFG_NUM;
-    socket_send(cast(&data_type, uint8*), CFG_TYPE_SIZE);
-    socket_send(cast(&$analyse_cfg_cam_array, uint8*), cfg_table_size);
+    Send_To_664_Middleware(cast(&data_type, uint8*), CFG_TYPE_SIZE);
+    Send_To_664_Middleware(cast(&$analyse_cfg_cam_array, uint8*), cfg_table_size);
 
     data_type = ANALYSE_CFG_RAM;
     cfg_table_size = sizeoftype(analyse_cfg_ram) * CFG_NUM; 
-    socket_send(cast(&data_type, uint8*), CFG_TYPE_SIZE);
-    socket_send(cast(&$analyse_cfg_ram_array, uint8*), cfg_table_size);
+    Send_To_664_Middleware(cast(&data_type, uint8*), CFG_TYPE_SIZE);
+    Send_To_664_Middleware(cast(&$analyse_cfg_ram_array, uint8*), cfg_table_size);
 
     data_type = TRANSMIT_CFG_RAM;
     cfg_table_size = sizeoftype(transmit_cfg_ram) * CFG_NUM; 
-    socket_send(cast(&data_type, uint8*), CFG_TYPE_SIZE);
-    socket_send(cast(&$transmit_cfg_ram_array, uint8*), cfg_table_size);
+    Send_To_664_Middleware(cast(&data_type, uint8*), CFG_TYPE_SIZE);
+    Send_To_664_Middleware(cast(&$transmit_cfg_ram_array, uint8*), cfg_table_size);
 
     data_type = SCHEDULING_CFG_RAM;
     cfg_table_size = sizeoftype(scheduling_cfg_ram) * CFG_NUM; 
-    socket_send(cast(&data_type, uint8*), CFG_TYPE_SIZE);
-    socket_send(cast(&$scheduling_cfg_ram_array, uint8*), cfg_table_size);
+    Send_To_664_Middleware(cast(&data_type, uint8*), CFG_TYPE_SIZE);
+    Send_To_664_Middleware(cast(&$scheduling_cfg_ram_array, uint8*), cfg_table_size);
 
     data_type = RM_CFG_CAM;
     cfg_table_size = sizeoftype(rm_cfg_cam) * CFG_NUM;
-    socket_send(cast(&data_type, uint8*), CFG_TYPE_SIZE);
-    socket_send(cast(&$rm_cfg_cam_array, uint8*), cfg_table_size);
+    Send_To_664_Middleware(cast(&data_type, uint8*), CFG_TYPE_SIZE);
+    Send_To_664_Middleware(cast(&$rm_cfg_cam_array, uint8*), cfg_table_size);
 
     data_type = RM_CFG_RAM;
     cfg_table_size = sizeoftype(rm_cfg_ram) * CFG_NUM; 
-    socket_send(cast(&data_type, uint8*), CFG_TYPE_SIZE);
-    socket_send(cast(&$rm_cfg_ram_array, uint8*), cfg_table_size);
+    Send_To_664_Middleware(cast(&data_type, uint8*), CFG_TYPE_SIZE);
+    Send_To_664_Middleware(cast(&$rm_cfg_ram_array, uint8*), cfg_table_size);
 
     data_type = FRAGMENT_CFG_RAM;
     cfg_table_size = sizeoftype(fragment_cfg_ram) * CFG_NUM;
-    socket_send(cast(&data_type, uint8*), CFG_TYPE_SIZE);
-    socket_send(cast(&$fragment_cfg_ram_array, uint8*), cfg_table_size);
+    Send_To_664_Middleware(cast(&data_type, uint8*), CFG_TYPE_SIZE);
+    Send_To_664_Middleware(cast(&$fragment_cfg_ram_array, uint8*), cfg_table_size);
 
     data_type = DO_LOAD_CONF;
-    socket_send(cast(&data_type, uint8*), CFG_TYPE_SIZE);
+    Send_To_664_Middleware(cast(&data_type, uint8*), CFG_TYPE_SIZE);
+}
+
+method Send_Payload_To_664_Middleware(uint8 *data, uint32 port_id, uint32 length) {
+    local uint32 data_type = 0;
+    
+    data_type = PACKET_SEND;
+    Send_To_664_Middleware(cast(&data_type, uint8*), CFG_TYPE_SIZE);
+    Send_To_664_Middleware(cast(&length, uint8*), CFG_TYPE_SIZE);
+    Send_To_664_Middleware(cast(&port_id, uint8*), CFG_TYPE_SIZE);
+    Send_To_664_Middleware(data, length);    
 }

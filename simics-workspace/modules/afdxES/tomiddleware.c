@@ -2,7 +2,7 @@
 
 SOCKET client_socket;
 
-int socket_init(void) {
+int Init_664_Work_Mode(void) {
     WSADATA wsa;
 
     if (WSAStartup(MAKEWORD(2,2), &wsa)) {
@@ -33,7 +33,7 @@ int socket_init(void) {
     return 0;
 }
 
-int socket_send(unsigned char *sendbuf, int size) {
+int Send_To_664_Middleware(unsigned char *sendbuf, int size) {
     int len = send(client_socket, (char *)sendbuf, size, 0);
 
     if (len == size) {
@@ -45,7 +45,7 @@ int socket_send(unsigned char *sendbuf, int size) {
     }
 }
 
-int socket_recv(unsigned char *recvbuf, int size) {
+int Recv_Data_From_664_Middleware(unsigned char *recvbuf, int size) {
     fd_set rfds;
     FD_ZERO(&rfds);                
     FD_SET(client_socket, &rfds);  
@@ -67,12 +67,22 @@ int socket_recv(unsigned char *recvbuf, int size) {
 
             len = recv(client_socket, (char *)recvbuf, size, 0);
             if (len > 0) {
-                fprintf(stdout, "Socket recv sucessfully, send %d sizes!\n", len);
+                fprintf(stdout, "Socket recv sucessfully, recv %d size!\n", len);
             } else {
-                fprintf("Socket recv failed, error code is %d.\n", WSAGetLastError());
+                fprintf(stderr, "Socket recv failed, error code is %d.\n", WSAGetLastError());
             }
         }
 
         return len;
     }
+}
+
+int Recv_Mib_Info_From_664_Middleware(unsigned char *recvbuf, int size) {
+    int len = recv(client_socket, (char *)recvbuf, size, 0);
+    if (len > 0) {
+        fprintf(stdout, "Socket recv successfully, recv %d size!\n", len);
+    } else {
+        fprintf(stderr, "Socket recv failed, error code is %d.\n", WSAGetLastError());
+    }
+    return len;
 }

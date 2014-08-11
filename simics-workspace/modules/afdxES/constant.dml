@@ -40,7 +40,7 @@ constant SRC_IP_ADDR_LENGTH = 4;
 //for
 constant IP_DEST_ADDR = 30;
 constant UDP_DEST_ADDR = 36;
-constant  VL_ADDR = 4;
+constant VL_ADDR = 4;
 constant MULTICAST_ADDR = IP_DEST_ADDR;
 constant UDP_HEADER_ADDR =34; 
 constant MF_ADDR = 20;
@@ -80,6 +80,9 @@ constant RECV_VL_NUM = 256;
 constant To429Middleware = 0;
 constant To664Middleware = 1;
 
+// for port cache
+constant CACHE_ITEM_MAXSIZE = 10 * 1024;
+constant PORT_CACHE_MAXSIZE = 1024 * 1024;
 
 data uint32 tx_buf_overflow_number[256];
 data uint32 rx_buf_overflow_number[256];

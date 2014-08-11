@@ -1315,7 +1315,13 @@ bank pciport{
             if (port_id >= 0 && port_id < 4096) {
                 switch ($port[port_id].port_type) {
                 case 0: case 1:
-                    inline $IsPortQueueEmpty(($port[port_id].queue)) ->(is_empty);
+                    if ($middleware_mode == To429Middleware) {
+                        inline $IsPortQueueEmpty($port[port_id].queue) ->(is_empty);
+                    } else if ($middleware_mode == To664Middleware) {
+                        inline $IsPortCacheEmpty($PortCache[port_id]) ->(is_empty);
+                    } else {
+                        log "info" : "Unsupported work mode!\n";
+                    }
                     break;
                 case 2:
                     inline $IsPortSampleEmpty(&($port[port_id])) -> (is_empty);
@@ -1345,12 +1351,24 @@ bank pciport{
                 local uint32 port_id = $pciport.rx_port_id;
                 local bool is_empty;
                 local PortItem item;
-	
+                local Cache_Item item1;
                 if (port_id >= 0 && port_id < 4096) {
-                    inline $DePortQueue(($port[port_id].queue), &item)->(is_empty);
-                    if (is_empty == false) {
-                        log "info" : "queue is empty!";
-                        return;
+                    switch ($middleware_mode) {
+                    case To429Middleware:
+                        inline $DePortQueue($port[port_id].queue, &item)-> (is_empty);
+                        if (is_empty == false) {
+                            return;
+                        }                                               
+                        break;
+                    case To664Middleware:
+                        inline $DePortCache($PortCache[port_id], &item1) -> (is_empty);
+                        if (is_empty == false) {
+                            return;
+                        }                                               
+                        break;
+                    default:
+                        log "info" : "Unsupported work mode!\n";
+                        break;                        
                     }
                 } else {
                     log "error": "wrong port id";
@@ -1359,21 +1377,31 @@ bank pciport{
                 local exception_type_t ex;
                 local dbuffer_t *dbuf = new_dbuffer();
                 local uint8 *buf;
-                local uint8 i =0;
-                buf = dbuffer_append(dbuf, item.size-8);
-                for (; i < item.size-8; ++i) {
-                    buf[i] = item.frame[i+8];
-                    log "info" : "The buf[%d] = %x", i, buf[i];
+                local uint8 i = 0;
+                if ($middleware_mode == To429Middleware) {
+                    buf = dbuffer_append(dbuf, item.size-8);
+                    for (; i < item.size-8; ++i) {
+                        buf[i] = item.frame[i+8];
+                    }
+                    
+                    call $pci_data_to_memory(Sim_Addr_Space_Memory,
+                                             buf,
+                                             $pci9056.dmapadr0.padr0,
+                                             item.size-8) -> (ex);                    
+                } else if ($middleware_mode == To664Middleware) {
+                    /*
+                    buf = dbuffer_append(dbuf, item.size-8);
+                    for (; i < item.size-8; ++i) {
+                        buf[i] = item.frame[i+8];
+                    }
+                    
+                    call $pci_data_to_memory(Sim_Addr_Space_Memory,
+                                             buf,
+                                             $pci9056.dmapadr0.padr0,
+                                             item.size-8) -> (ex);
+                    */
                 }
-			
-                call $pci_data_to_memory(Sim_Addr_Space_Memory,
-                                         buf,
-                                         $pci9056.dmapadr0.padr0,
-                                         item.size-8) -> (ex);
-                log "info": "write to pci memory space";
-                log "info": "The $pci9056.dmasiz0.siz0 is %d", $pci9056.dmasiz0.siz0;
-                log "info" : "The item size is %d", item.size;
-                
+
                 dbuffer_free(dbuf);//free dbuf
 
                 if (ex != Sim_PE_No_Exception) {

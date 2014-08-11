@@ -1,0 +1,85 @@
+dml 1.2;
+
+import "constant.dml";
+
+
+struct Cache_Item {
+    uint8 buffer[CACHE_ITEM_MAXSIZE];
+    uint32 size;
+}
+
+struct Payload {
+    uint8 *buffer;
+    uint32 size;
+    Payload *next;
+}
+    
+struct Port_Cache {
+    Payload *head;
+    Payload *tail;
+    uint32 size;
+}
+
+data Port_Cache *PortCache[PORT_SIZE];
+
+method Init_Port_Cache() {
+    local uint32 i = 0;
+    for (; i < PORT_SIZE; ++i) {
+        call InitPortCache() -> ($PortCache[i]);
+    }
+}
+
+method InitPortCache() -> (Port_Cache *port_cache) {
+    local Port_Cache *cache;
+    cache = new Port_Cache;
+    cache->size = 0;
+    cache->head = new Payload;
+    cache->head->next = NULL;
+    cache->tail = cache->head;
+    port_cache = cache;
+}
+
+method EnPortCache(Port_Cache *port_cache, Cache_Item item) -> (bool result) {
+    if (port_cache->size + item.size < PORT_CACHE_MAXSIZE) {
+        port_cache->tail->next = new Payload;
+        port_cache->tail->next->buffer = new uint8[item.size];
+        memcpy(port_cache->tail->next->buffer, item.buffer, item.size);
+        port_cache->tail->next->size = item.size;
+        port_cache->size += item.size;
+        port_cache->tail->next->next = NULL;
+        port_cache->tail = port_cache->tail->next;
+
+        result = true;
+    } else {
+        result = false;
+    }
+}
+
+method DePortCache(Port_Cache *port_cache, Cache_Item *item) -> (bool result) {
+    local Payload *delete_item;
+    local uint32 size;
+
+    if (port_cache->head->next == NULL) {
+        result = false;
+    } else {
+        memcpy(item->buffer, port_cache->head->next->buffer, port_cache->head->next->size);
+        size = port_cache->head->next->size;
+        delete_item = port_cache->head->next;
+        port_cache->head->next = port_cache->head->next->next;
+        if (delete_item == port_cache->tail) {
+            port_cache->tail = port_cache->head;
+        }
+        delete delete_item;
+        port_cache->size -= size;
+        item->size = size;
+        result = true;
+    }
+}
+
+method IsPortCacheEmpty(Port_Cache *port_cache) -> (bool result) {
+    if (port_cache->size == 0) {
+        result = true;
+    } else {
+        result = false;
+    }
+}

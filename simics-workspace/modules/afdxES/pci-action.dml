@@ -40,7 +40,7 @@ method transmit() {
             call $wrapped_frame(buf, length);
             break;
         case To664Middleware:
-            // fix me !!!
+            call $Send_Payload_To_664_Middleware(buf, $pciport.tx_port_id.id, $pciport.tx_frame_len.frame_len);
             break;
         default:
             log "error" : "Unsupported work mode";

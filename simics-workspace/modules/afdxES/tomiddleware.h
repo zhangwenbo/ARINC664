@@ -9,8 +9,10 @@
 #include <WINSOCK2.H>
 
 
-extern int socket_init(void);
-extern int socket_recv(unsigned char *recvbuf, int size);
-extern int socket_send(unsigned char *sendbuf, int size);
+extern int Init_664_Work_Mode(void);
+extern int Send_To_664_Middleware(unsigned char *recvbuf, int size);
+extern int Recv_Data_From_664_Middleware(unsigned char *sendbuf, int size);
+extern int Recv_Mib_Info_From_664_Middleware(unsigned char *recvbuf, int size);
+
 
 #endif
