@@ -60,21 +60,22 @@ data MAC_MIB maca_mib;
 data MAC_MIB macb_mib;
 data RX_MIB rx_mib;
 data TX_MIB tx_mib;
+data uint32 mac_sign;
 
 method Clear_Maca_Mib_Info() {
-    memset($maca_mib, 0, sizeoftype(MAC_MIB));
+    memset(&$maca_mib, 0, sizeoftype(MAC_MIB));
 }
 
 method Clear_Macb_Mib_Info() {
-    memset($maca_mib, 0, sizeoftype(MAC_MIB));
+    memset(&$macb_mib, 0, sizeoftype(MAC_MIB));
 }
 
 method Clear_Rx_Mib_Info() {
-    memset($rx_mib, 0, sizeoftype(RX_MIB));
+    memset(&$rx_mib, 0, sizeoftype(RX_MIB));
 }
 
 method Clear_Tx_Mib_Info() {
-    memset($tx_mib, 0, sizeoftype(TX_MIB));
+    memset(&$tx_mib, 0, sizeoftype(TX_MIB));
 }
 
 method Recv_Tx_Mib_Info_From_664_Middleware() {

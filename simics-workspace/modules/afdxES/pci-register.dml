@@ -826,22 +826,7 @@ bank pciport{
         }
     }
 
-    register tx_MIB_addr {
-        method after_write(memop) {
-            switch($this) {
-            case 0:
-                $tx_MIB_data = $tx_mib.tx_ip_count;
-                break;
-            case 1:
-                $tx_MIB_data = $tx_mib.tx_udp_count;
-                break;
-            case 2:
-                $tx_MIB_data = $tx_mib.tx_icmp_count;
-                break;
-            }
-        }
-    }
-    
+
     register mibs_clear {
         field res [31:4] is (reserved);
         field maca_clear [3:3] "maca clear bit";
@@ -851,83 +836,27 @@ bank pciport{
         
         method after_write(memop) {
             if($this.maca_clear == 1) {
-                $maca_mib.crc_error=0;
-                $maca_mib.delete_little_64=0;
-                $maca_mib.delete_big_1518 =0;
-                $maca_mib.input_frame_count =0;
-                $maca_mib.input_64_127_count =0; 
-                $maca_mib.input_128_255_count =0;
-                $maca_mib.input_256_511_count=0;
-                $maca_mib.input_512_1023_count =0;
-                $maca_mib.input_1024_1518_count = 0;
-                $maca_mib.input_frame_byte_count = 0;
-                $maca_mib.output_frame_count = 0; 
-                $maca_mib.output_64_127_count = 0;
-                $maca_mib.output_128_255_count = 0;
-                $maca_mib.output_256_511_count = 0;	
-                $maca_mib.output_512_1023_count = 0;
-                $maca_mib.output_1024_1518_count = 0;	
-                $maca_mib.output_frame_byte_count = 0; 
-                $maca_mib.first_bit_error_count = 0;
-                $maca_mib.ipchecksum_error_count = 0;
-                $maca_mib.delete_bit_2048_count = 0;	
+                call $Clear_Maca_Mib_Info();
             }
             
             if($this.macb_clear == 1) {
-                $macb_mib.crc_error=0;
-                $macb_mib.delete_little_64=0;
-                $macb_mib.delete_big_1518 =0;
-                $macb_mib.input_frame_count =0;
-                $macb_mib.input_64_127_count =0;
-                $macb_mib.input_128_255_count =0;
-                $macb_mib.input_256_511_count=0;
-                $macb_mib.input_512_1023_count =0;
-                $macb_mib.input_1024_1518_count = 0;
-                $macb_mib.input_frame_byte_count = 0;
-                $macb_mib.output_frame_count = 0;
-                $macb_mib.output_64_127_count = 0;
-                $macb_mib.output_128_255_count = 0;
-                $macb_mib.output_256_511_count = 0;
-                $macb_mib.output_512_1023_count = 0;
-                $macb_mib.output_1024_1518_count = 0;
-                $macb_mib.output_frame_byte_count = 0;
-                $macb_mib.first_bit_error_count = 0;
-                $macb_mib.ipchecksum_error_count = 0;
-                $macb_mib.delete_bit_2048_count = 0;
+                call $Clear_Macb_Mib_Info();
             }
 
             if($this.recv_mibs_clear == 1) {
-                $rx_mib.disable_A_filt_count=0;
-                $rx_mib.disable_B_filt_count=0;
-                $rx_mib.A_integrated_filt_count=0;
-                $rx_mib.B_integrated_filt_count=0;
-                $rx_mib.vl_id_filt_count=0;
-                $rx_mib.redunt_filt_count=0;
-                $rx_mib.port_filt_count=0;
-                $rx_mib.ip_checksum_filt_count=0;
-                $rx_mib.ip_length_error_filt_count=0;
-                $rx_mib.udp_length_error_filt_count=0;
-                $rx_mib.ip_fragment_error_filt_count=0 ;
-                $rx_mib.overflow_count=0;
-                $rx_mib.rx_icmp_reback_count=0;
-                $rx_mib.rx_ip_data_count=0;
-                $rx_mib.rx_udp_data_count=0;
-                $rx_mib.rx_icmp_data_count=0;
-                $rx_mib.icmp_overflow_count=0;
-                $rx_mib.rx_icmp_big_max_count=0;
-                $rx_mib.rx_buffer_clear_delete_count=0;
+                call $Clear_Rx_Mib_Info();
             }
 
             if($this.send_mibs_clear == 1) {
-                $tx_mib.tx_ip_count = 0;
-                $tx_mib.tx_udp_count = 0;
-                $tx_mib.tx_icmp_count = 0;
+                call $Clear_Tx_Mib_Info();
             }
         }
     }
 
     register MACA_MIB_addr {
         method after_write(memop) {
+            call $Recv_Mac_Mib_From_664_Middleware(MACA_MIB_CONFIG);
+            
             switch($this) {
             case 0:
                 $MACA_MIB_data = $maca_mib.crc_error;
@@ -995,6 +924,8 @@ bank pciport{
 
     register MACB_MIB_addr {
         method after_write(memop) {
+            call $Recv_Mac_Mib_From_664_Middleware(MACB_MIB_CONFIG);
+            
             switch($this) {
             case 0:
                 $MACB_MIB_data = $macb_mib.crc_error;
@@ -1062,6 +993,7 @@ bank pciport{
 
     register rx_MIB_addr {
         method after_write(memop) {
+            call $Recv_Rx_Mib_Info_From_664_Middleware();
             switch($this) {
             case 0:
                 $rx_MIB_data = $rx_mib.disable_A_filt_count;
@@ -1124,7 +1056,24 @@ bank pciport{
 			
         }
     }
-	
+
+    register tx_MIB_addr {
+        method after_write(memop) {
+            call $Recv_Tx_Mib_Info_From_664_Middleware();
+            switch($this) {
+            case 0:
+                $tx_MIB_data = $tx_mib.tx_ip_count;
+                break;
+            case 1:
+                $tx_MIB_data = $tx_mib.tx_udp_count;
+                break;
+            case 2:
+                $tx_MIB_data = $tx_mib.tx_icmp_count;
+                break;
+            }
+        }
+    }
+    
     register analyse_cfg_cam_addr {
         method after_write(memop) {
             if (!$is_cfg_done) {
