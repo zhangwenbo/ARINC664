@@ -192,6 +192,7 @@ method Reverse_Table_CRC(uint8* data, int len, uint32* table)->(uint32 crc_value
 }
 
 method crc_check(uint8 *data,uint32 size,uint32* table) {
+    /*
 	local uint32 crc = 0xffffffff;
 	local uint32 crc_value;
 	local uint32 crc_value_temp;
@@ -206,10 +207,11 @@ method crc_check(uint8 *data,uint32 size,uint32* table) {
 	STORE_BE32(&crc_value_temp,crc_value);
 	*crc1 = crc_value_temp;
 	log "info": "crc=%x.",*crc1;
-	
+	*/
 }
 
 method recv_crc_check(uint8 *data,uint32 size,uint32* table)->(bool check) {
+    /*
 	local uint32 old_crc;
 	local uint32 new_crc;
 	local uint32 crc = 0xffffffff;
@@ -234,4 +236,6 @@ method recv_crc_check(uint8 *data,uint32 size,uint32* table)->(bool check) {
     } else {
 		check = false;
     }
+    */
+    check = true;
 }
