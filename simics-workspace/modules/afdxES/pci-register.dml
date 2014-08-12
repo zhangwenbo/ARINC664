@@ -224,16 +224,9 @@ bank pciport{
     }
 
     register device_state @ 0x0008 "device_state"{
-        field dsta [1:0] "Device State"{
-            parameter hard_reset_value = 0x01;
-            method read() -> (value){
-                if (value == 1)
-                    log "info",2,0: "initialization finished";
-                else if(value == 0)
-                    log "info",2,0: "initialization not finished";
-            }
+        method read() -> (value) {
+            value = 0x1;
         }
-        field res [31:2] is (reserved);
     }
 
     register work_mode @ 0x000C "work_mode"{
@@ -1343,7 +1336,6 @@ bank pciport{
                     log "error": "write data to memory fail";
                 }
                 
-                log "info": "set DMA done status";
                 $pciport.rx_rec_state = 1;
                 $pci9056.recvdmadone = 1;
             }

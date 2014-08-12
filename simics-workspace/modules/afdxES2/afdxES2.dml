@@ -198,7 +198,6 @@ method post_init() {
     call $init_vl_cfg();    
     call $record_mib();
 
-    $phy_max_bandwidth = 200;
     $record_mib_cycle = 0.1;
 }
 
