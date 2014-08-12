@@ -3,6 +3,8 @@ dml 1.2;
 import "constant.dml";
 import "port-queue.dml";
 
+data uint32 Table[256];
+
 method udp_check_sum(Item *afdx_frame, Afdx_Frame_Packet* afdx_frame_packet) {
     local uint32 sum =0;
     local uint32 i=0;

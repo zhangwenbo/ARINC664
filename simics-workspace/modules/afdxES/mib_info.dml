@@ -61,6 +61,8 @@ data MAC_MIB macb_mib;
 data RX_MIB rx_mib;
 data TX_MIB tx_mib;
 data uint32 mac_sign;
+data uint32 tx_buf_overflow_number[256];
+data uint32 rx_buf_overflow_number[256];
 
 method Clear_Maca_Mib_Info() {
     memset(&$maca_mib, 0, sizeoftype(MAC_MIB));

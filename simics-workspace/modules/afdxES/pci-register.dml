@@ -814,19 +814,18 @@ bank pciport{
     register mibs_clear              @0x7000;
     /////////////////////////// MIB begin ////////////////////////
 
-    register tx_buf_overflow_port_id {
-        method after_write(memop) {
-            $tx_buf_overflow_num = $tx_buf_overflow_number[$this];
+    register tx_buf_overflow_num {
+        method read() -> (value) {
+            value = $tx_buf_overflow_number[$tx_buf_overflow_port_id];
         }
     }
-	
-    register rx_buf_overflow_port_id {
-        method after_write(memop) {
-            $rx_buf_overflow_num = $rx_buf_overflow_number[$this];
+    
+    register rx_buf_overflow_num {
+        method read() -> (value) {
+            value = $rx_buf_overflow_number[$rx_buf_overflow_port_id];
+
         }
     }
-
-
     register mibs_clear {
         field res [31:4] is (reserved);
         field maca_clear [3:3] "maca clear bit";
@@ -1328,27 +1327,26 @@ bank pciport{
                 local uint8 *buf;
                 local uint8 i = 0;
                 if ($middleware_mode == To429Middleware) {
-                    buf = dbuffer_append(dbuf, item.size-8);
-                    for (; i < item.size-8; ++i) {
+                    item.size -= 8;
+                    buf = dbuffer_append(dbuf, item.size);
+                    for (; i < item.size; ++i) {
                         buf[i] = item.frame[i+8];
                     }
                     
                     call $pci_data_to_memory(Sim_Addr_Space_Memory,
                                              buf,
                                              $pci9056.dmapadr0.padr0,
-                                             item.size-8) -> (ex);                    
+                                             item.size) -> (ex);                    
                 } else if ($middleware_mode == To664Middleware) {
-                    /*
-                    buf = dbuffer_append(dbuf, item.size-8);
-                    for (; i < item.size-8; ++i) {
-                        buf[i] = item.frame[i+8];
+                    buf = dbuffer_append(dbuf, item.size);
+                    for (; i < item.size; ++i) {
+                        buf[i] = item.frame[i];
                     }
                     
                     call $pci_data_to_memory(Sim_Addr_Space_Memory,
                                              buf,
                                              $pci9056.dmapadr0.padr0,
-                                             item.size-8) -> (ex);
-                    */
+                                             item.size) -> (ex);
                 }
 
                 dbuffer_free(dbuf);//free dbuf
@@ -1361,8 +1359,7 @@ bank pciport{
                 log "info": "set DMA done status";
                 $pciport.rx_rec_state = 1;
                 
-                log "info" : "The item size is %d", item.size-8;
-                $pciport.rx_frame_len = item.size-8;
+                $pciport.rx_frame_len = item.size;
             }
         }
     }

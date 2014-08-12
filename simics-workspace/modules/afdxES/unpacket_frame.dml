@@ -98,9 +98,9 @@ method unpacket_frame(uint8 *buffer,uint32 size)->(RX_MIB rx_mib) {
                 $pci9056.recvdmadone = 1;
                 $pciport.rx_check_valid = 1;  
 				//for test end
-				if(result == false)
-				{
+				if(result == false) {
 					log "info" : "port queue is full!";
+                    ++$rx_buf_overflow_number[port_id];
 					return;
 				}
 			

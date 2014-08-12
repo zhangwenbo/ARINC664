@@ -88,6 +88,3 @@ constant PORT_CACHE_MAXSIZE = 1024 * 1024;
 constant MACA_MIB_CONFIG = 1;
 constant MACB_MIB_CONFIG = 2;
 
-data uint32 tx_buf_overflow_number[256];
-data uint32 rx_buf_overflow_number[256];
-data uint32 Table[256];

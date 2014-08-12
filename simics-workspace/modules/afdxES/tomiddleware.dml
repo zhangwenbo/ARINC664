@@ -29,15 +29,16 @@ method Handle_664_Data(uint8 *data, int length) {
     local Cache_Item item;
     local uint32 port_id;
     
-    memcpy(item.buffer, data+1, length-1);
-    item.size = length - 1;
-    port_id = *cast(&data[5], uint32*);
+    memcpy(item.buffer, data+2, length-2);
+    item.size = length - 2;
+    port_id = *cast(&data[1], uint8*);
     
     switch(data[0]) {
     case PACKET_RECV:
         call $EnPortCache($PortCache[port_id], item) -> (is_cached_ok);
         if (!is_cached_ok) {
             log "error" : "Port: %d's cache has full!\n", port_id;
+            ++$rx_buf_overflow_number[port_id];
         }
         break;
     case PACKET_MAC_MIB: case PACKET_RX_MIB: case PACKET_TX_MIB:
