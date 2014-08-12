@@ -173,15 +173,6 @@ method send_frame_fragment(Afdx_Frame_Packet* afdx_frame_packet) {
 	send_frame_length =afdx_frame_packet->udp_header_structure.UDP_LENGTH;  
 	afdx_frame_packet->send_frame_packet.udp_offset = 0;
 	
-	log "info" : "=====================send frame fragment========================";	
-	log "info" : "10 afdx_frame_packet->send_frame_packet.header_length =%d",afdx_frame_packet->send_frame_packet.header_length;	
-	log "info" : "10 min_frame_length 1=%d",min_frame_length;	
-	log "info" : "10 min_frame_length 2=%d",$transmit_cfg_ram_array[$pciport.tx_port_id.id].ram_data_part1.MIN_FRAME_LENGTH;	
-	log "info" : "10 max_frame_length =%d",max_frame_length ;	
-	log "info" : "10 send_frame_length  =%d",send_frame_length;	
-	
-	log "info" : "=====================send frame fragment========================";	
-	
 	while(send_frame_length > 0) {	
 		if(send_frame_length > max_frame_length) {
             if(afdx_frame_packet->send_frame_packet.first ==FIRST) {

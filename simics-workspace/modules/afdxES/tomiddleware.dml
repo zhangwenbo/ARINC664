@@ -113,7 +113,7 @@ method LoadCfgTo664Middleware() {
     data_type = DO_LOAD_CONF;
     Send_To_664_Middleware(cast(&data_type, uint8*), CFG_TYPE_SIZE);
 
-    Recv_Data_From_664_Middleware(cast(&data_type, uint8*), CFG_TYPE_SIZE);  
+    Recv_Mib_Info_From_664_Middleware(cast(&data_type, uint8*), CFG_TYPE_SIZE);
 }
 
 method Send_Payload_To_664_Middleware(uint8 *data, uint32 port_id, uint32 length) {
