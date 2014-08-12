@@ -1323,33 +1323,21 @@ bank pciport{
                 }
 				
                 local exception_type_t ex;
-                local dbuffer_t *dbuf = new_dbuffer();
-                local uint8 *buf;
-                local uint8 i = 0;
                 if ($middleware_mode == To429Middleware) {
                     item.size -= 8;
-                    buf = dbuffer_append(dbuf, item.size);
-                    for (; i < item.size; ++i) {
-                        buf[i] = item.frame[i+8];
-                    }
                     
                     call $pci_data_to_memory(Sim_Addr_Space_Memory,
-                                             buf,
-                                             $pci9056.dmapadr0.padr0,
-                                             item.size) -> (ex);                    
-                } else if ($middleware_mode == To664Middleware) {
-                    buf = dbuffer_append(dbuf, item.size);
-                    for (; i < item.size; ++i) {
-                        buf[i] = item.frame[i];
-                    }
-                    
-                    call $pci_data_to_memory(Sim_Addr_Space_Memory,
-                                             buf,
+                                             &item.frame[8],
                                              $pci9056.dmapadr0.padr0,
                                              item.size) -> (ex);
+                    $pciport.rx_frame_len = item.size;
+                } else if ($middleware_mode == To664Middleware) {
+                    call $pci_data_to_memory(Sim_Addr_Space_Memory,
+                                             item1.buffer,
+                                             $pci9056.dmapadr0.padr0,
+                                             item1.size) -> (ex);
+                    $pciport.rx_frame_len = item1.size;
                 }
-
-                dbuffer_free(dbuf);//free dbuf
 
                 if (ex != Sim_PE_No_Exception) {
                     throw;
@@ -1359,7 +1347,6 @@ bank pciport{
                 log "info": "set DMA done status";
                 $pciport.rx_rec_state = 1;
                 
-                $pciport.rx_frame_len = item.size;
             }
         }
     }
