@@ -1,0 +1,145 @@
+dml 1.2;
+
+import "packet-description.dml";
+import "constant.dml";
+
+// for MIB
+struct MAC_MIB {
+    uint32 crc_error;   				//crc checksum error
+    uint32 delete_little_64;  			//delete the frame that size is little than 64B
+    uint32 delete_big_1518;   			//delete the frame that size is bigger than 1518B
+    uint32 input_frame_count;  			// input frame count
+    uint32 input_64_127_count;			//input frame size between 64 and 127
+    uint32 input_128_255_count;			//input frame size between 128 and 255
+    uint32 input_256_511_count;			//input frame size between 256 and 511
+    uint32 input_512_1023_count;		//input frame size between 512 and 1023
+    uint32 input_1024_1518_count;		//input frame size between 1024 and 1023
+    uint32 input_frame_byte_count; 		// input frame byte count
+    uint32 output_frame_count;  		// output frame byte count
+    uint32 output_64_127_count;			//output frame size between 64 and 127
+    uint32 output_128_255_count;		//output frame size between 128 and 255
+    uint32 output_256_511_count;		//output frame size between 256 and 511
+    uint32 output_512_1023_count;		//output frame size between 512 and 1023
+    uint32 output_1024_1518_count;		//output frame size between 1024 and 1023
+    uint32 output_frame_byte_count;  	// output frame byte count
+    uint32 first_bit_error_count;		//first bit error
+    uint32 ipchecksum_error_count;		//ip checksum error
+    uint32 delete_bit_2048_count;		//delete the frame bigger than 2048
+}
+
+struct RX_MIB {
+    uint32 disable_A_filt_count;
+    uint32 disable_B_filt_count;
+    uint32 A_integrated_filt_count;
+    uint32 B_integrated_filt_count;
+    uint32 vl_id_filt_count;
+    uint32 redunt_filt_count;
+    uint32 port_filt_count;
+    uint32 ip_checksum_filt_count;
+    uint32 ip_length_error_filt_count;
+    uint32 udp_length_error_filt_count;
+    uint32 ip_fragment_error_filt_count ;
+    uint32 overflow_count;
+    uint32 rx_icmp_reback_count;
+    uint32 rx_ip_data_count;
+    uint32 rx_udp_data_count;
+    uint32 rx_icmp_data_count;
+    uint32 icmp_overflow_count;
+    uint32 rx_icmp_big_max_count;
+    uint32 rx_buffer_clear_delete_count;
+    uint32 size;
+}
+    
+struct TX_MIB {
+    uint32 tx_ip_count;
+    uint32 tx_udp_count;
+    uint32 tx_icmp_count;
+}
+
+data MAC_MIB maca_mib;
+data MAC_MIB macb_mib;
+data RX_MIB rx_mib;
+data TX_MIB tx_mib;
+
+method Clear_Maca_Mib_Info() {
+    memset($maca_mib, 0, sizeoftype(MAC_MIB));
+}
+
+method Clear_Macb_Mib_Info() {
+    memset($maca_mib, 0, sizeoftype(MAC_MIB));
+}
+
+method Clear_Rx_Mib_Info() {
+    memset($rx_mib, 0, sizeoftype(RX_MIB));
+}
+
+method Clear_Tx_Mib_Info() {
+    memset($tx_mib, 0, sizeoftype(TX_MIB));
+}
+
+method Recv_Tx_Mib_Info_From_664_Middleware() {
+    local uint32 data_type;
+	local int len;
+	local uint8 recvbuf[8192];
+
+    data_type = PACKET_TX_MIB;
+    Send_To_664_Middleware(cast(&data_type, uint8*), CFG_TYPE_SIZE);
+			
+	len = Recv_Mib_Info_From_664_Middleware(recvbuf, 8192);
+    if (len > 0) {
+        call $Set_Tx_Mib_Info(recvbuf + 1);
+    } else {
+        log "error" : "Failed recv tx mib info from 664 middleware!\n";
+    }
+}
+
+method Recv_Mac_Mib_From_664_Middleware(int32 a_or_b) {
+	local uint32 data_type[2];
+	local uint8 recvbuf[8192];
+	local int len;
+    
+	data_type[0] = PACKET_MAC_MIB;
+	data_type[1] = a_or_b;
+    Send_To_664_Middleware(cast(data_type, uint8*), 8);
+			
+	len = Recv_Mib_Info_From_664_Middleware(recvbuf, 8192);
+    if (len > 0) {
+        $mac_sign = a_or_b;
+        call $Set_Mac_Mib_Info(recvbuf + 1);        
+    } else {
+        log "error" : "Failed recv mac mib from 664 middleware!\n";
+    }
+
+}
+
+method Recv_Rx_Mib_Info_From_664_Middleware() {
+	local uint32 data_type;
+	local uint8 recvbuf[8192];
+	local int32 len;
+
+    data_type = PACKET_RX_MIB;    
+    Send_To_664_Middleware(cast(&data_type, uint8*), CFG_TYPE_SIZE);
+			
+	len = Recv_Mib_Info_From_664_Middleware(recvbuf, 8192);
+    if (len > 0) {
+        call $Set_Rx_Mib_Info(recvbuf + 1);
+    } else {
+        log "error" : "Failed recv rx mib info from 664 middleware";
+    }
+}
+
+method  Set_Mac_Mib_Info(uint8 *buffer) {
+	if ($mac_sign == MACA_MIB_CONFIG) {
+		memcpy(&($maca_mib), buffer, sizeoftype(MAC_MIB));
+	} else if ($mac_sign == MACB_MIB_CONFIG) {
+		memcpy(&($macb_mib), buffer, sizeoftype(MAC_MIB));
+	}
+}
+
+method  Set_Rx_Mib_Info(uint8 *buffer) {
+	memcpy(&($rx_mib), buffer, sizeoftype(RX_MIB));	
+}
+
+method  Set_Tx_Mib_Info(uint8 *buffer) {
+	memcpy(&($tx_mib), buffer, sizeoftype(TX_MIB));
+}

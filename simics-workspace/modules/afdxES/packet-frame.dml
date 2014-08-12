@@ -7,6 +7,7 @@ import "packet-description.dml";
 import "change_endian.dml";
 import "crc.dml";
 import "log.dml";
+import "mib_info.dml";
 
 data bool init_send_time;
 
