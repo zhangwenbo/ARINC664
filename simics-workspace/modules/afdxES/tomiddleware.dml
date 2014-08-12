@@ -58,14 +58,16 @@ method Recv_Data_From_664_Middleware_Loop_Event() {
     if (length > 0) {
         call $Handle_664_Data(buf, length);
     }
-    
-    after (1) call $Recv_Data_From_664_Middleware_Loop_Event();
+
+    delete buf;
+    after (0.000001) call $Recv_Data_From_664_Middleware_Loop_Event();
 }
 
 method init_middleware_mode() {
     if ($middleware_mode == To664Middleware) {
         Init_664_Work_Mode();
         call $Recv_Data_From_664_Middleware_Loop_Event();
+        call $Init_Port_Cache();
     }    
 }
 
@@ -110,6 +112,8 @@ method LoadCfgTo664Middleware() {
 
     data_type = DO_LOAD_CONF;
     Send_To_664_Middleware(cast(&data_type, uint8*), CFG_TYPE_SIZE);
+
+    Recv_Data_From_664_Middleware(cast(&data_type, uint8*), CFG_TYPE_SIZE);  
 }
 
 method Send_Payload_To_664_Middleware(uint8 *data, uint32 port_id, uint32 length) {

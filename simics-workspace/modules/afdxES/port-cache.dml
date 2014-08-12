@@ -25,7 +25,7 @@ data Port_Cache *PortCache[PORT_SIZE];
 method Init_Port_Cache() {
     local uint32 i = 0;
     for (; i < PORT_SIZE; ++i) {
-        call InitPortCache() -> ($PortCache[i]);
+        call $InitPortCache() -> ($PortCache[i]);
     }
 }
 
