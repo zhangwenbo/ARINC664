@@ -5,11 +5,12 @@
 #
 
 MODULE_CLASSES = rtc_module
-SRC_FILES = socket.c rdc_load_conf.c
+SRC_FILES = socket.c rdc_load_conf.c op_429_card.c
 DML_FILES = rtc_module.dml
 DMLC_FLAGS = -m -I$(SIMICS_WORKSPACE)/include
 
-MODULE_LDFLAGS = -lws2_32
+MODULE_CFLAGS = -I$(SIMICS_WORKSPACE)/modules/rtc_module/include
+MODULE_LDFLAGS = -lws2_32 -L$(SIMICS_WORKSPACE)/modules/rtc_module/lib/win -la429
 
 SIMICS_API := 4.6
 THREAD_SAFE := yes
