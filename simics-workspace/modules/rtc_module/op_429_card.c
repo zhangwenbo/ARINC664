@@ -147,16 +147,22 @@ void init_429_middleware(void) {
 }
 
 static send_to_429_card(const channel_state_t* const channel_state) {
+    A429Return rc = A429_SUCCESS;
     uint32_t apWordsQueued = 0;
-    a429TxSendAsynchronousData(channel_state->tx_channel, &channel_state->tx_data, sizeof(channel_state->tx_data), &apWordsQueued);
+    rc = a429TxSendAsynchronousData(channel_state->tx_channel, &channel_state->tx_data, sizeof(channel_state->tx_data), &apWordsQueued);
+    if (A429_SUCCESS != rc) {
+        fprintf(stderr, "Failed to transmit data: %s\n", a429UtilsErrorString(rc));
+        exit(1);
+    }
 }
 
 void send_to_429(void *channel_nr, void *word) {
     channel_data_t chan_stat;
-    chan_stat.channel_nr = *(OwUInt32*)channel_nr;
+    chan_stat.channel_nr = *(OwUInt8*)channel_nr;
     chan_stat.word = *(OwUInt32*)word;
     inited_channel[chan_stat.channel_nr - 1].tx_data = chan_stat.word;
     send_to_429_card(&inited_channel[chan_stat.channel_nr - 1]);
+    fprintf(stdout, "Transmit from channel %d, data is %x\n", chan_stat.channel_nr, inited_channel[chan_stat.channel_nr - 1].tx_data);
 }
 
 void recv_from_429(void *channel_nr, void *word) {
