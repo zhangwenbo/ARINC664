@@ -38,42 +38,42 @@ channel_state_t inited_channel[MAX_CHANNELS] = {
     {0, {0}, {0}, NULL, NULL, &construct_channel_state_t, NULL},
 };
 
-static void configure_tx(A429Handle board, uint8_t channel_num, A429Handle* tx) {
+static void configure_tx(const A429Handle* const board, uint8_t channel_num, A429Handle* tx) {
     A429Return rc = A429_SUCCESS;
 
     /* create the transmit channel */
-    rc = a429BoardConfigTxChannel(board, channel_num, A429_CHANNEL_SPEED_LOW, tx, 1);
+    rc = a429BoardConfigTxChannel(*board, channel_num, A429_CHANNEL_SPEED_LOW, tx, 1);
     if (A429_SUCCESS != rc) {
         fprintf(stderr, "Failed to configure transmit channel: %s\n", a429UtilsErrorString(rc));
         exit(1);
     }
 }
 
-static void configure_rx(A429Handle board, uint8_t channel_num, A429Handle* rx) {
+static void configure_rx(const A429Handle* const board, uint8_t channel_num, A429Handle* rx) {
     A429Return rc = A429_SUCCESS;
 
     /* create the receive channel */
-    rc = a429BoardConfigRxChannel(board, channel_num, A429_CHANNEL_SPEED_LOW, rx);
+    rc = a429BoardConfigRxChannel(*board, channel_num, A429_CHANNEL_SPEED_LOW, rx);
     if (A429_SUCCESS != rc) {
         fprintf(stderr, "Failed to configure receive channel: %s\n", a429UtilsErrorString(rc));
         exit(1);
     }
 }
 
-static void construct_channel_state_t(struct _channel_state_t *this, const A429Handle *board, OwUInt32 nr, const channel_conf_t* const conf) {
+static void construct_channel_state_t(struct _channel_state_t *this, const A429Handle* const board, OwUInt32 nr, const channel_conf_t* const conf) {
     A429Return rc = A429_SUCCESS;
     
     this->nr = nr;
 
     configure_tx(board, conf->tx_nr, &this->tx_channel);
-    rc = a429BoardStartChannel(this->tx_channel, conf->tx_nr); /* notice the second param, I'am not true */
+    rc = a429BoardStartChannel(*board, conf->tx_nr); /* notice the second param, I'am not true */
     if (rc != A429_SUCCESS) {
         fprintf(stderr, "Failed to start transmit channel %d: %s\n", conf->tx_nr, a429UtilsErrorString(rc));
         exit(1);
     }
 
     configure_rx(board, conf->rx_nr, &this->rx_channel);
-    rc = a429BoardStartChannel(this->rx_channel, conf->rx_nr); /* notice the second param, I'am not true */
+    rc = a429BoardStartChannel(*board, conf->rx_nr); /* notice the second param, I'am not true */
     if (rc != A429_SUCCESS) {
         fprintf(stderr, "Failed to start receive channel %d: %s\n", conf->rx_nr, a429UtilsErrorString(rc));
         exit(1);
@@ -84,8 +84,6 @@ static A429Handle init_board(uint64_t aSerialNumber) {
     A429Return rc = A429_SUCCESS;
     A429Handle board = { 0 };
     A429BoardDetails details = { 0 };
-    A429Handle rx = { 0 };
-    A429Handle tx = { 0 };
     
 #if 1
     /* enable debug output */
@@ -116,7 +114,7 @@ static A429Handle init_board(uint64_t aSerialNumber) {
     return board;
 }
 
-void init_channel_state(const A429Handle *board, channel_conf_t *chan_conf, int chan_conf_size) {
+static void init_channel_state(const A429Handle *board, const channel_conf_t* const chan_conf, int chan_conf_size) {
     A429Return rc = A429_SUCCESS;
 
     int i = 0;
@@ -146,4 +144,32 @@ void init_429_middleware(void) {
     uint64_t aSerialNumber = 0; /* How to get? */
     A429Handle board = init_board(aSerialNumber);
     init_channel_state(&board, g_channel_conf, MAX_CHANNELS);
+}
+
+static send_to_429_card(const channel_state_t* const channel_state) {
+    uint32_t apWordsQueued = 0;
+    a429TxSendAsynchronousData(channel_state->tx_channel, &channel_state->tx_data, sizeof(channel_state->tx_data), &apWordsQueued);
+}
+
+void send_to_429(void *channel_nr, void *word) {
+    channel_data_t chan_stat;
+    chan_stat.channel_nr = *(OwUInt32*)channel_nr;
+    chan_stat.word = *(OwUInt32*)word;
+    inited_channel[chan_stat.channel_nr - 1].tx_data = chan_stat.word;
+    send_to_429_card(&inited_channel[chan_stat.channel_nr - 1]);
+}
+
+void recv_from_429(void *channel_nr, void *word) {
+    recv_from_429_card(channel_nr, word);
+    channel_data_t chan_stat;
+    *(OwUInt32*)channel_nr = chan_stat.channel_nr;
+    *(OwUInt32*)word = chan_stat.word;
+}
+
+static recv_from_429_card(void *channel_nr, void *word) {
+    uint32_t readword = 0;
+    int i = 0;
+    for (; i < MAX_CHANNELS; i++) {
+        a429RxReadLabelBuffer(inited_channel[i].rx_channel, &inited_channel[i].rx_data, sizeof(inited_channel[i].rx_data), &readword);
+    }
 }
