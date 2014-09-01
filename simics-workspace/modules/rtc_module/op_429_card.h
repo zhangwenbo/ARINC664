@@ -7,6 +7,7 @@
 #include <a429/a429_utils.h>
 
 #include <stdio.h>
+#include <string.h>
 
 #ifndef PRIu64
 #define PRIu64 "I64u"
@@ -23,12 +24,17 @@ typedef struct _channel_conf_t {
 
 #define MAX_CHANNELS 16
 
+typedef struct _Rx_Data {
+    OwUInt32 rx_data;
+    OwUInt32 is_vaild;
+} Rx_Data;
+
 typedef struct _channel_state_t {
     OwUInt32 nr;
     A429Handle tx_channel;
     A429Handle rx_channel;
     OwUInt32 tx_data;
-    OwUInt32 rx_data;
+    Rx_Data rx;
 
     void (*constructor)(struct _channel_state_t *this, const A429Handle *board, OwUInt32 nr, const channel_conf_t* const conf);
     void (*stop)();

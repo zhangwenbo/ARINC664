@@ -20,22 +20,22 @@ channel_conf_t g_channel_conf[MAX_CHANNELS] = {
 };
 
 channel_state_t inited_channel[MAX_CHANNELS] = {
-    {0, {0}, {0}, NULL, NULL, &construct_channel_state_t, NULL},
-    {0, {0}, {0}, NULL, NULL, &construct_channel_state_t, NULL},
-    {0, {0}, {0}, NULL, NULL, &construct_channel_state_t, NULL},
-    {0, {0}, {0}, NULL, NULL, &construct_channel_state_t, NULL},
-    {0, {0}, {0}, NULL, NULL, &construct_channel_state_t, NULL},
-    {0, {0}, {0}, NULL, NULL, &construct_channel_state_t, NULL},
-    {0, {0}, {0}, NULL, NULL, &construct_channel_state_t, NULL},
-    {0, {0}, {0}, NULL, NULL, &construct_channel_state_t, NULL},
-    {0, {0}, {0}, NULL, NULL, &construct_channel_state_t, NULL},
-    {0, {0}, {0}, NULL, NULL, &construct_channel_state_t, NULL},
-    {0, {0}, {0}, NULL, NULL, &construct_channel_state_t, NULL},
-    {0, {0}, {0}, NULL, NULL, &construct_channel_state_t, NULL},
-    {0, {0}, {0}, NULL, NULL, &construct_channel_state_t, NULL},
-    {0, {0}, {0}, NULL, NULL, &construct_channel_state_t, NULL},
-    {0, {0}, {0}, NULL, NULL, &construct_channel_state_t, NULL},
-    {0, {0}, {0}, NULL, NULL, &construct_channel_state_t, NULL},
+    {0, {0}, {0}, 0, {0}, &construct_channel_state_t, NULL},
+    {0, {0}, {0}, 0, {0}, &construct_channel_state_t, NULL},
+    {0, {0}, {0}, 0, {0}, &construct_channel_state_t, NULL},
+    {0, {0}, {0}, 0, {0}, &construct_channel_state_t, NULL},
+    {0, {0}, {0}, 0, {0}, &construct_channel_state_t, NULL},
+    {0, {0}, {0}, 0, {0}, &construct_channel_state_t, NULL},
+    {0, {0}, {0}, 0, {0}, &construct_channel_state_t, NULL},
+    {0, {0}, {0}, 0, {0}, &construct_channel_state_t, NULL},
+    {0, {0}, {0}, 0, {0}, &construct_channel_state_t, NULL},
+    {0, {0}, {0}, 0, {0}, &construct_channel_state_t, NULL},
+    {0, {0}, {0}, 0, {0}, &construct_channel_state_t, NULL},
+    {0, {0}, {0}, 0, {0}, &construct_channel_state_t, NULL},
+    {0, {0}, {0}, 0, {0}, &construct_channel_state_t, NULL},
+    {0, {0}, {0}, 0, {0}, &construct_channel_state_t, NULL},
+    {0, {0}, {0}, 0, {0}, &construct_channel_state_t, NULL},
+    {0, {0}, {0}, 0, {0}, &construct_channel_state_t, NULL},
 };
 
 static void configure_tx(const A429Handle* const board, uint8_t channel_num, A429Handle* tx) {
@@ -165,17 +165,29 @@ void send_to_429(void *channel_nr, void *word) {
     fprintf(stdout, "Transmit from channel %d, data is %x\n", chan_stat.channel_nr, inited_channel[chan_stat.channel_nr - 1].tx_data);
 }
 
-void recv_from_429(void *channel_nr, void *word) {
-    recv_from_429_card(channel_nr, word);
-    channel_data_t chan_stat;
-    *(OwUInt32*)channel_nr = chan_stat.channel_nr;
-    *(OwUInt32*)word = chan_stat.word;
+void recv_from_429(void *channels) {
+    recv_from_429_card(channels);
 }
 
-static recv_from_429_card(void *channel_nr, void *word) {
+static recv_from_429_card(void *channels) {
+    A429Return rc = A429_SUCCESS;
     uint32_t readword = 0;
+
     int i = 0;
     for (; i < MAX_CHANNELS; i++) {
-        a429RxReadLabelBuffer(inited_channel[i].rx_channel, &inited_channel[i].rx_data, sizeof(inited_channel[i].rx_data), &readword);
+        rc = a429RxRead(inited_channel[i].rx_channel, &inited_channel[i].rx.rx_data, sizeof(inited_channel[i].rx.rx_data), &readword);
+        if (A429_SUCCESS != rc) {
+            fprintf(stderr, "Failed to recieve data: %s\n", a429UtilsErrorString(rc));
+        } else {
+            if (readword != 0) {
+                inited_channel[i].rx.is_vaild = 1;
+                fprintf(stdout, "Recv from channel %d, data is %x\n", i + 17, inited_channel[i].rx.rx_data);
+            } else {
+                inited_channel[i].rx.is_vaild = 0;
+            }
+        }
+
+        memmove(channels + i * sizeof(Rx_Data), &inited_channel[i].rx, sizeof(Rx_Data));
     }
+
 }
