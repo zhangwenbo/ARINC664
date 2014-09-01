@@ -180,7 +180,7 @@ static recv_from_429_card(void *channels) {
         if (A429_SUCCESS != rc) {
             fprintf(stderr, "Failed to recieve data: %s\n", a429UtilsErrorString(rc));
         } else {
-            if (readword != 0) {
+            if (receiveWords != 0) {
                 inited_channel[i].rx.is_vaild = 1;
                 fprintf(stdout, "Recv from channel %d, data is %x\n", i + 17, inited_channel[i].rx.rx_data);
             } else {
