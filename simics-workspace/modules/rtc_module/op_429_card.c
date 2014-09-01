@@ -148,9 +148,9 @@ void init_429_middleware(void) {
 
 static send_to_429_card(const channel_state_t* const channel_state) {
     A429Return rc = A429_SUCCESS;
-    uint32 transmitword = 1;
+    uint32_t transmitWords = 1;
     
-    rc = a429TxSendAsynchronousData(channel_state->tx_channel, &channel_state->tx_data, transmitword, &transmitword);
+    rc = a429TxSendAsynchronousData(channel_state->tx_channel, &channel_state->tx_data, transmitWords, &transmitWords);
     if (A429_SUCCESS != rc) {
         fprintf(stderr, "Failed to transmit data: %s\n", a429UtilsErrorString(rc));
         exit(1);
@@ -172,11 +172,11 @@ void recv_from_429(void *channels) {
 
 static recv_from_429_card(void *channels) {
     A429Return rc = A429_SUCCESS;
-    uint32_t readword = 0;
+    uint32_t receiveWords = 0;
 
     int i = 0;
     for (; i < MAX_CHANNELS; i++) {
-        rc = a429RxRead(inited_channel[i].rx_channel, &inited_channel[i].rx.rx_data, sizeof(inited_channel[i].rx.rx_data), &readword);
+        rc = a429RxRead(inited_channel[i].rx_channel, &inited_channel[i].rx.rx_data, sizeof(inited_channel[i].rx.rx_data), &receiveWords);
         if (A429_SUCCESS != rc) {
             fprintf(stderr, "Failed to recieve data: %s\n", a429UtilsErrorString(rc));
         } else {
