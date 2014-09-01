@@ -148,8 +148,9 @@ void init_429_middleware(void) {
 
 static send_to_429_card(const channel_state_t* const channel_state) {
     A429Return rc = A429_SUCCESS;
-    uint32_t apWordsQueued = 0;
-    rc = a429TxSendAsynchronousData(channel_state->tx_channel, &channel_state->tx_data, sizeof(channel_state->tx_data), &apWordsQueued);
+    uint32 transmitword = 1;
+    
+    rc = a429TxSendAsynchronousData(channel_state->tx_channel, &channel_state->tx_data, transmitword, &transmitword);
     if (A429_SUCCESS != rc) {
         fprintf(stderr, "Failed to transmit data: %s\n", a429UtilsErrorString(rc));
         exit(1);
