@@ -32,6 +32,7 @@ method DeQueue(Queue *queue, Item *item) {
 		//log "info" : "The fifo is empty";
 	} else {
 		memcpy(item, &(queue->item[queue->front]), sizeoftype(Item)); // 将 queue中的front项存储在结构体中并返回
+		memset(&(queue->item[queue->front]), 0, sizeoftype(Item)); // 将 queue中的front项存储在结构体中并返回
 		queue->front = (queue->front + 1) % ITEM_NUM;
 		--queue->item_num;
 		queue->frame_size -= item->size;
