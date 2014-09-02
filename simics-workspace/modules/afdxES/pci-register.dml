@@ -55,10 +55,13 @@ data uint32 count;
 bank pci9056{
     parameter documentation = "Control and Status Register Mapping";
     parameter function = 0;
+    // if the target is 653, make true the byte_order is big-endian
+    // parameter byte_order = "big-endian";
     parameter byte_order = "little-endian";       
     parameter register_size = 4;
     parameter partial = true;                     
-
+    // if the target is 653, make true enable overlapping
+    // parameter overlapping = true;
     register lmisc1 @ 0x000d "Local Miscellaneous Control" {
         parameter hard_reset_value = 0x4;
     }
@@ -159,6 +162,8 @@ bank pci9056{
         }
         field res [7:5] is (reserved);
     }
+    // if the target is 653, make true the size is 4
+    // dmacsr1 size 4 @ 0x00a9 "DMA Channel 1 Command/Status" {
     register dmacsr1 size 1 @ 0x00a9 "DMA Channel 1 Command/Status" {
         field dma1e [0:0] "DMA Channel 1 Enable";
         field dma1s [1:1] "DMA Channel 1 Start" {
@@ -187,8 +192,10 @@ bank pci9056{
         }
         field res [7:5] is (reserved);
     }
-    register loopdmadone size 4 @0x00ac "DMA done";
+
 	register recvdmadone size 4 @0x00b0 "receive DMA done";
+
+    register loopdmadone size 4 @0x00b4 "DMA done";
 }
 
 
@@ -199,6 +206,8 @@ data uint32 rm_num;
 bank pciport{
     parameter documentation = "Control and Status Register Mapping";
     parameter function = 1;
+    // if the target is 653, make true the byte_order is little-endian
+    // parameter byte_order = "little-endian";
     parameter byte_order = "big-endian";
     parameter register_size = 4;
     parameter partial = true;
