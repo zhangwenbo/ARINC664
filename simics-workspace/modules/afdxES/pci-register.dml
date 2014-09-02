@@ -4,7 +4,7 @@ import "pci-device.dml";          // Generic PCI device
 import "binary-search.dml";
 import "quick-sort.dml";
 import "log.dml";
-
+extern void LoadCfgTo664Middleware();
 // Basic bank declaration
 bank pci_config {
     // List of base address registers used by the device
@@ -520,6 +520,7 @@ bank pciport{
 	
 	register cfg_done_host @ 0x1004 "cfg_done_host"	{
 		method after_write(memop) {
+			local int ret;
             $is_cfg_done = true;
             call $Print_Cfg_Table();
             switch ($middleware_mode) {
@@ -529,7 +530,15 @@ bank pciport{
                 call $InitVLEnableInfo();
                 break;
             case To664Middleware:
-                call $LoadCfgTo664Middleware();
+				call $ Write_Config_All();
+                LoadCfgTo664Middleware();
+				ret = Init_664_Card();
+				$recv_port_num = get_recv_port_num();
+				if(ret == 0)
+					log "info":"init middle succesee())()())(()())(@@@@@@@@@";
+				else 
+					log "info":"init middle failed! ret =%d())()())(()())(@@@@@@@@@",ret;
+				call $Recv_Data_From_664_Middleware_Loop_Event();
                 break;
             default:
                 log "error" : "Unsupported work mode!";
