@@ -74,7 +74,30 @@ struct transmit_cfg_ram {
     } ram_data_part3;
 }
 
+struct transmit_cfg_ram_send{
+	uint32 dst_partition_id;
+	uint32 user_defined_id_l;
+	uint32 user_defined_id_h;
+	uint32 private_ip;
+
+	uint32 vl_id ;
+	uint32 vl_index;
+	uint32 ip_multicast;
+	uint32 min_frame_length;
+	uint32 port_type;
+
+	uint32 partition_id;
+	uint32 interface_id;
+	uint32 protocol_id;
+	uint32 user_defined_id;
+
+	uint32 sub_vl_id;
+	uint32 dest_udp_port;
+	uint32 source_udp_port;
+}
+
 data transmit_cfg_ram transmit_cfg_ram_array[TRANSMIT_CFG_RAM_MAX_SIZE];
+data  transmit_cfg_ram_send transmit_cfg_ram_send_array[TRANSMIT_CFG_RAM_MAX_SIZE];
 data uint32 transmit_cfg_ram_index;
 /////////////////////////////////////  transmit_cfg_ram  end  //////////////////////////////////////
 
