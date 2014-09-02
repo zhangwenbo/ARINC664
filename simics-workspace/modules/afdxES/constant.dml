@@ -82,7 +82,7 @@ constant To664Middleware = 1;
 
 // for port cache
 constant CACHE_ITEM_MAXSIZE = 10 * 1024;
-constant PORT_CACHE_MAXSIZE = 1024 * 1024;
+constant PORT_CACHE_MAXSIZE =10* 1024 * 1024;
 
 // for mib
 constant MACA_MIB_CONFIG = 1;
