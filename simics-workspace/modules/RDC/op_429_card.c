@@ -1,6 +1,8 @@
 #include <op_429_card.h>
 
-channel_conf_t g_channel_conf[MAX_CHANNELS] = {
+static A429Handle board;
+
+static channel_conf_t g_channel_conf[MAX_CHANNELS] = {
     {1, 17},
     {2, 18},
     {3, 19},
@@ -19,7 +21,7 @@ channel_conf_t g_channel_conf[MAX_CHANNELS] = {
     {16, 32}
 };
 
-channel_state_t inited_channel[MAX_CHANNELS] = {
+static channel_state_t inited_channel[MAX_CHANNELS] = {
     {0, {0}, {0}, 0, {0}, &construct_channel_state_t, NULL},
     {0, {0}, {0}, 0, {0}, &construct_channel_state_t, NULL},
     {0, {0}, {0}, 0, {0}, &construct_channel_state_t, NULL},
@@ -142,7 +144,7 @@ static void init_channel_state(const A429Handle *board, const channel_conf_t* co
 
 void init_429_middleware(void) {
     uint64_t aSerialNumber = 0; /* How to get? */
-    A429Handle board = init_board(aSerialNumber);
+    board = init_board(aSerialNumber);
     init_channel_state(&board, g_channel_conf, MAX_CHANNELS);
 }
 
@@ -189,5 +191,21 @@ static recv_from_429_card(void *channels) {
         }
 
         memmove(channels + i * sizeof(Rx_Data), &inited_channel[i].rx, sizeof(Rx_Data));
+    }
+}
+
+void close_429_card(void) {
+    A429Return rc = A429_SUCCESS;
+
+    rc = a429BoardStopBoard(board);
+    if (A429_SUCCESS != rc) {
+        fprintf(stderr, "Stop 429 card failed, %s\n", a429UtilsErrorString(rc));
+        exit(1);
+    }
+
+    rc = a429BoardClose(&board);
+    if (A429_SUCCESS != rc) {
+        fprintf(stderr, "Close 429 card failed, %s\n", a429UtilsErrorString(rc));
+        exit(1);
     }
 }

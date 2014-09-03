@@ -56,5 +56,6 @@ static send_to_429_card(const channel_state_t* const channel_state);
 void send_to_429(void *channel_nr, void *word);
 void recv_from_429();
 static recv_from_429_card();
+void close_429_card();
 
 #endif

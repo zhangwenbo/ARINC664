@@ -233,7 +233,7 @@ extern int socket_send(char *sendbuf, int size);
 extern void init_429_middleware();
 extern void send_to_429(void *channel_nr, void *data); 
 extern void recv_from_429(void *channels);
-
+extern void void close_429_card();
 
 /*load cfg udp api*/
 extern SEND_UDP_STRUCT_t * getSendUdpCfg();
@@ -953,8 +953,6 @@ method load_afdx_config()
 	}
 	
 	$LoadCfg.load_cfg_table.load_cfg_done();
-
-
 }
 
 
@@ -965,12 +963,15 @@ method load_afdx_config()
 // initial configuration is set and when the configuration is loaded from a
 // checkpoint.
 method post_init() {
-    log "info" : "hehe"; 
 	hwa_load_conf_file();
 	call $load_afdx_config();
 	call $InitTime();
-    // socket_init();
 	init_429_middleware();
     call $socket_loop_recv();
 	
+}
+
+method destroy() {
+    log "info" : "Stop and Close 429 card.";
+    close_429_card();
 }
