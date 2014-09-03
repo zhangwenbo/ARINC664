@@ -182,7 +182,7 @@ static recv_from_429_card(void *channels) {
         } else {
             if (receiveWords != 0) {
                 inited_channel[i].rx.is_vaild = 1;
-                fprintf(stdout, "Recv from channel %d, data is %x\n", i + 17, inited_channel[i].rx.rx_data);
+                fprintf(stdout, "Recv from channel %d, data is %x\n", i + 1, inited_channel[i].rx.rx_data);
             } else {
                 inited_channel[i].rx.is_vaild = 0;
             }
@@ -190,5 +190,4 @@ static recv_from_429_card(void *channels) {
 
         memmove(channels + i * sizeof(Rx_Data), &inited_channel[i].rx, sizeof(Rx_Data));
     }
-
 }

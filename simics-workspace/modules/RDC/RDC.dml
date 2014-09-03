@@ -751,8 +751,8 @@ method socket_loop_recv() {
 	local uint8 i = 0;
 	for (; i < 16; ++i) {
 		if (rx[i].is_vaild == 1) {
-			log "info" : "Recv from channel: %d, data %x", i, rx[i].rx_data;
-			call $A429ToAfdx(i, rx[i].rx_data);
+			log "info" : "Recv from channel: %d, data %x", i + 1, rx[i].rx_data;
+			call $A429ToAfdx(i + 1, rx[i].rx_data);
 		}
 	}
 	
