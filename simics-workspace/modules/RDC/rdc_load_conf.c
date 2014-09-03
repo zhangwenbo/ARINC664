@@ -200,6 +200,7 @@ int ReadSoftCfg(FILE *fp)
 					continue;
 				}
                 nA429ChannelNum = pSendUdpCfg[i].nA429RecvChannel;
+                nA429ChannelNum -= 1;
 				A429ToUdpArry.nA429ToUdp[nA429ChannelNum][j].nUsed += 1;
 				if (A429ToUdpArry.nA429ToUdp[nA429ChannelNum][j].nUsed==1)
 				{
