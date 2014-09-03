@@ -233,7 +233,7 @@ extern int socket_send(char *sendbuf, int size);
 extern void init_429_middleware();
 extern void send_to_429(void *channel_nr, void *data); 
 extern void recv_from_429(void *channels);
-extern void void close_429_card();
+extern void close_429_card();
 
 /*load cfg udp api*/
 extern SEND_UDP_STRUCT_t * getSendUdpCfg();
