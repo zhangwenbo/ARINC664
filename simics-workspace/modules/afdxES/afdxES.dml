@@ -48,7 +48,7 @@ implement ieee_802_3_mac {
 		local bool is_crc_ok;
         local RM_INFO rm_info;
 
-        if (is_ieee_802_3_log_on) {
+        if ($is_ieee_802_3_log_on) {
             call $print_ieee_802_3_mac_begin();
         }
 	    call $recv_crc_check(data,size,$Table)->(is_crc_ok);
@@ -57,7 +57,7 @@ implement ieee_802_3_mac {
 			log "info":"crc check failed";
             return;
 		} else {
-            if (is_ieee_802_3_log_on) {
+            if ($is_ieee_802_3_log_on) {
                 call $print_ieee_802_3_mac_crc();
             }
         }
@@ -80,7 +80,7 @@ implement ieee_802_3_mac {
         
         call $RM_Handler(&rm_info, interface_id, frame_sn) -> (is_rm_ok);
         if (is_rm_ok) {
-            if (is_ieee_802_3_log_on) {
+            if ($is_ieee_802_3_log_on) {
                 call $print_ieee_802_3_mac_rm();
             }
             call $unpacket_frame(data, size)->($rx_mib);

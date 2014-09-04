@@ -3,7 +3,7 @@ dml 1.2;
 import "config-tables-log.dml";
 import "packet-frame-log.dml";
 import "ieee_802_3_mac_log.dml";
-import "unpacket_frame_log.dml"
+import "unpacket_frame_log.dml";
 
 attribute is_packet_udp_log_on "If true, print the packeted udp info" {
     parameter allocate_type = "bool";

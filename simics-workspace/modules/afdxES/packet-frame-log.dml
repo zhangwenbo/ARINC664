@@ -82,6 +82,6 @@ method print_packet_frame_frome_phy_AB() {
 }
 
 method print_packet_frame_bandwidth(uint32 bandwitdh) {
-    log "info" : "The bandwitdh is %d";
+    log "info" : "The bandwitdh is %d", bandwitdh;
 }
 
