@@ -229,6 +229,10 @@ method send_frame_fragment(Afdx_Frame_Packet* afdx_frame_packet) {
 method init_event() {
 	local uint8 i = 0;
     local double bag;
+
+    if ($is_packet_frame_log_on) {
+        call $print_packet_frame_enable_vl_num($vl_enable_info.enable_num);
+    }
     
 	for (; i < $vl_enable_info.enable_num; ++i) {
         if ($scheduling_cfg_ram_array[i].BAG == 0) {
@@ -267,6 +271,9 @@ event send_frame {
                    delay_time = $scheduling_cfg_ram_array[vl_index].BAG / 1000000;
                    item.frame[item.size - 5] = $vl[vl_index].sn++;
                    $vl[vl_index].sn %= 256;
+                   if ($is_packet_frame_log_on) {
+                       call $print_packet_frame_push_frame_into_phy_queue();
+                   }
                    call $EnQueue(&$phy_queue.queue, item);
 			   } else {
 			       delay_time = 0.005;
@@ -293,11 +300,19 @@ event send_phy {
         call $GetFirstItemInfo(&$phy_queue.queue) -> (item_size, interface_id);
         if (item_size != 0) {
             if ($send_phy_delay == 0.1) {
+                if ($is_packet_frame_log_on) {
+                    call $print_packet_frame_no_bandwidth();
+                }
                 $phyA_already_send_byte = 0;
                 $phyB_already_send_byte = 0;
                 $send_phy_delay = 0.001;
             }
-			
+
+            if ($is_packet_frame_log_on) {
+                call $print_packet_frame_interface_id(interface_id);
+                call $print_packet_frame_bandwidth($phy_max_bandwidth);
+            }
+            
             switch (interface_id) {
             case 1:
                 if (item_size + $phyA_already_send_byte <= $phy_max_bandwidth) {
@@ -306,6 +321,9 @@ event send_phy {
 					call $mib_out_sum(&($maca_mib),item.size);
                     // do CRC Check!
 					call $crc_check(item.frame,item.size,$Table);
+                    if ($is_packet_frame_log_on) {
+                        call $print_packet_frame_frome_phy_A();
+                    }
                     $phyA.ieee_802_3_mac.send_frame(cast(&item.frame, uint8*), item.size);
                     $phyA_already_send_byte += item.size; 
                 } else {
@@ -319,6 +337,9 @@ event send_phy {
                     // do CRC Check!
 					call $crc_check(item.frame,item.size,$Table);
 					call $mib_out_sum(&($macb_mib),item.size);
+                    if ($is_packet_frame_log_on) {
+                        call $print_packet_frame_frome_phy_B();
+                    }
                     $phyB.ieee_802_3_mac.send_frame(cast(&item.frame, uint8*), item.size);
                     $phyB_already_send_byte += item.size; 
                 } else {
@@ -347,6 +368,10 @@ event send_phy {
                     // do CRC Check
 					call $crc_check(item2.frame,item2.size,$Table);
                     $phyB.ieee_802_3_mac.send_frame(cast(&item2.frame, uint8*), item2.size);
+
+                    if ($is_packet_frame_log_on) {
+                        call $print_packet_frame_frome_phy_AB();
+                    }
 
                     $phyA_already_send_byte += item.size; 
                     $phyB_already_send_byte += item2.size; 

@@ -259,7 +259,9 @@ bank pciport{
                     $phy_max_bandwidth = 128 * 1024;
                     log "info",2,0: "B mac mode is 10Mbps";
                 }
-                $phyB.ieee_802_3_mac.config_bandwidth($phy_max_bandwidth);
+                if (!$middleware_mode) {
+                    $phyB.ieee_802_3_mac.config_bandwidth($phy_max_bandwidth);
+                }
             }
         }
         field ammo [1:1] "A Mac Mode"{
@@ -271,7 +273,9 @@ bank pciport{
                     log "info",2,0: "A mac mode is 10Mbps";
                     $phy_max_bandwidth = 128 * 1024;
                 }
-                $phyA.ieee_802_3_mac.config_bandwidth($phy_max_bandwidth);
+                if (!$middleware_mode) {
+                    $phyA.ieee_802_3_mac.config_bandwidth($phy_max_bandwidth);
+                }
             }
         }
         field res [31:2] is (reserved);

@@ -2,7 +2,8 @@ dml 1.2;
 
 import "config-tables-log.dml";
 import "packet-frame-log.dml";
-
+import "ieee_802_3_mac_log.dml";
+import "unpacket_frame_log.dml"
 
 attribute is_packet_udp_log_on "If true, print the packeted udp info" {
     parameter allocate_type = "bool";
@@ -41,5 +42,17 @@ attribute is_rm_cfg_ram_table_log_on "If true, print the rm_cfg_ram_table info" 
 }
 
 attribute is_fragment_cfg_ram_table_log_on "If true, print the fragment_cfg_ram_table info" {
+    parameter allocate_type = "bool";
+}
+
+attribute is_ieee_802_3_log_on "If true, print the fragment_cfg_ram_table info" {
+    parameter allocate_type = "bool";
+}
+
+attribute is_unpacket_frame_log_on "If true, print the fragment_cfg_ram_table info" {
+    parameter allocate_type = "bool";
+}
+
+attribute is_packet_frame_log_on "If true, print the fragment_cfg_ram_table info" {
     parameter allocate_type = "bool";
 }

@@ -52,3 +52,36 @@ method print_mac_header(MAC_Header_Structrue *mac_header_structure) {
 	log "info" : "mac_header_structure.INTERFACE_CONSTANT =%x",mac_header_structure->INTERFACE_CONSTANT ;		
 	log "info" : "=====================mac packet========================";	
 }
+
+method print_packet_frame_enable_vl_num(uint8 vl_num) {
+    log "info" : "Total enable vl_num: %d", vl_num;
+}
+
+method print_packet_frame_push_frame_into_phy_queue() {
+    log "info" :"Push afdxES's packeted frame into phy queue";
+}
+
+method print_packet_frame_no_bandwidth() {
+    log "info" : "No free bandwitdh";
+}
+
+method print_packet_frame_interface_id(uint8 interface_id) {
+    log "info" : "The interface_id: %d", interface_id;
+}
+
+method print_packet_frame_frome_phy_A() {
+    log "info" : "Send frame from phy A";
+}
+
+method print_packet_frame_frome_phy_B() {
+    log "info" : "Send frame from phy B";
+}
+
+method print_packet_frame_frome_phy_AB() {
+    log "info" : "Send frame from phy AB";
+}
+
+method print_packet_frame_bandwidth(uint32 bandwitdh) {
+    log "info" : "The bandwitdh is %d";
+}
+

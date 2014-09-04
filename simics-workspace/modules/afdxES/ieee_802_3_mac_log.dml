@@ -1,0 +1,13 @@
+dml 1.2;
+
+method print_ieee_802_3_mac_begin() {
+    log "info" : "Recv data from afdxES2(ieee_802_3_mac)";
+}
+
+method print_ieee_802_3_mac_crc() {
+    log "info" : "CRC check, data from afdxES2";
+}
+
+method print_ieee_802_3_mac_rm() {
+    log "info" : "RM, data from afdxES2";
+}

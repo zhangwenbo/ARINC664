@@ -30,12 +30,20 @@ method unpacket_frame(uint8 *buffer,uint32 size)->(RX_MIB rx_mib) {
 	
 	
 	local UDP_Item udp_item;
-	
+
+    if ($is_unpacket_frame_log_on) {
+        call $print_unpacket_frame_begin();
+    }
+    
 	call $unpacket_ip_checksum(buffer)->(correct);		//IP checksum
     if (correct == INCORRECT) {
         log "info": "ip checksum error";
 		rx_mib.ip_checksum_filt_count++;
         return;
+    } else {
+        if ($is_unpacket_frame_log_on) {
+            call $print_unpacket_frame_ip_checksum();
+        }
     }
     
 	rx_mib.rx_ip_data_count++;
@@ -65,12 +73,20 @@ method unpacket_frame(uint8 *buffer,uint32 size)->(RX_MIB rx_mib) {
 	if (enable_network_A !=$analyse_cfg_ram_array[port_id].ram_data.NETWORK_A_ENABLE) {
 		log "info": "enable network A error!";
 		return;
-	}
+	} else {
+        if ($is_unpacket_frame_log_on) {
+            call $print_unpacket_frame_network_A();
+        }
+    }
 
 	if (enable_network_B != $analyse_cfg_ram_array[port_id].ram_data.NETWORK_B_ENABLE) {
 		log "info": "enable network B error!";
 		return;
-	}
+	} else {
+        if ($is_unpacket_frame_log_on) {
+            call $print_unpacket_frame_network_B();
+        }
+    }
 
 	udp_item.port_type = $analyse_cfg_ram_array[port_id].ram_data.PORT_TYPE; 
 
@@ -93,15 +109,20 @@ method unpacket_frame(uint8 *buffer,uint32 size)->(RX_MIB rx_mib) {
 		switch (udp_item.port_type) {
 			case 0: case 1:
 			    call $EnPortQueue(($port[port_id].queue),udp_item)->(result);
+                if ($is_unpacket_frame_log_on) {
+                    call $print_unpacket_frame_PortQueue();
+                }
 				if(result == false) {
 					log "info" : "port queue is full!";
                     ++$rx_buf_overflow_number[port_id];
 					return;
 				}
-			
 				break;
 			case 2:
 			    call $RefreshPortData(&($port[port_id]), udp_item);
+                if ($is_unpacket_frame_log_on) {
+                    call $print_unpacket_frame_Refresh();
+                }
 			default:
 			    log "error" : "Unsupported port type";
 			    break;
