@@ -119,10 +119,6 @@ method DePortQueue(PortQueue *queue,PortItem *port_item)->(bool result) {
 		return;
 	}
 
-	log "info":"==================Dequeue=====================";
-	log "info":"item whole size = %d",item->whole_size;
-	log "info":"queue size = %d",queue->queue_size;
-
  
 	if(item->whole_size!=0 && queue->queue_size>=item->whole_size) {
 		port_item->frame = new uint8[item->whole_size];
@@ -130,8 +126,8 @@ method DePortQueue(PortQueue *queue,PortItem *port_item)->(bool result) {
 		port_item->dest_ip = item->dest_ip;
 		port_item->src_ip = item->src_ip;
         port_item->dest_udp = item->dest_udp;
-        log "info" : "single size is %d ,whole size is %d",item->single_size,item->whole_size;
 		whole_size = item->whole_size;
+
         while(item) {
             if(whole_size < item->single_size)
                 item->single_size = whole_size;
@@ -152,12 +148,6 @@ method DePortQueue(PortQueue *queue,PortItem *port_item)->(bool result) {
 				return;
 			}
 		}
-
-		//for test start
-		local uint32 i;
-		for(i=0;i<port_item->size;i++)
-			log "info": "frame[%d]=%d",i,port_item->frame[i];
-		//for test end
 
 		queue->head->next = NULL;
 		queue->tail = queue->head;
@@ -183,7 +173,6 @@ method RefreshPortData(Receive_Port *port, UDP_Item udp_item) {
 	port->frame = dbuffer_append(port->dbuf, udp_item.udp_length);
 	
 	memcpy(port->frame, udp_item.buffer, udp_item.udp_length);
-	$pciport.rx_sampling_port_freshness = 0;  // ÐÂÏÊµÄ
 }
 
 

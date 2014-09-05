@@ -5,7 +5,7 @@
 #
 
 MODULE_CLASSES = afdxES2
-SRC_FILES = record_mib.c
+SRC_FILES = record-mib.c
 DML_FILES = afdxES2.dml
 DMLC_FLAGS = -m -I$(SIMICS_WORKSPACE)/include
 

@@ -42,6 +42,7 @@ method unpacket_frame(uint8 *buffer,uint32 size)->(RX_MIB rx_mib) {
 	} else {
         if ($is_unpacket_frame_log_on) {
             call $print_unpacket_frame_ip_checksum();
+        }
 	}
 	rx_mib.rx_ip_data_count++;
 	dest_udp =*cast((buffer + UDP_DEST_ADDR),uint16*);
