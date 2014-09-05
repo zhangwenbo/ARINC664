@@ -23,7 +23,7 @@ class ARINC_429Mode(StandardConnectorComponent):
         afdxES2.phyA = afdxES
         afdxES.phyB = afdxES2
         afdxES2.phyB = afdxES
-
+        
     def add_objects(self):
         self.add_connector('pci_bus', PciBusUpConnector(0, 'afdxES'))
         afdxES = self.add_pre_obj('afdxES', 'afdxES')

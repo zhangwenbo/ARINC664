@@ -4,10 +4,10 @@ import "vl.dml";
 import "checksum.dml";
 import "constant.dml";
 import "packet-description.dml";
-import "change_endian.dml";
+import "change-endian.dml";
 import "crc.dml";
 import "log.dml";
-import "mib_info.dml";
+import "mib-info.dml";
 
 data bool init_send_time;
 
@@ -169,7 +169,13 @@ method send_frame_fragment(Afdx_Frame_Packet* afdx_frame_packet) {
 	afdx_frame_packet->send_frame_packet.header_length = MAC_HEADER_LENGTH + IP_HEADER_LENGTH +  IPV4_LENGTH + SN_CRC_LENGTH;
 	header_length =  afdx_frame_packet->send_frame_packet.header_length ;
 	min_frame_length = $transmit_cfg_ram_array[$pciport.tx_port_id.id].ram_data_part1.MIN_FRAME_LENGTH - header_length;     
-	max_frame_length = $fragment_cfg_ram_array[$pciport.tx_port_id.id].MAX_FRAME_LENGTH - header_length;     
+	max_frame_length = $fragment_cfg_ram_array[$pciport.tx_port_id.id].MAX_FRAME_LENGTH - header_length;
+    if(min_frame_length <= 0) {
+        min_frame_length =64 -header_length;
+    }
+    if(max_frame_length <= 0) {
+        max_frame_length = 1518 -header_length;
+    }
 	send_frame_length =afdx_frame_packet->udp_header_structure.UDP_LENGTH;  
 	afdx_frame_packet->send_frame_packet.udp_offset = 0;
 	
@@ -269,6 +275,9 @@ event send_frame {
 			
 			   if (item.size != 0) {
                    delay_time = $scheduling_cfg_ram_array[vl_index].BAG / 1000000;
+                    if (delay_time == 0) {
+                        delay_time = 0.005;
+                    }
                    item.frame[item.size - 5] = $vl[vl_index].sn++;
                    $vl[vl_index].sn %= 256;
                    if ($is_packet_frame_log_on) {
@@ -353,7 +362,6 @@ event send_phy {
 					memcpy(&item2,&item,sizeoftype(Item));
 					item.frame[11]=1<<5;
 					item2.frame[11]=1<<6;
-						local uint32 i;
 								
 					call $change_endian(item.frame,item.size);
 					call $change_endian(item2.frame,item2.size);

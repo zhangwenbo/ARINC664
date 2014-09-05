@@ -18,7 +18,7 @@ import "unpacket_frame.dml";
 import "afdx-exchange.dml";
 import "pci-action.dml";
 import "pci-register.dml";
-import "change_endian.dml";
+import "change-endian.dml";
 import "tomiddleware.dml";
 import "rm-handler.dml";
 

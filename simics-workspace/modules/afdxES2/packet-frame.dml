@@ -4,7 +4,8 @@ import "vl.dml";
 import "checksum.dml";
 import "constant.dml";
 import "packet-description.dml";
-import "change_endian.dml";
+import "change-endian.dml";
+import "log.dml";
 
 data bool init_send_time;
 
@@ -41,15 +42,25 @@ method packet_udp_header(Udp_Header_Structure *udp_header_structure) {
 	
 	port_type = $transmit_cfg_ram_array[$tx_regs.tx_port_id.id].ram_data_part1.PORT_TYPE;  
 	source_udp_port = $transmit_cfg_ram_array[$tx_regs.tx_port_id.id].ram_data_part3.SOURCE_UDP_PORT;   
-	if (port_type == SAP_PORT)                                                                  
+	if (port_type == SAP_PORT) {
 		dest_udp_port = $tx_regs.tx_dst_udp_addr.dst_udp_addr;
-	else 
+    } else {
 		dest_udp_port = $transmit_cfg_ram_array[$tx_regs.tx_port_id.id].ram_data_part3.DEST_UDP_PORT;
+    }
 		
 	udp_header_structure->UDP_SOURCE_ADDRESS = source_udp_port;
 	udp_header_structure->UDP_DESTINATION_ADDRESS = dest_udp_port;
 	udp_header_structure->UDP_LENGTH = UDP_HEADER_LENGTH + $tx_regs.tx_frame_len.frame_len;  
 	udp_header_structure->UDP_CHECKSUM = 0;
+
+    if ($is_packet_udp_log_on) {
+        local Upd_Header_Log udp_header_log;
+        udp_header_log.port_type = port_type;
+        udp_header_log.source_udp_port = source_udp_port;
+        udp_header_log.dest_udp_port = dest_udp_port;
+        udp_header_log.udp_header_structure = udp_header_structure;
+        call $print_udp_header(&udp_header_log);
+    }
 }
 
 method packet_ip_header(IP_Header_Structure *ip_header_structure) {
@@ -78,6 +89,13 @@ method packet_ip_header(IP_Header_Structure *ip_header_structure) {
 	} else {
 		ip_header_structure->IP_DESTINATION_ADDRESS = (0xe << 28) | (0xe0 << 16) | ($transmit_cfg_ram_array[$tx_regs.tx_port_id.id].ram_data_part1.VL_ID);    
 	}
+
+    if ($is_packet_ip_log_on) {
+        local IP_Header_Log ip_header_log;
+        ip_header_log.ip_multicast = ip_multicast;
+        ip_header_log.ip_header_structure = ip_header_structure;
+        call $print_ip_header(&ip_header_log);
+    }    
 }
 
 method packet_mac_header(MAC_Header_Structrue *mac_header_structure) {
@@ -89,6 +107,10 @@ method packet_mac_header(MAC_Header_Structrue *mac_header_structure) {
 	mac_header_structure->USER_DEFINED_ID = $transmit_cfg_ram_array[$tx_regs.tx_port_id.id].ram_data_part2.USER_DEFINED_ID>>8;
 	mac_header_structure->USER_DEFINED_ID_2 = $transmit_cfg_ram_array[$tx_regs.tx_port_id.id].ram_data_part2.USER_DEFINED_ID&0xff;
 	mac_header_structure->INTERFACE_CONSTANT = $transmit_cfg_ram_array[$tx_regs.tx_port_id.id].ram_data_part2.INTERFACE_ID << 5;
+
+    if ($is_packet_mac_log_on) {
+        call $print_mac_header(mac_header_structure);
+    }    
 }
 
 method packet_data(Item *afdx_frame, Afdx_Frame_Packet* afdx_frame_packet,int first) {
@@ -146,12 +168,12 @@ method send_frame_fragment(Afdx_Frame_Packet* afdx_frame_packet) {
 	header_length =  afdx_frame_packet->send_frame_packet.header_length ;
 	min_frame_length = $transmit_cfg_ram_array[$tx_regs.tx_port_id.id].ram_data_part1.MIN_FRAME_LENGTH - header_length;     
 	max_frame_length = $fragment_cfg_ram_array[$tx_regs.tx_port_id.id].MAX_FRAME_LENGTH - header_length;     
-    // for test begin
-    if(min_frame_length <= 0)
+    if(min_frame_length <= 0) {
         min_frame_length =64 -header_length;
-    if(max_frame_length <= 0)
+    }
+    if(max_frame_length <= 0) {
         max_frame_length = 1518 -header_length;
-    // for test end
+    }
 	send_frame_length =afdx_frame_packet->udp_header_structure.UDP_LENGTH;  
 	afdx_frame_packet->send_frame_packet.udp_offset = 0;
 	while(send_frame_length > 0) {	
@@ -216,6 +238,10 @@ method init_event() {
 	local uint8 i = 0;
     local double bag;
 
+    if ($is_packet_frame_log_on) {
+        call $print_packet_frame_enable_vl_num($vl_enable_info.enable_num);
+    }
+    
 	for (; i < $vl_enable_info.enable_num; ++i) {
         if ($scheduling_cfg_ram_array[i].BAG == 0) {
             bag = 0.005;
@@ -255,6 +281,9 @@ event send_frame {
                     }
                     item.frame[item.size - 5] = $vl[vl_index].sn++;
                     $vl[vl_index].sn %= 256;
+                   if ($is_packet_frame_log_on) {
+                       call $print_packet_frame_push_frame_into_phy_queue();
+                   }
                     call $EnQueue(&$phy_queue.queue, item);
                 } else {
                     delay_time = 0.005;
@@ -281,11 +310,19 @@ event send_phy {
         
         if (item_size != 0) {
             if ($send_phy_delay == 0.1) {
-                $phyA_already_send_byte = 0;     // have some inaccuracy  error
+                if ($is_packet_frame_log_on) {
+                    call $print_packet_frame_no_bandwidth();
+                }
+                $phyA_already_send_byte = 0;
                 $phyB_already_send_byte = 0;
                 $send_phy_delay = 0.001;
             }
 
+            if ($is_packet_frame_log_on) {
+                call $print_packet_frame_interface_id(interface_id);
+                call $print_packet_frame_bandwidth($phy_max_bandwidth);
+            }
+            
             switch (interface_id) {
 
             case 1:
@@ -295,6 +332,9 @@ event send_phy {
 					call $mib_out_sum(&($maca_mib),item.size);
                     // do CRC Check!
 					call $crc_check(item.frame,item.size,$Table);
+                    if ($is_packet_frame_log_on) {
+                        call $print_packet_frame_frome_phy_A();
+                    }
                     $phyA.ieee_802_3_mac.send_frame(cast(&item.frame, uint8*), item.size);
                     $phyA_already_send_byte += item.size; 
                 } else {
@@ -305,10 +345,12 @@ event send_phy {
                 if (item_size + $phyB_already_send_byte <= $phy_max_bandwidth) {
                     call $DeQueue(&$phy_queue.queue, &item);
 					call $change_endian(item.frame,item.size);
-					call $mib_out_sum(&($macb_mib),item.size);
                     // do CRC Check!
 					call $crc_check(item.frame,item.size,$Table);
-                    
+					call $mib_out_sum(&($macb_mib),item.size);
+                    if ($is_packet_frame_log_on) {
+                        call $print_packet_frame_frome_phy_B();
+                    }
 					$phyB.ieee_802_3_mac.send_frame(cast(&item.frame, uint8*), item.size);
                     $phyB_already_send_byte += item.size; 
                 } else {
@@ -335,6 +377,10 @@ event send_phy {
                     // do CRC Check
 					call $crc_check(item2.frame,item2.size,$Table);
                     $phyB.ieee_802_3_mac.send_frame(cast(&item2.frame, uint8*), item2.size);
+
+                    if ($is_packet_frame_log_on) {
+                        call $print_packet_frame_frome_phy_AB();
+                    }
 
                     $phyA_already_send_byte += item.size; 
                     $phyB_already_send_byte += item2.size; 

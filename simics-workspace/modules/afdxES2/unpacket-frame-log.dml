@@ -1,0 +1,25 @@
+dml 1.2;
+
+method print_unpacket_frame_begin() {
+    log "info" : "Unpacket frame from afdxES";
+}
+
+method print_unpacket_frame_ip_checksum() {
+    log "info" : "IP checksum, data from afdxES";
+}
+
+method print_unpacket_frame_network_A() {
+    log "info" : "Unpacket frame from afdxES from network A";
+}
+
+method print_unpacket_frame_network_B() {
+    log "info" : "Unpacket frame from afdxES from network B";
+}
+
+method print_unpacket_frame_PortQueue() {
+    log "info" : "Push Unpacketed frame into Port Queue";
+}
+
+method print_unpacket_frame_Refresh() {
+    log "info" : "Push Unpacketed frame into Port Refresh";
+}

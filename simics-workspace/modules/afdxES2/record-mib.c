@@ -1,4 +1,4 @@
-#include "record_mib.h"
+#include "record-mib.h"
 
 void write_mid(MAC_MIB *maca_mib, MAC_MIB *macb_mib, RX_MIB *rx_mib, TX_MIB *tx_mib) {
     FILE *mib_file = fopen("./mib_file.conf", "w");    

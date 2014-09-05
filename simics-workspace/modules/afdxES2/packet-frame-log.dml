@@ -1,0 +1,86 @@
+dml 1.2;
+
+import "packet-description.dml";
+
+struct Upd_Header_Log {
+    uint2 port_type;
+    uint16 source_udp_port;
+    uint16 dest_udp_port;
+    Udp_Header_Structure *udp_header_structure;
+}
+    
+method print_udp_header(Upd_Header_Log *udp_header_log) {
+    log "info" : "=====================udp packet========================";	
+    log "info" : "port_type = %x", udp_header_log->port_type;	
+    log "info" : "source_udp_port = %x", udp_header_log->source_udp_port;	
+    log "info" : "dest_udp_port = %x", udp_header_log->dest_udp_port;	
+    log "info" : "udp_header_structure->UDP_SOURCE_ADDRESS = %x", udp_header_log->udp_header_structure->UDP_SOURCE_ADDRESS;	
+    log "info" : "udp_header_structure->UDP_DESTINATION_ADDRESS = %x", udp_header_log->udp_header_structure->UDP_DESTINATION_ADDRESS ;	
+    log "info" : "udp_header_structure->UDP_LENGTH = %x", udp_header_log->udp_header_structure->UDP_LENGTH;	
+    log "info" : "udp_header_structure->UDP_CHECKSUM = %x", udp_header_log->udp_header_structure->UDP_CHECKSUM ;	
+    log "info" : "=====================udp packet========================";	
+}
+
+struct IP_Header_Log {
+    uint1 ip_multicast;
+    IP_Header_Structure *ip_header_structure;
+}
+    
+method print_ip_header(IP_Header_Log *ip_header_log) {
+    log "info" : "=====================ip packet========================";	
+    log "info" : "ip_multicast = %d", ip_header_log->ip_multicast;	
+    log "info" : "ip_header_structure->VERSION_IHL=%x", ip_header_log->ip_header_structure->VERSION_IHL;	
+    log "info" : "ip_header_structure->TYPE_OF_SERVICE = %x", ip_header_log->ip_header_structure->TYPE_OF_SERVICE;	
+    log "info" : " ip_header_structure->TOTAL_LENGTH = %x", ip_header_log->ip_header_structure->TOTAL_LENGTH;	
+    log "info" : " ip_header_structure->FRAGMENT_IDENTIFICATION = %x", ip_header_log->ip_header_structure->FRAGMENT_IDENTIFICATION;	
+    log "info" : " ip_header_structure->CONTROL_FRAGMENT = %x", ip_header_log->ip_header_structure->CONTROL_FRAGMENT;	
+    log "info" : " ip_header_structure->TIME_TO_LIVE = %x", ip_header_log->ip_header_structure->TIME_TO_LIVE;	
+    log "info" : " ip_header_structure->PROTOCAL = %x", ip_header_log->ip_header_structure->PROTOCAL;	
+    log "info" : " ip_header_structure->HEADER_CHECKSUM = %x", ip_header_log->ip_header_structure->HEADER_CHECKSUM;	
+    log "info" : " ip_header_structure->IP_SOURCE_ADDRESS = %x", ip_header_log->ip_header_structure->IP_SOURCE_ADDRESS;	
+    log "info" : " ip_header_structure->IP_DESTINATION_ADDRESS = %x", ip_header_log->ip_header_structure->IP_DESTINATION_ADDRESS;	
+    log "info" : "=====================ip packet========================";	    
+}
+
+method print_mac_header(MAC_Header_Structrue *mac_header_structure) {
+    log "info" : "=====================mac packet========================";	
+	log "info" : "mac_header_structure.CONSTANT_FIELD_1 =%x",mac_header_structure->CONSTANT_FIELD_1;	
+	log "info" : "mac_header_structure.VIRTUAL_LINK_IDENTIFER =%x",mac_header_structure->VIRTUAL_LINK_IDENTIFER;	
+	log "info" : "mac_header_structure.CONSTANT_FIELD_2 =%x",mac_header_structure->CONSTANT_FIELD_2 ;	
+	log "info" : "mac_header_structure.USER_DEFINED_ID  =%x",mac_header_structure->USER_DEFINED_ID ;	
+	log "info" : "mac_header_structure.USER_DEFINED_ID_2  =%x",mac_header_structure->USER_DEFINED_ID_2;
+	log "info" : "mac_header_structure.INTERFACE_CONSTANT =%x",mac_header_structure->INTERFACE_CONSTANT ;		
+	log "info" : "=====================mac packet========================";	
+}
+
+method print_packet_frame_enable_vl_num(uint8 vl_num) {
+    log "info" : "Total enable vl_num: %d", vl_num;
+}
+
+method print_packet_frame_push_frame_into_phy_queue() {
+    log "info" :"Push afdxES's packeted frame into phy queue";
+}
+
+method print_packet_frame_no_bandwidth() {
+    log "info" : "No free bandwitdh";
+}
+
+method print_packet_frame_interface_id(uint8 interface_id) {
+    log "info" : "The interface_id: %d", interface_id;
+}
+
+method print_packet_frame_frome_phy_A() {
+    log "info" : "Send frame from phy A";
+}
+
+method print_packet_frame_frome_phy_B() {
+    log "info" : "Send frame from phy B";
+}
+
+method print_packet_frame_frome_phy_AB() {
+    log "info" : "Send frame from phy AB";
+}
+
+method print_packet_frame_bandwidth(uint32 bandwitdh) {
+    log "info" : "The bandwitdh is %d", bandwitdh;
+}
