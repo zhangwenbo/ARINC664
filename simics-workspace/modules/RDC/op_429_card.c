@@ -146,6 +146,25 @@ void init_429_middleware(void) {
     uint64_t aSerialNumber = 0; /* How to get? */
     board = init_board(aSerialNumber);
     init_channel_state(&board, g_channel_conf, MAX_CHANNELS);
+    char *header = "Hwa";
+    char *name = "TestProgram"; /* button name */
+    int type = 0;               /* init */
+    int nflag = 0;
+    char *description = "TestProgram init OK";
+
+    char buf[1000];
+    int len = sizeof(type) + strlen(name) + 1 + sizeof(nflag) + strlen(description) + 1;
+    memcpy(buf, header, strlen(header) + 1);
+    memcpy(buf + strlen(header) + 1, &len, sizeof(len));
+    memcpy(buf + strlen(header) + 1 + sizeof(len), name, strlen(name) + 1);
+    memcpy(buf + strlen(header) + 1 + sizeof(len) + strlen(description) + 1, &nflag, sizeof(nflag));
+    memcpy(buf + strlen(header) + 1 + sizeof(len) + strlen(description) + 1 + sizeof(nflag), description, strlen(description) + 1);
+
+    socket_send(buf, len + 8);
+    
+    
+    
+        
 }
 
 static send_to_429_card(const channel_state_t* const channel_state) {

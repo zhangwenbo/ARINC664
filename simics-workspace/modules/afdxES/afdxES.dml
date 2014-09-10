@@ -90,6 +90,12 @@ implement ieee_802_3_mac {
 	}
 }
 
+implement transmit_runtime_info_between_afdxES_and_afdxES2 {
+    method transmit_runtime_info(Runtime_Info *runtime_info) {
+        
+    }
+}
+
 attribute middleware_mode "Used to switch middleware mode" { 
     parameter documentation = "Used to switch work mode (to664middleware/to429middleware)";
     parameter allocate_type = "uint32";

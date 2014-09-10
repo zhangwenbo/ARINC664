@@ -23,6 +23,7 @@ struct RX_DATA {
 	uint32 is_vaild;
 }
 
+
 extern typedef struct
 {
 	uint8 vlNum;
@@ -267,6 +268,10 @@ connect ARINC664_2 {
 	interface Send_To_A664 {
 		parameter c_type = "Send_To_A664_interface_t";
 	}
+
+    interface transmit_runtime_info_between_afdxES2_and_RDC {
+        parameter c_type = "transmit_runtime_info_between_afdxES2_and_RDC_interface_t";
+    }
 }
 
 connect LoadCfg{
@@ -955,6 +960,9 @@ method load_afdx_config()
 	$LoadCfg.load_cfg_table.load_cfg_done();
 }
 
+method transmit_runtime_info_type {
+    $ARINC664_2.transmit_runtime_info_between_afdxES2_and_RDC.transmit_runtime_info();
+}
 
 // USER-TODO: Add init() and post_init() methods here, if needed.
 // init() will be run to set the empty state of the model, before any
@@ -967,9 +975,12 @@ method post_init() {
 	call $load_afdx_config();
 	call $InitTime();
 	init_429_middleware();
+//    socket_init();
+    call $transmit_runtime_info_type();
     call $socket_loop_recv();
 	
 }
+
 
 method destroy() {
     log "info" : "Stop and Close 429 card.";

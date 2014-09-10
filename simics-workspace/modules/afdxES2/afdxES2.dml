@@ -33,6 +33,15 @@ attribute debug_cfg {
     parameter allocate_type = "bool";
 }
 
+connect afdxES {
+	parameter documentation = "transmit runtime info type to afdxES";
+    parameter configuration = "optional";
+
+    interface transmit_runtime_info_between_afdxES_and_afdxES2 {
+        parameter c_type = "transmit_runtime_info_between_afdxES_and_afdxES2_interface_t"
+    }
+}
+
 connect RDC {
 	parameter documentation = "Send frame to RDC";
 	parameter configuration = "optional";
@@ -40,6 +49,12 @@ connect RDC {
 	interface Send_To_RDC {
 		parameter c_type = "Send_To_RDC_interface_t";
 	}
+}
+
+implement transmit_runtime_info_between_afdxES2_and_RDC {
+    method transmit_runtime_info(Runtime_Info *runtime_info) {
+        $afdxES.transmit_runtime_info_between_afdxES_and_afdxES2.transmit_runtime_info(runtime_info);
+    }
 }
 
 implement load_cfg_table {

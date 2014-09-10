@@ -1,0 +1,11 @@
+dml 1.2;
+
+typedef struct {
+    int len;                    // payload length
+    int type;                   // msg_type, 0 module, 1 mib
+    int name_length;            //
+    char *name;
+    int flag;
+    int description_length;
+    char *description;
+} Runtime_Info;

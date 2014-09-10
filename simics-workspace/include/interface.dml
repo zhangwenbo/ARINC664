@@ -1,5 +1,7 @@
 dml 1.2;
 
+import "runtime-info.dml";
+
 typedef struct {
 	void (*load_analyse_cam_cfg_table)(conf_object_t *obj, uint32 item_num, void *data);
 	void (*load_analyse_ram_cfg_table)(conf_object_t *obj, uint32 item_num, void *data);
@@ -20,3 +22,7 @@ typedef struct {
 typedef struct {
 	void (*send_to_A664)(conf_object_t *obj, int port_id, void *data, int length);
 } Send_To_A664_interface_t;
+
+typedef struct {
+    void (*transmit_runtime_info)(conf_object_t *obj, Runtime_Info *runtime_info);
+} transmit_runtime_info_between_afdxES2_and_RDC_interface_t;
