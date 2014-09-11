@@ -55,6 +55,7 @@ int qt_socket_send(unsigned char *sendbuf, int size) {
     }
 }
 
-void qt_transmit_module_runtime_info(int msg_type) {
+
+void qt_socket_transmit_module_runtime_info(int msg_type) {
     
 }

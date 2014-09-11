@@ -108,7 +108,7 @@ extern typedef struct
 	uint32 nDstIP;
 	uint8 nUseType;
 	uint8 nDataSrcPatition;
-	uint8 n;/*分片*/
+	uint8 n;/*路脰脝卢*/
 
 	uint8 nLabelOffset;
 	uint32 nIcdid;
@@ -130,7 +130,7 @@ extern typedef struct
 	
 	uint8 nUseType;
 	uint8 nVlId;
-	uint8 n;/*分片*/
+	uint8 n;/*路脰脝卢*/
 
 	uint8 nA429RecvChannel2;
 	uint32 nIcdid;
@@ -231,6 +231,15 @@ extern int socket_recv(char *recvbuf, int size);
 extern int socket_send(char *sendbuf, int size);
 */
 
+extern void set_runtime_header(void *p);
+extern void set_runtime_name(void *p);
+extern void set_runtime_description(void *p, int flag);
+extern void free_runtime_header(void *p);
+extern void free_runtime_name(void *p);
+extern void free_runtime_description(void *p);
+extern int Strlen(char *str);
+extern int netStrlen(char *str);
+
 extern void init_429_middleware();
 extern void send_to_429(void *channel_nr, void *data); 
 extern void recv_from_429(void *channels);
@@ -247,7 +256,7 @@ implement Send_To_RDC {
 		log "info" : "called by ARINC664 2";
 		log "info" : "The dest_udp is %d", dest_udp;
         // for test begin
-       // $ARINC664_2.Send_To_A664.send_to_A664(0, data, length);/*用于自环测试*/
+       // $ARINC664_2.Send_To_A664.send_to_A664(0, data, length);/*脫脙脫脷脳脭禄路虏芒脢脭*/
         
 		local uint32 i;
 		for(i=0;i<length;i++) 
@@ -325,7 +334,7 @@ bank regs {
 
     register afdx_block_adr size 4 is (unmapped);
 }
-event AfdxTimer{/*顺序组包 定时超时*/
+event AfdxTimer{/*脣鲁脨貌脳茅掳眉 露篓脢卤鲁卢脢卤*/
 		parameter timebase = "seconds";
 		method event(void* data) {
 			local AFDXFRAME_STRUCT_t *pAfdxFrameBlock;
@@ -345,7 +354,7 @@ event AfdxTimer{/*顺序组包 定时超时*/
 			}
 }
 
-event AfdxRtcTimer{/*定时组包*/
+event AfdxRtcTimer{/*露篓脢卤脳茅掳眉*/
 		parameter timebase = "seconds";
 		method event(void* data) {
 			local uint8 i=0;
@@ -355,7 +364,7 @@ event AfdxRtcTimer{/*定时组包*/
 			AfdxFrameBlockNum = getAfdxFrameBlockNum();
 			for(i=0;i<AfdxFrameBlockNum;i++)
 			{
-				if(pAfdxFrameBlock[i].nFrameNum>0)/*传递block个数*/
+				if(pAfdxFrameBlock[i].nFrameNum>0)/*麓芦碌脻block赂枚脢媒*/
 				{
 					call $nSendToAfdx(i,pAfdxFrameBlock[i].pAfdxFrameBlock,pAfdxFrameBlock[i].nFrameNum);
 				}
@@ -451,7 +460,7 @@ method A429ToAfdx(uint8 channel,uint32 data)
 	nLabel = data&0xff;
 	nData = (data&0x1FFFFC00)>>10;
 	local BLOCK_TIME_STRUCT_t * pBlockTime;
-	local uint8 nAfdxFlag;/*组包方式*/
+	local uint8 nAfdxFlag;/*脳茅掳眉路陆脢陆*/
 
 	local A429_TO_UDP_ARRAY * A429ToUdpArry;
 	local AFDXFRAME_STRUCT_t *pAfdxFrameBlock;
@@ -478,11 +487,11 @@ method A429ToAfdx(uint8 channel,uint32 data)
 	/*print config end*/		
 	log "info": "usd:%d,label:0x%x\n",A429ToUdpArry->nA429ToUdp[channel][nLabel].nUsed,nLabel;  
 	
-	if(A429ToUdpArry->nA429ToUdp[channel][nLabel].nUsed ==0)/*如果没用则转发到429*/
+	if(A429ToUdpArry->nA429ToUdp[channel][nLabel].nUsed ==0)/*脠莽鹿没脙禄脫脙脭貌脳陋路垄碌陆429*/
 	{
 			call $A429To429(channel,data);
-	}else{																	/*转发AFDX*/
-		if(nAfdxFlag == 1)/*定时组包*/
+	}else{																	/*脳陋路垄AFDX*/
+		if(nAfdxFlag == 1)/*露篓脢卤脳茅掳眉*/
 		{
 			pFrameR = A429ToUdpArry->nA429ToUdp[channel][data&0xff].pFrameR;
 			for (i=0;i<A429ToUdpArry->nA429ToUdp[channel][data&0xff].nUsed;i++)
@@ -503,7 +512,7 @@ method A429ToAfdx(uint8 channel,uint32 data)
 						
 				
 			}
-		}else{/*顺序组包*/
+		}else{/*脣鲁脨貌脳茅掳眉*/
 			pFrameR = A429ToUdpArry->nA429ToUdp[channel][data&0xff].pFrameR;
 			for (i=0;i<A429ToUdpArry->nA429ToUdp[channel][data&0xff].nUsed;i++)
 			{
@@ -511,11 +520,11 @@ method A429ToAfdx(uint8 channel,uint32 data)
 				{
 					pFrameR= pFrameR->pNext;
 				}
-				if (pFrameR->pA429ToUdp->nUseType == 0)/*正常模式则检查是否头包尾包*/
+				if (pFrameR->pA429ToUdp->nUseType == 0)/*脮媒鲁拢脛拢脢陆脭貌录矛虏茅脢脟路帽脥路掳眉脦虏掳眉*/
 				{
 					nA429ToAfdxCfgIndex = pFrameR->nPortId;
 					pBlockTime->pAfdxBlockTime[nA429ToAfdxCfgIndex]=nA429ToAfdxCfgIndex;
-					if (pFrameR->pAlabel->nHeadLabel == nLabel)     /*头包*/
+					if (pFrameR->pAlabel->nHeadLabel == nLabel)     /*脥路掳眉*/
 					{
 						pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum = 0;
 	
@@ -536,7 +545,7 @@ method A429ToAfdx(uint8 channel,uint32 data)
 								  log "info": "Time Start!!!: portId is %d\n.",nA429ToAfdxCfgIndex;
 								  
 							}
-					}else if (pFrameR->pAlabel->nTailLabel == nLabel)/*尾包*/
+					}else if (pFrameR->pAlabel->nTailLabel == nLabel)/*脦虏掳眉*/
 					{
 						pAfdxFrameBlock[nA429ToAfdxCfgIndex].pAfdxFrameBlock[pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum]=data;
 						pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum++;
@@ -554,7 +563,7 @@ method A429ToAfdx(uint8 channel,uint32 data)
 					}
 				}/*usetype*/
 			}/*for*/
-		}/*end of 顺序组包*/
+		}/*end of 脣鲁脨貌脳茅掳眉*/
 	}
 
 
@@ -573,7 +582,7 @@ if(0)
 	nLabel = data&0xff;
 	nData = (data&0x1FFFFC00)>>10;
 	local BLOCK_TIME_STRUCT_t * pBlockTime;
-	local uint8 nAfdxFlag=0;/*组包方式*/
+	local uint8 nAfdxFlag=0;/*脳茅掳眉路陆脢陆*/
 
 	local A429_TO_UDP_ARRAY * A429ToUdpArry;
 	local AFDXFRAME_STRUCT_t *pAfdxFrameBlock;
@@ -586,11 +595,11 @@ if(0)
 
 	//log "info": "usd:%d",A429ToUdpArry->nA429ToUdp[0][0].nUsed;  
 	
-	if(A429ToUdpArry->nA429ToUdp[channel][nLabel].nUsed ==0)/*如果没用则转发到429*/
+	if(A429ToUdpArry->nA429ToUdp[channel][nLabel].nUsed ==0)/*脠莽鹿没脙禄脫脙脭貌脳陋路垄碌陆429*/
 	{
 			call $A429To429(channel,data);
-	}else{																	/*转发AFDX*/
-		if(nAfdxFlag == 1)/*定时组包*/
+	}else{																	/*脳陋路垄AFDX*/
+		if(nAfdxFlag == 1)/*露篓脢卤脳茅掳眉*/
 		{
 			pFrameR = A429ToUdpArry->nA429ToUdp[channel][data&0xff].pFrameR;
 			for (i=0;i<A429ToUdpArry->nA429ToUdp[channel][data&0xff].nUsed;i++)
@@ -619,7 +628,7 @@ if(0)
 						
 				
 			}
-		}else{/*顺序组包*/
+		}else{/*脣鲁脨貌脳茅掳眉*/
 			pFrameR = A429ToUdpArry->nA429ToUdp[channel][data&0xff].pFrameR;
 			for (i=0;i<A429ToUdpArry->nA429ToUdp[channel][data&0xff].nUsed;i++)
 			{
@@ -627,10 +636,10 @@ if(0)
 				{
 					pFrameR= pFrameR->pNext;
 				}
-				if (pFrameR->pA429ToUdp->nUseType == 0)/*正常模式则检查是否头包尾包*/
+				if (pFrameR->pA429ToUdp->nUseType == 0)/*脮媒鲁拢脛拢脢陆脭貌录矛虏茅脢脟路帽脥路掳眉脦虏掳眉*/
 				{
 					nA429ToAfdxCfgIndex = pFrameR->pA429ToUdp->nPortId;
-					if (pFrameR->pAlabel->nHeadLabel == nLabel)     /*头包*/
+					if (pFrameR->pAlabel->nHeadLabel == nLabel)     /*脥路掳眉*/
 					{
 						pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum = 0;
 	
@@ -653,7 +662,7 @@ if(0)
 							}else{
 								inline $AfdxTimer.post(40,&(pBlockTime->pAfdxBlockTime[nA429ToAfdxCfgIndex]));
 							}
-					}else if (pFrameR->pAlabel->nTailLabel == nLabel)/*尾包*/
+					}else if (pFrameR->pAlabel->nTailLabel == nLabel)/*脦虏掳眉*/
 					{
 						nFramebit=pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum*19;
 						nArryIndex = nFramebit/32;
@@ -690,7 +699,7 @@ if(0)
 					}
 				}/*usetype*/
 			}/*for*/
-		}/*end of 顺序组包*/
+		}/*end of 脣鲁脨貌脳茅掳眉*/
 	}
 
 }
@@ -806,22 +815,22 @@ method load_afdx_config()
 	
 	userid = cast(pHwaCfg->position,uint32) + cast(((pHwaCfg->side) << 5),uint32) + cast(((pHwaCfg->domain) << 8),uint32);
 	//partid = 
-	/*接收vl的配置*/
-	for(i=0;i<pHwaCfg->revvl_num;i++)/*接收VL最多256个*/
+	/*陆脫脢脮vl碌脛脜盲脰脙*/
+	for(i=0;i<pHwaCfg->revvl_num;i++)/*陆脫脢脮VL脳卯露脿256赂枚*/
 	{
 	  
 	  recv_rm_cfg_cam.address =i;
 	  recv_rm_cfg_cam.VL_ID= pHwaCfg->recvVlSet[i].vlNum;
 	 
-	  recv_rm_cfg_ram.ram_data.VL_ENABLE = 1;/*默认都使能*/
+	  recv_rm_cfg_ram.ram_data.VL_ENABLE = 1;/*脛卢脠脧露录脢鹿脛脺*/
 	  recv_rm_cfg_ram.ram_data.SKEW_MAX = pHwaCfg->recvVlSet[i].skewMax;
-	  recv_rm_cfg_ram.ram_data.RM_ENABLE = pHwaCfg->recvVlSet[i].redundantAble;/*冗余使能*/
+	  recv_rm_cfg_ram.ram_data.RM_ENABLE = pHwaCfg->recvVlSet[i].redundantAble;/*脠脽脫脿脢鹿脛脺*/
 	 
 	  if(pHwaCfg->recvVlSet[i].redundantAble!=0)
 	  {
 		recv_rm_cfg_ram.ram_data.NETWORK_B_ENABLE=1;
 		recv_rm_cfg_ram.ram_data.NETWORK_A_ENABLE=1;
-		recv_rm_cfg_ram.ram_data.NETWORK_B_IC_ENABLE=pHwaCfg->recvVlSet[i].integrityAble;/*完整性检查*/
+		recv_rm_cfg_ram.ram_data.NETWORK_B_IC_ENABLE=pHwaCfg->recvVlSet[i].integrityAble;/*脥锚脮没脨脭录矛虏茅*/
 		recv_rm_cfg_ram.ram_data.NETWORK_A_IC_ENABLE=pHwaCfg->recvVlSet[i].integrityAble;
 	  }else{
 		recv_rm_cfg_ram.ram_data.NETWORK_B_ENABLE=0;
@@ -851,7 +860,7 @@ method load_afdx_config()
 	}else{
 		  log "info" : "The nDataSrcPatition no data!!!!!error !!!!!!";
 	}
-	/*接收port的配置   接收端口最大为4096*/
+	/*陆脫脢脮port碌脛脜盲脰脙   陆脫脢脮露脣驴脷脳卯麓贸脦陋4096*/
 	for(i=0;i<RecvCfgUdpCnt;i++)
 	{
 		//partid = 1;/*lanxingdong detip err*/
@@ -888,7 +897,7 @@ method load_afdx_config()
 	}
     
 
-	/*发送VL的配置   发送VL最大为128*/
+	/*路垄脣脥VL碌脛脜盲脰脙   路垄脣脥VL脳卯麓贸脦陋128*/
 	for(i=0;i<pHwaCfg->sendvl_num;i++)
 	{
 	  
@@ -905,7 +914,7 @@ method load_afdx_config()
 	  log "info" : "The sendvl_num is %d", i;
 	  log "info": "------------------------------------------------------------------------\n\n";
 	}
-	/*发送端口的配置   发送端口最大为1024*/
+	/*路垄脣脥露脣驴脷碌脛脜盲脰脙   路垄脣脥露脣驴脷脳卯麓贸脦陋1024*/
     //log "info" : "SendCfgUdpCnt is %d", SendCfgUdpCnt;
 
 	for(i=0;i<SendCfgUdpCnt;i++)
@@ -933,9 +942,9 @@ method load_afdx_config()
 	  send_cfg_table.ram_data_part1.MIN_FRAME_LENGTH =pHwaCfg->sendVlSet[VlIndex>>2].minLen;
 	  send_cfg_table.ram_data_part1.PORT_TYPE=SendCfgUdp[i].nPortType;
 	  send_cfg_table.ram_data_part2.PARTITION_ID=SendCfgUdp[i].nDataSrcPatition;
-	  send_cfg_table.ram_data_part2.INTERFACE_ID=pHwaCfg->sendVlSet[VlIndex>>2].netSelect;/*网络选择*/
+	  send_cfg_table.ram_data_part2.INTERFACE_ID=pHwaCfg->sendVlSet[VlIndex>>2].netSelect;/*脥酶脗莽脩隆脭帽*/
 	  log "info" : "Debug INTERFACE_ID = %d",  send_cfg_table.ram_data_part2.INTERFACE_ID;
-	  send_cfg_table.ram_data_part2.PROTOCAL_ID=0x11;/*只有UDP*/
+	  send_cfg_table.ram_data_part2.PROTOCAL_ID=0x11;/*脰禄脫脨UDP*/
 	  send_cfg_table.ram_data_part2.USER_DEFINED_ID=userid;
 	  send_cfg_table.ram_data_part3.SUB_VL_ID = (VlIndex&0x03);
 	  send_cfg_table.ram_data_part3.DEST_UDP_PORT=SendCfgUdp[i].nDstUdp;
@@ -960,8 +969,29 @@ method load_afdx_config()
 	$LoadCfg.load_cfg_table.load_cfg_done();
 }
 
-method transmit_runtime_info_type {
-    $ARINC664_2.transmit_runtime_info_between_afdxES2_and_RDC.transmit_runtime_info();
+method init_429_middleware_ok() {
+    local Runtime_Info runtime_info;
+    
+    set_runtime_header(&runtime_info.header);
+    runtime_info.header_length = Strlen(runtime_info.header);
+    runtime_info.type = 0;
+    set_runtime_name(&runtime_info.name);
+    runtime_info.name_length = Strlen(runtime_info.name);
+    runtime_info.flag = 0;
+    set_runtime_description(&runtime_info.description, runtime_info.flag);
+    runtime_info.description_length = Strlen(runtime_info.description);
+    runtime_info.len = sizeof(runtime_info.type) + sizeof(runtime_info.name_length) + Strlen(runtime_info.name) +
+        sizeof(runtime_info.flag) + sizeof(runtime_info.description_length) + Strlen(runtime_info.description);
+    
+    call $transmit_runtime_info(&runtime_info);
+
+    free_runtime_header(&runtime_info.header);
+    free_runtime_name(&runtime_info.name);
+    free_runtime_description(&runtime_info.description);
+}
+
+method transmit_runtime_info(Runtime_Info *runtime_info) {
+    $ARINC664_2.transmit_runtime_info_between_afdxES2_and_RDC.transmit_runtime_info(runtime_info);
 }
 
 // USER-TODO: Add init() and post_init() methods here, if needed.
@@ -975,8 +1005,7 @@ method post_init() {
 	call $load_afdx_config();
 	call $InitTime();
 	init_429_middleware();
-//    socket_init();
-    call $transmit_runtime_info_type();
+    call $init_429_middleware_ok();
     call $socket_loop_recv();
 	
 }

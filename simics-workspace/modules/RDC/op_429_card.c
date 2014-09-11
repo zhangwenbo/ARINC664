@@ -1,5 +1,7 @@
 #include <op_429_card.h>
 
+#define __DEBUG__
+
 static A429Handle board;
 
 static channel_conf_t g_channel_conf[MAX_CHANNELS] = {
@@ -40,6 +42,7 @@ static channel_state_t inited_channel[MAX_CHANNELS] = {
     {0, {0}, {0}, 0, {0}, &construct_channel_state_t, NULL},
 };
 
+#ifndef __DEBUG__
 static void configure_tx(const A429Handle* const board, uint8_t channel_num, A429Handle* tx) {
     A429Return rc = A429_SUCCESS;
 
@@ -50,7 +53,12 @@ static void configure_tx(const A429Handle* const board, uint8_t channel_num, A42
         exit(1);
     }
 }
+#else
+static void configure_tx(const A429Handle* const board, uint8_t channel_num, A429Handle* tx) {
+}
+#endif
 
+#ifndef __DEBUG__
 static void configure_rx(const A429Handle* const board, uint8_t channel_num, A429Handle* rx) {
     A429Return rc = A429_SUCCESS;
 
@@ -61,7 +69,12 @@ static void configure_rx(const A429Handle* const board, uint8_t channel_num, A42
         exit(1);
     }
 }
+#else
+static void configure_rx(const A429Handle* const board, uint8_t channel_num, A429Handle* rx) {
+}
+#endif
 
+#ifndef __DEBUG__
 static void construct_channel_state_t(struct _channel_state_t *this, const A429Handle* const board, OwUInt32 nr, const channel_conf_t* const conf) {
     A429Return rc = A429_SUCCESS;
     
@@ -81,7 +94,12 @@ static void construct_channel_state_t(struct _channel_state_t *this, const A429H
         exit(1);
     }    
 }
+#else
+static void construct_channel_state_t(struct _channel_state_t *this, const A429Handle* const board, OwUInt32 nr, const channel_conf_t* const conf) {
+}
+#endif
 
+#ifndef __DEBUG__
 static A429Handle init_board(uint64_t aSerialNumber) {
     A429Return rc = A429_SUCCESS;
     A429Handle board = { 0 };
@@ -115,7 +133,12 @@ static A429Handle init_board(uint64_t aSerialNumber) {
     fprintf(stdout, "Found '%s' (serial #%" PRIu64 ")\n", details.model_string, details.serial_number);
     return board;
 }
+#else
+static A429Handle init_board(uint64_t aSerialNumber) {
+}
+#endif
 
+#ifndef __DEBUG__
 static void init_channel_state(const A429Handle *board, const channel_conf_t* const chan_conf, int chan_conf_size) {
     A429Return rc = A429_SUCCESS;
 
@@ -141,14 +164,20 @@ static void init_channel_state(const A429Handle *board, const channel_conf_t* co
         (inited_channel[i].constructor)(&inited_channel[i], board, i, &chan_conf[i]);
     }
 }
+#else
+static void init_channel_state(const A429Handle *board, const channel_conf_t* const chan_conf, int chan_conf_size) {
+}
+#endif
 
+#ifndef __DEBUG__
 void init_429_middleware(void) {
     uint64_t aSerialNumber = 0; /* How to get? */
     board = init_board(aSerialNumber);
     init_channel_state(&board, g_channel_conf, MAX_CHANNELS);
+/*
     char *header = "Hwa";
-    char *name = "TestProgram"; /* button name */
-    int type = 0;               /* init */
+    char *name = "TestProgram"; 
+    int type = 0;              
     int nflag = 0;
     char *description = "TestProgram init OK";
 
@@ -161,12 +190,14 @@ void init_429_middleware(void) {
     memcpy(buf + strlen(header) + 1 + sizeof(len) + strlen(description) + 1 + sizeof(nflag), description, strlen(description) + 1);
 
     socket_send(buf, len + 8);
-    
-    
-    
-        
+*/  
 }
+#else
+void init_429_middleware(void) {
+}
+#endif
 
+#ifndef __DEBUG__
 static send_to_429_card(const channel_state_t* const channel_state) {
     A429Return rc = A429_SUCCESS;
     uint32_t transmitWords = 1;
@@ -177,7 +208,12 @@ static send_to_429_card(const channel_state_t* const channel_state) {
         exit(1);
     }
 }
+#else
+static send_to_429_card(const channel_state_t* const channel_state) {
+}
+#endif
 
+#ifndef __DEBUG__
 void send_to_429(void *channel_nr, void *word) {
     channel_data_t chan_stat;
     chan_stat.channel_nr = *(OwUInt8*)channel_nr;
@@ -186,11 +222,21 @@ void send_to_429(void *channel_nr, void *word) {
     send_to_429_card(&inited_channel[chan_stat.channel_nr - 1]);
     fprintf(stdout, "Transmit from channel %d, data is %x\n", chan_stat.channel_nr, inited_channel[chan_stat.channel_nr - 1].tx_data);
 }
+#else
+void send_to_429(void *channel_nr, void *word) {
+}
+#endif
 
+#ifndef __DEBUG__
 void recv_from_429(void *channels) {
     recv_from_429_card(channels);
 }
+#else
+void recv_from_429(void *channels) {
+}
+#endif
 
+#ifndef __DEBUG__
 static recv_from_429_card(void *channels) {
     A429Return rc = A429_SUCCESS;
     uint32_t receiveWords = 0;
@@ -212,7 +258,13 @@ static recv_from_429_card(void *channels) {
         memmove(channels + i * sizeof(Rx_Data), &inited_channel[i].rx, sizeof(Rx_Data));
     }
 }
+#else
+static recv_from_429_card(void *channels) {
+    
+}
+#endif
 
+#ifndef __DEBUG__
 void close_429_card(void) {
     A429Return rc = A429_SUCCESS;
 
@@ -228,3 +280,7 @@ void close_429_card(void) {
         exit(1);
     }
 }
+#else
+void close_429_card(void) {
+}
+#endif

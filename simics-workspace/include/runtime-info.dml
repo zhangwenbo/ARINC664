@@ -1,6 +1,8 @@
 dml 1.2;
 
 typedef struct {
+    int header_length;
+    char *header;
     int len;                    // payload length
     int type;                   // msg_type, 0 module, 1 mib
     int name_length;            //

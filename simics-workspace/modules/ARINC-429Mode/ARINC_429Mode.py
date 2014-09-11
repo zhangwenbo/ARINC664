@@ -17,6 +17,7 @@ class ARINC_429Mode(StandardConnectorComponent):
         afdxES2 = self.add_pre_obj('afdxES2', 'afdxES2')
         RDC = self.add_pre_obj('RDC', 'RDC')
         afdxES2.RDC = RDC
+        afdxES2.afdxES = afdxES
         RDC.ARINC664_2 = afdxES2
         RDC.LoadCfg = afdxES2
         afdxES.phyA = afdxES2

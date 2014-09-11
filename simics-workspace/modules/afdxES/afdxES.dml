@@ -22,6 +22,14 @@ import "change-endian.dml";
 import "tomiddleware.dml";
 import "rm-handler.dml";
 
+extern int qt_socket_init(void);
+extern int qt_socket_recv(char *recvbuf, int size);
+extern int qt_socket_send(char *sendbuf, int size);
+extern int Strlen(char *str);
+extern int netStrlen(char *str);
+extern int Ntohl(int data);
+extern int Htonl(int data);
+
 connect phyA {
 	parameter documentation = "Send data to the second ARINC664 card";
     parameter configuration = "optional";
@@ -39,7 +47,6 @@ connect phyB {
         parameter c_type = "ieee_802_3_mac_interface_t";
     }
 }
-
 
 implement ieee_802_3_mac {
 	method send_frame(uint8 *data, uint32 size) {
@@ -92,7 +99,50 @@ implement ieee_802_3_mac {
 
 implement transmit_runtime_info_between_afdxES_and_afdxES2 {
     method transmit_runtime_info(Runtime_Info *runtime_info) {
-        
+        local int buf_len = runtime_info->header_length + Strlen(runtime_info->header) + sizeof(runtime_info->len) + runtime_info->len;
+        local char *buf = new char [buf_len];
+
+        local int header_length = Htonl(runtime_info->header_length);
+        local int name_length = Htonl(runtime_info->name_length);
+        local int description_length = Htonl(runtime_info->description_length);
+        local int len = Htonl(runtime_info->len);
+        local int type = Htonl(runtime_info->type);
+        local int flag = Htonl(runtime_info->flag);
+            
+        memcpy(buf,
+               &header_length,
+               sizeof(runtime_info->header_length));
+        memcpy(buf + sizeof(runtime_info->header_length),
+               runtime_info->header,
+               runtime_info->header_length);
+        memcpy(buf + sizeof(runtime_info->header_length) + runtime_info->header_length,
+               &len,
+               sizeof(runtime_info->len));
+        memcpy(buf + sizeof(runtime_info->header_length) + runtime_info->header_length + sizeof(runtime_info->len),
+               &type,
+               sizeof(runtime_info->type));
+        memcpy(buf + sizeof(runtime_info->header_length) + runtime_info->header_length + sizeof(runtime_info->len) + sizeof(runtime_info->type),
+               &name_length,
+               sizeof(runtime_info->name_length));
+        memcpy(buf + sizeof(runtime_info->header_length) + runtime_info->header_length + sizeof(runtime_info->len) + sizeof(runtime_info->type) + sizeof(runtime_info->name_length),
+               runtime_info->name,
+               runtime_info->name_length);
+        memcpy(buf + sizeof(runtime_info->header_length) + runtime_info->header_length + sizeof(runtime_info->len) + sizeof(runtime_info->type) + sizeof(runtime_info->name_length) +
+               runtime_info->name_length,
+               &flag,
+               sizeof(runtime_info->flag));
+        memcpy(buf + sizeof(runtime_info->header_length) + runtime_info->header_length + sizeof(runtime_info->len) + sizeof(runtime_info->type) + sizeof(runtime_info->name_length) +
+               runtime_info->name_length + sizeof(runtime_info->flag),
+               &description_length,
+               sizeof(runtime_info->description_length));        
+        memcpy(buf + sizeof(runtime_info->header_length) + runtime_info->header_length + sizeof(runtime_info->len) + sizeof(runtime_info->type) + sizeof(runtime_info->name_length) +
+               runtime_info->name_length + sizeof(runtime_info->flag) + sizeof(runtime_info->description_length),
+               runtime_info->description,
+               runtime_info->description_length);
+    
+        qt_socket_send(buf, buf_len);
+
+        delete buf;        
     }
 }
 
@@ -113,6 +163,7 @@ attribute is_cfg_done "If true, don't change cfg table index and write cfg table
 // checkpoint.
 
 method post_init() {
+    qt_socket_init();
     call $pci_config.update_all_mappings();   
 	call $gen_normal_table($Table);
     call $init_port_queue();

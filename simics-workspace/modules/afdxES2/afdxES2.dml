@@ -38,7 +38,7 @@ connect afdxES {
     parameter configuration = "optional";
 
     interface transmit_runtime_info_between_afdxES_and_afdxES2 {
-        parameter c_type = "transmit_runtime_info_between_afdxES_and_afdxES2_interface_t"
+        parameter c_type = "transmit_runtime_info_between_afdxES_and_afdxES2_interface_t";
     }
 }
 

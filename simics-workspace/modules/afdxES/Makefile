@@ -5,7 +5,7 @@
 #
 
 MODULE_CLASSES = afdxES
-SRC_FILES = tomiddleware.c communicate-with-qt.c
+SRC_FILES = tomiddleware.c communicate-with-qt.c untils.c
 DML_FILES = afdxES.dml
 DMLC_FLAGS = -m -I$(SIMICS_WORKSPACE)/include
 

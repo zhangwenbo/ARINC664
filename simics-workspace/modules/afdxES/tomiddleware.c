@@ -1,5 +1,7 @@
 #include "tomiddleware.h"
 
+#define __DEBUG__
+
 SOCKET client_socket;
 #define MAX_RECV_PORTS 128
 #define MAX_SEND_PORTS 128
@@ -289,6 +291,7 @@ void LoadCfgTo664Middleware() {
 	fclose(fp);
 }
 
+#ifndef __DEBUG__
 int Init_664_Card(void) {
 	int cardnum;
 	int card_count;
@@ -348,7 +351,12 @@ int Init_664_Card(void) {
 	
 	return 0;
 }
+#else
+int Init_664_Card(void) {
+}
+#endif
 
+#ifndef __DEBUG__
 int Recv_From_A664(int card_nr, int port_id, unsigned char *buf) {
 	HwaRecvTime time;
 	unsigned network;
@@ -358,12 +366,21 @@ int Recv_From_A664(int card_nr, int port_id, unsigned char *buf) {
 	
 	return len;
 }
+#else
+int Recv_From_A664(int card_nr, int port_id, unsigned char *buf) {
+}
+#endif
 
+#ifndef __DEBUG__
 int Send_To_A664(int card_nr, int port_id, unsigned char *buf, int len) {
 	int ret = hwa_aes_send (card_nr, send_ports[port_id], buf, len);
 	
 	return ret;
 }
+#else
+int Send_To_A664(int card_nr, int port_id, unsigned char *buf, int len) {
+}
+#endif
 
 int get_recv_port_num() {
 	return recv_port_num;
