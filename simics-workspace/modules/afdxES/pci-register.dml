@@ -556,6 +556,7 @@ bank pciport{
                 break;
             }
             call $init_vxworks_ok();
+            call $init_a664_driver_middleware_ok();
         }
     }
 	

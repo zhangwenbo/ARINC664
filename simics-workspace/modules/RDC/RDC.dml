@@ -1062,9 +1062,9 @@ method post_init() {
 	call $load_afdx_config();
 	call $InitTime();
 	init_429_middleware();
+    call $init_RDC_module_ok();
     call $init_429_middleware_ok();
     call $init_429_card_ok();
-    call $init_RDC_module_ok();
     call $socket_loop_recv();
 }
 
