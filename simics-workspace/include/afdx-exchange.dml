@@ -9,4 +9,5 @@ typedef struct {
 
 typedef struct {
     void (*transmit_runtime_info)(conf_object_t *obj, Runtime_Info *runtime_info);
+    void (*transmit_mib_info)(conf_object_t *obj, MAC_MIB *mac_mib_info, RX_MIB *rx_mib_info, TX_MIB *tx_mib_info);
 } transmit_runtime_info_between_afdxES_and_afdxES2_interface_t;

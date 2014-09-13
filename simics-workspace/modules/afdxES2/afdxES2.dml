@@ -212,6 +212,7 @@ attribute record_mib_cycle {
 
 method record_mib() {
     write_mid(&($maca_mib),&($macb_mib) ,&($rx_mib), &($tx_mib));
+    
     after ($record_mib_cycle)
         call $record_mib();
 }

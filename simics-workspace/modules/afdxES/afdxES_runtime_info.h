@@ -29,4 +29,11 @@ extern void free_a664_driver_middleware_runtime_header(void *p);
 extern void free_a664_driver_middleware_runtime_name(void *p);
 extern void free_a664_driver_middleware_runtime_description(void *p);
 
+extern void set_afdxES2_mib_runtime_header(void *p);
+extern void set_afdxES2_mib_runtime_name(void *p);
+extern void set_afdxES2_mib_runtime_description(void *p, int flag);
+extern void free_afdxES2_mib_runtime_header(void *p);
+extern void free_afdxES2_mib_runtime_name(void *p);
+extern void free_afdxES2_mib_runtime_description(void *p);
+
 #endif

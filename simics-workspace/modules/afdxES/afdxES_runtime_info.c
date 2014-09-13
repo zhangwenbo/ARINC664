@@ -180,3 +180,16 @@ void free_a664_driver_middleware_runtime_description(void *p) {
     free(*(char **)p);
     *(char **)p = NULL;
 }
+
+void set_afdxES2_mib_runtime_header(void *p) {
+    char *header = "Hwa";
+    int header_length = strlen(header) + 1;
+
+    *(char **)p = (char *)malloc(header_length);
+    memcpy(*(char **)p, header, header_length);
+}
+
+void free_afdxES2_mib_runtime_header(void *p) {
+    free(*(char **)p);
+    *(char **)p = NULL;
+}
