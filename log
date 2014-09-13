@@ -1,0 +1,217 @@
+diff --git a/simics-workspace/modules/RDC/RDC.dml b/simics-workspace/modules/RDC/RDC.dml
+index ea5d52e..c23c68e 100644
+--- a/simics-workspace/modules/RDC/RDC.dml
++++ b/simics-workspace/modules/RDC/RDC.dml
+@@ -231,12 +231,20 @@ extern int socket_recv(char *recvbuf, int size);
+ extern int socket_send(char *sendbuf, int size);
+ */
+ 
+-extern void set_runtime_header(void *p);
+-extern void set_runtime_name(void *p);
+-extern void set_runtime_description(void *p, int flag);
+-extern void free_runtime_header(void *p);
+-extern void free_runtime_name(void *p);
+-extern void free_runtime_description(void *p);
++extern void set_429_middleware_runtime_header(void *p);
++extern void set_429_middleware_runtime_name(void *p);
++extern void set_429_middleware_runtime_description(void *p, int flag);
++extern void free_429_middleware_runtime_header(void *p);
++extern void free_429_middleware_runtime_name(void *p);
++extern void free_429_middleware_runtime_description(void *p);
++
++extern void set_rdc_module_runtime_header(void *p);
++extern void set_rdc_module_runtime_name(void *p);
++extern void set_rdc_module_runtime_description(void *p, int flag);
++extern void free_rdc_module_runtime_header(void *p);
++extern void free_rdc_module_runtime_name(void *p);
++extern void free_rdc_module_runtime_description(void *p);
++
+ extern int Strlen(char *str);
+ extern int netStrlen(char *str);
+ 
+@@ -972,22 +980,43 @@ method load_afdx_config()
+ method init_429_middleware_ok() {
+     local Runtime_Info runtime_info;
+     
+-    set_runtime_header(&runtime_info.header);
++    set_429_middleware_runtime_header(&runtime_info.header);
++    runtime_info.header_length = Strlen(runtime_info.header);
++    runtime_info.type = 0;
++    set_429_middleware_runtime_name(&runtime_info.name);
++    runtime_info.name_length = Strlen(runtime_info.name);
++    runtime_info.flag = 0;
++    set_429_middleware_runtime_description(&runtime_info.description, runtime_info.flag);
++    runtime_info.description_length = Strlen(runtime_info.description);
++    runtime_info.len = sizeof(runtime_info.type) + sizeof(runtime_info.name_length) + Strlen(runtime_info.name) +
++        sizeof(runtime_info.flag) + sizeof(runtime_info.description_length) + Strlen(runtime_info.description);
++    
++    call $transmit_runtime_info(&runtime_info);
++
++    free_429_middleware_runtime_header(&runtime_info.header);
++    free_429_middleware_runtime_name(&runtime_info.name);
++    free_429_middleware_runtime_description(&runtime_info.description);
++}
++
++method init_RDC_module_ok() {
++    local Runtime_Info runtime_info;
++    
++    set_rdc_module_runtime_header(&runtime_info.header);
+     runtime_info.header_length = Strlen(runtime_info.header);
+     runtime_info.type = 0;
+-    set_runtime_name(&runtime_info.name);
++    set_rdc_module_runtime_header(&runtime_info.name);
+     runtime_info.name_length = Strlen(runtime_info.name);
+     runtime_info.flag = 0;
+-    set_runtime_description(&runtime_info.description, runtime_info.flag);
++    set_rdc_module_runtime_description(&runtime_info.description, runtime_info.flag);
+     runtime_info.description_length = Strlen(runtime_info.description);
+     runtime_info.len = sizeof(runtime_info.type) + sizeof(runtime_info.name_length) + Strlen(runtime_info.name) +
+         sizeof(runtime_info.flag) + sizeof(runtime_info.description_length) + Strlen(runtime_info.description);
+     
+     call $transmit_runtime_info(&runtime_info);
+ 
+-    free_runtime_header(&runtime_info.header);
+-    free_runtime_name(&runtime_info.name);
+-    free_runtime_description(&runtime_info.description);
++    free_rdc_module_runtime_header(&runtime_info.header);
++    free_rdc_module_runtime_name(&runtime_info.name);
++    free_rdc_module_runtime_description(&runtime_info.description);
+ }
+ 
+ method transmit_runtime_info(Runtime_Info *runtime_info) {
+@@ -1006,8 +1035,8 @@ method post_init() {
+ 	call $InitTime();
+ 	init_429_middleware();
+     call $init_429_middleware_ok();
++    call $init_RDC_module_ok();
+     call $socket_loop_recv();
+-	
+ }
+ 
+ 
+diff --git a/simics-workspace/modules/RDC/rdc_runtime_info.c b/simics-workspace/modules/RDC/rdc_runtime_info.c
+index b5cc35a..6c11f96 100644
+--- a/simics-workspace/modules/RDC/rdc_runtime_info.c
++++ b/simics-workspace/modules/RDC/rdc_runtime_info.c
+@@ -1,7 +1,7 @@
+ #include "rdc_runtime_info.h"
+ #include <stdlib.h>
+ 
+-void set_runtime_header(void *p) {
++void set_429_middleware_runtime_header(void *p) {
+     char *header = "Hwa";
+     int header_length = strlen(header) + 1;
+ 
+@@ -9,7 +9,7 @@ void set_runtime_header(void *p) {
+     memcpy(*(char **)p, header, header_length);
+ }
+ 
+-void set_runtime_name(void *p) {
++void set_429_middleware_runtime_name(void *p) {
+     char *name = "A429Middleware";
+     int name_length = strlen(name) + 1;
+ 
+@@ -17,7 +17,7 @@ void set_runtime_name(void *p) {
+     memcpy(*(char **)p, name, name_length);
+ }
+ 
+-void set_runtime_description(void *p, int flag) {
++void set_429_middleware_runtime_description(void *p, int flag) {
+     if (flag == 0) {            /* success */
+         char *description = "A429中间件初始化成功";
+         int description_length = strlen(description) + 1;
+@@ -31,17 +31,62 @@ void set_runtime_description(void *p, int flag) {
+     }
+ }
+ 
+-void free_runtime_header(void *p) {
++void free_429_middleware_runtime_header(void *p) {
+     free(*(char **)p);
+     *(char **)p = NULL;
+ }
+ 
+-void free_runtime_name(void *p) {
++void free_429_middleware_runtime_name(void *p) {
+     free(*(char **)p);
+     *(char **)p = NULL;
+ }
+ 
+-void free_runtime_description(void *p) {
++void free_429_middleware_runtime_description(void *p) {
++    free(*(char **)p);
++    *(char **)p = NULL;
++}
++
++void set_rdc_module_runtime_header(void *p) {
++    char *header = "Hwa";
++    int header_length = strlen(header) + 1;
++
++    *(char **)p = (char *)malloc(header_length);
++    memcpy(*(char **)p, header, header_length);
++}
++
++void set_rdc_module_runtime_name(void *p) {
++    char *name = "RDCModel";
++    int name_length = strlen(name) + 1;
++
++    *(char **)p = (char *)malloc(name_length);
++    memcpy(*(char **)p, name, name_length);
++}
++
++void set_rdc_module_runtime_description(void *p, int flag) {
++    if (flag == 0) {            /* success */
++        char *description = "RDC模型初始化成功";
++        int description_length = strlen(description) + 1;
++        *(char **)p = (char *)malloc(description_length);
++        memcpy(*(char **)p, description, description_length);
++    } else {
++        char *description = "RDC模型初始化失败";
++        int description_length = strlen(description) + 1;
++        *(char **)p = (char *)malloc(description_length);
++        memcpy(*(char **)p, description, description_length);
++    }
++}
++
++void free_rdc_module_runtime_header(void *p) {
++    free(*(char **)p);
++    *(char **)p = NULL;
++}
++
++void free_rdc_module_runtime_name(void *p) {
++    free(*(char **)p);
++    *(char **)p = NULL;
++}
++
++void free_rdc_module_runtime_description(void *p) {
+     free(*(char **)p);
+     *(char **)p = NULL;
+ }
+diff --git a/simics-workspace/modules/RDC/rdc_runtime_info.h b/simics-workspace/modules/RDC/rdc_runtime_info.h
+index ee91115..1b5e41a 100644
+--- a/simics-workspace/modules/RDC/rdc_runtime_info.h
++++ b/simics-workspace/modules/RDC/rdc_runtime_info.h
+@@ -1,11 +1,18 @@
+ #ifndef RDC_RUNTIME_INFO_H
+ #define RDC_RUNTIME_INFO_H
+ 
+-extern void set_runtime_header(void *p);
+-extern void set_runtime_name(void *p);
+-extern void set_runtime_description(void *p, int flag);
+-extern void free_runtime_header(void *p);
+-extern void free_runtime_name(void *p);
+-extern void free_runtime_description(void *p);
++extern void set_429_middleware_runtime_header(void *p);
++extern void set_429_middleware_runtime_name(void *p);
++extern void set_429_middleware_runtime_description(void *p, int flag);
++extern void free_429_middleware_runtime_header(void *p);
++extern void free_429_middleware_runtime_name(void *p);
++extern void free_429_middleware_runtime_description(void *p);
++
++extern void set_rdc_module_runtime_header(void *p);
++extern void set_rdc_module_runtime_name(void *p);
++extern void set_rdc_module_runtime_description(void *p, int flag);
++extern void free_rdc_module_runtime_header(void *p);
++extern void free_rdc_module_runtime_name(void *p);
++extern void free_rdc_module_runtime_description(void *p);
+ 
+ #endif
