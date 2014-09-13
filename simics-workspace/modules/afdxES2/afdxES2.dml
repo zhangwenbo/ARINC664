@@ -224,6 +224,6 @@ method post_init() {
     call $init_vl_cfg();    
     call $record_mib();
 
-    $record_mib_cycle = 0.1;
+    $record_mib_cycle = 0.5;
 }
 
