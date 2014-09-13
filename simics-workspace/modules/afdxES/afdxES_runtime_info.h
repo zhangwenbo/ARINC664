@@ -8,11 +8,11 @@ extern void free_afdxES_module_runtime_header(void *p);
 extern void free_afdxES_module_runtime_name(void *p);
 extern void free_afdxES_module_runtime_description(void *p);
 
-extern void set_rdc_module_runtime_header(void *p);
-extern void set_rdc_module_runtime_name(void *p);
-extern void set_rdc_module_runtime_description(void *p, int flag);
-extern void free_rdc_module_runtime_header(void *p);
-extern void free_rdc_module_runtime_name(void *p);
-extern void free_rdc_module_runtime_description(void *p);
+extern void set_main_board_runtime_header(void *p);
+extern void set_main_board_runtime_name(void *p);
+extern void set_main_board_runtime_description(void *p, int flag);
+extern void free_main_board_runtime_header(void *p);
+extern void free_main_board_runtime_name(void *p);
+extern void free_main_board_runtime_description(void *p);
 
 #endif

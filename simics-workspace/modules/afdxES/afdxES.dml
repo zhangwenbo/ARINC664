@@ -37,6 +37,13 @@ extern void free_afdxES_module_runtime_header(void *p);
 extern void free_afdxES_module_runtime_name(void *p);
 extern void free_afdxES_module_runtime_description(void *p);
 
+extern void set_main_board_runtime_header(void *p);
+extern void set_main_board_runtime_name(void *p);
+extern void set_main_board_runtime_description(void *p, int flag);
+extern void free_main_board_runtime_header(void *p);
+extern void free_main_board_runtime_name(void *p);
+extern void free_main_board_runtime_description(void *p);
+
 connect phyA {
 	parameter documentation = "Send data to the second ARINC664 card";
     parameter configuration = "optional";
@@ -107,7 +114,7 @@ implement ieee_802_3_mac {
 
 implement transmit_runtime_info_between_afdxES_and_afdxES2 {
     method transmit_runtime_info(Runtime_Info *runtime_info) {
-        call Transmit_runtime_info(runtime_info);
+        call $Transmit_runtime_info(runtime_info);
     }
 }
 
@@ -158,13 +165,34 @@ method Transmit_runtime_info(Runtime_Info *runtime_info) {
     delete buf;        
 }
 
+method init_main_board_ok() {
+    local Runtime_Info runtime_info;
+    
+    set_main_board_runtime_header(&runtime_info.header);
+    runtime_info.header_length = Strlen(runtime_info.header);
+    runtime_info.type = 0;
+    set_main_board_runtime_name(&runtime_info.name);
+    runtime_info.name_length = Strlen(runtime_info.name);
+    runtime_info.flag = 0;
+    set_main_board_runtime_description(&runtime_info.description, runtime_info.flag);
+    runtime_info.description_length = Strlen(runtime_info.description);
+    runtime_info.len = sizeof(runtime_info.type) + sizeof(runtime_info.name_length) + Strlen(runtime_info.name) +
+        sizeof(runtime_info.flag) + sizeof(runtime_info.description_length) + Strlen(runtime_info.description);
+    
+    call $Transmit_runtime_info(&runtime_info);
+
+    free_main_board_runtime_header(&runtime_info.header);
+    free_main_board_runtime_name(&runtime_info.name);
+    free_main_board_runtime_description(&runtime_info.description);    
+}
+
 method init_A664_module_ok() {
     local Runtime_Info runtime_info;
     
     set_afdxES_module_runtime_header(&runtime_info.header);
     runtime_info.header_length = Strlen(runtime_info.header);
     runtime_info.type = 0;
-    set_afdxES_module_runtime_header(&runtime_info.name);
+    set_afdxES_module_runtime_name(&runtime_info.name);
     runtime_info.name_length = Strlen(runtime_info.name);
     runtime_info.flag = 0;
     set_afdxES_module_runtime_description(&runtime_info.description, runtime_info.flag);
@@ -198,6 +226,7 @@ attribute is_cfg_done "If true, don't change cfg table index and write cfg table
 
 method post_init() {
     qt_socket_init();
+    call $init_main_board_ok();
     call $pci_config.update_all_mappings();   
 	call $gen_normal_table($Table);
     call $init_port_queue();

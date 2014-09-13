@@ -1004,7 +1004,7 @@ method init_RDC_module_ok() {
     set_rdc_module_runtime_header(&runtime_info.header);
     runtime_info.header_length = Strlen(runtime_info.header);
     runtime_info.type = 0;
-    set_rdc_module_runtime_header(&runtime_info.name);
+    set_rdc_module_runtime_name(&runtime_info.name);
     runtime_info.name_length = Strlen(runtime_info.name);
     runtime_info.flag = 0;
     set_rdc_module_runtime_description(&runtime_info.description, runtime_info.flag);
