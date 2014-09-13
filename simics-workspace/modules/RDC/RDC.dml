@@ -245,6 +245,13 @@ extern void free_rdc_module_runtime_header(void *p);
 extern void free_rdc_module_runtime_name(void *p);
 extern void free_rdc_module_runtime_description(void *p);
 
+extern void set_429_card_runtime_header(void *p);
+extern void set_429_card_runtime_name(void *p);
+extern void set_429_card_runtime_description(void *p, int flag);
+extern void free_429_card_runtime_header(void *p);
+extern void free_429_card_runtime_name(void *p);
+extern void free_429_card_runtime_description(void *p);
+
 extern int Strlen(char *str);
 extern int netStrlen(char *str);
 
@@ -1019,6 +1026,27 @@ method init_RDC_module_ok() {
     free_rdc_module_runtime_description(&runtime_info.description);
 }
 
+method init_429_card_ok() {
+    local Runtime_Info runtime_info;
+    
+    set_429_card_runtime_header(&runtime_info.header);
+    runtime_info.header_length = Strlen(runtime_info.header);
+    runtime_info.type = 0;
+    set_429_card_runtime_name(&runtime_info.name);
+    runtime_info.name_length = Strlen(runtime_info.name);
+    runtime_info.flag = 0;
+    set_429_card_runtime_description(&runtime_info.description, runtime_info.flag);
+    runtime_info.description_length = Strlen(runtime_info.description);
+    runtime_info.len = sizeof(runtime_info.type) + sizeof(runtime_info.name_length) + Strlen(runtime_info.name) +
+        sizeof(runtime_info.flag) + sizeof(runtime_info.description_length) + Strlen(runtime_info.description);
+    
+    call $transmit_runtime_info(&runtime_info);
+
+    free_429_card_runtime_header(&runtime_info.header);
+    free_429_card_runtime_name(&runtime_info.name);
+    free_429_card_runtime_description(&runtime_info.description);
+}
+
 method transmit_runtime_info(Runtime_Info *runtime_info) {
     $ARINC664_2.transmit_runtime_info_between_afdxES2_and_RDC.transmit_runtime_info(runtime_info);
 }
@@ -1035,6 +1063,7 @@ method post_init() {
 	call $InitTime();
 	init_429_middleware();
     call $init_429_middleware_ok();
+    call $init_429_card_ok();
     call $init_RDC_module_ok();
     call $socket_loop_recv();
 }
