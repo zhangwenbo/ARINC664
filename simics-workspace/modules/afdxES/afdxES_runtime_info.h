@@ -15,4 +15,11 @@ extern void free_main_board_module_runtime_header(void *p);
 extern void free_main_board_module_runtime_name(void *p);
 extern void free_main_board_module_runtime_description(void *p);
 
+extern void set_vxworks_runtime_header(void *p);
+extern void set_vxworks_runtime_name(void *p);
+extern void set_vxworks_runtime_description(void *p, int flag);
+extern void free_vxworks_runtime_header(void *p);
+extern void free_vxworks_runtime_name(void *p);
+extern void free_vxworks_runtime_description(void *p);
+
 #endif

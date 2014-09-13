@@ -4,7 +4,9 @@ import "pci-device.dml";          // Generic PCI device
 import "binary-search.dml";
 import "quick-sort.dml";
 import "log.dml";
+
 extern void LoadCfgTo664Middleware();
+
 // Basic bank declaration
 bank pci_config {
     // List of base address registers used by the device
@@ -56,12 +58,14 @@ bank pci9056{
     parameter documentation = "Control and Status Register Mapping";
     parameter function = 0;
     // if the target is 653, make true the byte_order is big-endian
-    // parameter byte_order = "big-endian";
-    parameter byte_order = "little-endian";       
+    parameter byte_order = "big-endian";
+    // else
+    // parameter byte_order = "little-endian";       
     parameter register_size = 4;
     parameter partial = true;                     
     // if the target is 653, make true enable overlapping
-    // parameter overlapping = true;
+    parameter overlapping = true;
+
     register lmisc1 @ 0x000d "Local Miscellaneous Control" {
         parameter hard_reset_value = 0x4;
     }
@@ -162,9 +166,11 @@ bank pci9056{
         }
         field res [7:5] is (reserved);
     }
+
     // if the target is 653, make true the size is 4
-    // dmacsr1 size 4 @ 0x00a9 "DMA Channel 1 Command/Status" {
-    register dmacsr1 size 1 @ 0x00a9 "DMA Channel 1 Command/Status" {
+    register dmacsr1 size 4 @ 0x00a9 "DMA Channel 1 Command/Status" {
+    // else
+    // register dmacsr1 size 1 @ 0x00a9 "DMA Channel 1 Command/Status" {
         field dma1e [0:0] "DMA Channel 1 Enable";
         field dma1s [1:1] "DMA Channel 1 Start" {
             method write(value) {
@@ -207,8 +213,9 @@ bank pciport{
     parameter documentation = "Control and Status Register Mapping";
     parameter function = 1;
     // if the target is 653, make true the byte_order is little-endian
-    // parameter byte_order = "little-endian";
-    parameter byte_order = "big-endian";
+    parameter byte_order = "little-endian";
+    // else 
+    // parameter byte_order = "big-endian";
     parameter register_size = 4;
     parameter partial = true;
 
@@ -539,15 +546,16 @@ bank pciport{
 				ret = Init_664_Card();
 				$recv_port_num = get_recv_port_num();
 				if(ret == 0)
-					log "info":"init middle succesee())()())(()())(@@@@@@@@@";
+					log "info":"init middle succesee";
 				else 
-					log "info":"init middle failed! ret =%d())()())(()())(@@@@@@@@@",ret;
+					log "info":"init middle failed! ret =%d",ret;
 				call $Recv_Data_From_664_Middleware_Loop_Event();
                 break;
             default:
                 log "error" : "Unsupported work mode!";
                 break;
             }
+            call $init_vxworks_ok();
         }
     }
 	

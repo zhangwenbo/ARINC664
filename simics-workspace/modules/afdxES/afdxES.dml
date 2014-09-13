@@ -44,6 +44,13 @@ extern void free_main_board_module_runtime_header(void *p);
 extern void free_main_board_module_runtime_name(void *p);
 extern void free_main_board_module_runtime_description(void *p);
 
+extern void set_vxworks_runtime_header(void *p);
+extern void set_vxworks_runtime_name(void *p);
+extern void set_vxworks_runtime_description(void *p, int flag);
+extern void free_vxworks_runtime_header(void *p);
+extern void free_vxworks_runtime_name(void *p);
+extern void free_vxworks_runtime_description(void *p);
+
 connect phyA {
 	parameter documentation = "Send data to the second ARINC664 card";
     parameter configuration = "optional";
@@ -207,6 +214,26 @@ method init_A664_module_ok() {
     free_afdxES_module_runtime_description(&runtime_info.description);
 }
 
+method init_vxworks_ok() {
+    local Runtime_Info runtime_info;
+    
+    set_vxworks_runtime_header(&runtime_info.header);
+    runtime_info.header_length = Strlen(runtime_info.header);
+    runtime_info.type = 0;
+    set_vxworks_runtime_name(&runtime_info.name);
+    runtime_info.name_length = Strlen(runtime_info.name);
+    runtime_info.flag = 0;
+    set_vxworks_runtime_description(&runtime_info.description, runtime_info.flag);
+    runtime_info.description_length = Strlen(runtime_info.description);
+    runtime_info.len = sizeof(runtime_info.type) + sizeof(runtime_info.name_length) + Strlen(runtime_info.name) +
+        sizeof(runtime_info.flag) + sizeof(runtime_info.description_length) + Strlen(runtime_info.description);
+    
+    call $Transmit_runtime_info(&runtime_info);
+
+    free_vxworks_runtime_header(&runtime_info.header);
+    free_vxworks_runtime_name(&runtime_info.name);
+    free_vxworks_runtime_description(&runtime_info.description);
+}
 
 attribute middleware_mode "Used to switch middleware mode" { 
     parameter documentation = "Used to switch work mode (to664middleware/to429middleware)";
