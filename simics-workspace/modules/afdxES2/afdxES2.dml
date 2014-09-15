@@ -216,7 +216,7 @@ method record_mib() {
     after ($record_mib_cycle)
         call $record_mib();
 
-    $afdxES.transmit_runtime_info_between_afdxES_and_afdxES2.transmit_mib_info(&$maca_mib, &$rx_mib, &$tx_mib);
+    $afdxES.transmit_runtime_info_between_afdxES_and_afdxES2.transmit_mib_info(&$maca_mib, &$macb_mib, &$rx_mib, &$tx_mib);
 }
 
 method post_init() {

@@ -133,8 +133,8 @@ implement transmit_runtime_info_between_afdxES_and_afdxES2 {
         call $Transmit_runtime_info(runtime_info);
     }
     
-    method transmit_mib_info(MAC_MIB *mac_mib_info, RX_MIB *rx_mib_info, TX_MIB *tx_mib_info) {
-        call $Transmit_mib_info(mac_mib_info, rx_mib_info, tx_mib_info);
+    method transmit_mib_info(MAC_MIB *maca_mib_info, MAC_MIB *macb_mib_info, RX_MIB *rx_mib_info, TX_MIB *tx_mib_info) {
+        call $Transmit_mib_info(maca_mib_info, macb_mib_info, rx_mib_info, tx_mib_info);
     }
 }
 
@@ -185,7 +185,7 @@ method Transmit_runtime_info(Runtime_Info *runtime_info) {
     delete buf;        
 }
 
-method Transmit_mib_info(MAC_MIB *mac_mib_info, RX_MIB *rx_mib_info, TX_MIB *tx_mib_info) {
+method Transmit_mib_info(MAC_MIB *maca_mib_info, MAC_MIB *macb_mib_info, RX_MIB *rx_mib_info, TX_MIB *tx_mib_info) {
     local Runtime_Info runtime_info;
     local int buf_len;
     local char *buf;
@@ -196,7 +196,7 @@ method Transmit_mib_info(MAC_MIB *mac_mib_info, RX_MIB *rx_mib_info, TX_MIB *tx_
     set_afdxES2_mib_runtime_header(&runtime_info.header);
     runtime_info.header_length = Strlen(runtime_info.header);
     header_length = Htonl(runtime_info.header_length);
-    runtime_info.len = sizeof(runtime_info.type) + sizeof(*mac_mib_info) + sizeof(*rx_mib_info) + sizeof(*tx_mib_info);    
+    runtime_info.len = sizeof(runtime_info.type) + sizeof(*maca_mib_info) + sizeof(*macb_mib_info) + sizeof(*rx_mib_info) + sizeof(*tx_mib_info);    
     len = Htonl(runtime_info.len);
     runtime_info.type = 1;
     type = Htonl(runtime_info.type);
@@ -220,23 +220,34 @@ method Transmit_mib_info(MAC_MIB *mac_mib_info, RX_MIB *rx_mib_info, TX_MIB *tx_
     
     local uint8 i;
     local uint32 tmp;
-    for (i = 0; i < sizeof(*mac_mib_info) / sizeoftype(uint32); ++i) {
-        tmp = Htonl(*(cast(mac_mib_info, uint32*) +i));
-        memcpy(buf + sizeof(runtime_info.header_length) + runtime_info.header_length + sizeof(runtime_info.len) + sizeof(runtime_info.type) + i,
+    for (i = 0; i < sizeof(*maca_mib_info) / sizeoftype(uint32); ++i) {
+        tmp = Htonl(*(cast(maca_mib_info, uint32*) +i));
+        memcpy(buf + sizeof(runtime_info.header_length) + runtime_info.header_length +
+               sizeof(runtime_info.len) + sizeof(runtime_info.type) + i,
                &tmp,
                sizeoftype(uint32));
     }
 
+    for (i = 0; i < sizeof(*macb_mib_info) / sizeoftype(uint32); ++i) {
+        tmp = Htonl(*(cast(macb_mib_info, uint32*) +i));
+        memcpy(buf + sizeof(runtime_info.header_length) + runtime_info.header_length +
+               sizeof(runtime_info.len) + sizeof(runtime_info.type) + sizeof(*maca_mib_info) + i,
+               &tmp,
+               sizeoftype(uint32));
+    }
+    
     for (i = 0; i < sizeof(*rx_mib_info) / sizeoftype(uint32); ++i) {
         tmp = Htonl(*(cast(rx_mib_info, uint32*) +i));
-        memcpy(buf + sizeof(runtime_info.header_length) + runtime_info.header_length + sizeof(runtime_info.len) + sizeof(runtime_info.type) + sizeof(*mac_mib_info) + i,
+        memcpy(buf + sizeof(runtime_info.header_length) + runtime_info.header_length +
+               sizeof(runtime_info.len) + sizeof(runtime_info.type) + sizeof(*maca_mib_info) + sizeof(*macb_mib_info) + i,
                &tmp,
                sizeoftype(uint32));
     }
 
     for (i = 0; i < sizeof(*tx_mib_info) / sizeoftype(uint32); ++i) {
         tmp = Htonl(*(cast(tx_mib_info, uint32*) +i));
-        memcpy(buf + sizeof(runtime_info.header_length) + runtime_info.header_length + sizeof(runtime_info.len) + sizeof(runtime_info.type) + sizeof(*mac_mib_info) + sizeof(*rx_mib_info) + i,
+        memcpy(buf + sizeof(runtime_info.header_length) + runtime_info.header_length +
+               sizeof(runtime_info.len) + sizeof(runtime_info.type) + sizeof(*maca_mib_info) + sizeof(*macb_mib_info) + sizeof(*rx_mib_info) + i,
                &tmp,
                sizeoftype(uint32));
     }
