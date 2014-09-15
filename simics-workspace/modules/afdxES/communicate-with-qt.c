@@ -7,12 +7,6 @@
 
 SOCKET client_socket;
 
-/*
-extern int qt_socket_init(void);
-extern int qt_socket_recv(unsigned char *recvbuf, int size);
-extern int qt_socket_send(unsigned char *sendbuf, int size);
-*/
-
 int qt_socket_init(void) {
     WSADATA wsa;
 
@@ -50,12 +44,7 @@ int qt_socket_send(unsigned char *sendbuf, int size) {
         fprintf(stdout, "Socket send sucessfully, send %d bytes.\n", len);
         return len;
     } else {
-        fprintf(stderr, "Socket send failed, size = %d, sended len = %d!\n", size, len);
+        fprintf(stderr, "Socket send failed, error code is %d\n", WSAGetLastError());
         return 0;
     }
-}
-
-
-void qt_socket_transmit_module_runtime_info(int msg_type) {
-    
 }
