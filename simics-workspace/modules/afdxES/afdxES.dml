@@ -61,6 +61,20 @@ extern void free_a664_driver_middleware_runtime_header(void *p);
 extern void free_a664_driver_middleware_runtime_name(void *p);
 extern void free_a664_driver_middleware_runtime_description(void *p);
 
+extern void set_a664_middleware_runtime_header(void *p);
+extern void set_a664_middleware_runtime_name(void *p);
+extern void set_a664_middleware_runtime_description(void *p, int flag);
+extern void free_a664_middleware_runtime_header(void *p);
+extern void free_a664_middleware_runtime_name(void *p);
+extern void free_a664_middleware_runtime_description(void *p);
+
+extern void set_a664_card_runtime_header(void *p);
+extern void set_a664_card_runtime_name(void *p);
+extern void set_a664_card_runtime_description(void *p, int flag);
+extern void free_a664_card_runtime_header(void *p);
+extern void free_a664_card_runtime_name(void *p);
+extern void free_a664_card_runtime_description(void *p);
+
 connect phyA {
 	parameter documentation = "Send data to the second ARINC664 card";
     parameter configuration = "optional";
@@ -121,7 +135,7 @@ implement ieee_802_3_mac {
             if ($is_ieee_802_3_log_on) {
                 call $print_ieee_802_3_mac_rm();
             }
-            call $unpacket_frame(data, size)->($rx_mib);
+            call $unpacket_frame(data, size);
         } else {
 			log "error" : "Send from unkown network";
         }
@@ -223,7 +237,7 @@ method Transmit_mib_info(MAC_MIB *maca_mib_info, MAC_MIB *macb_mib_info, RX_MIB 
     for (i = 0; i < sizeof(*maca_mib_info) / sizeoftype(uint32); ++i) {
         tmp = Htonl(*(cast(maca_mib_info, uint32*) +i));
         memcpy(buf + sizeof(runtime_info.header_length) + runtime_info.header_length +
-               sizeof(runtime_info.len) + sizeof(runtime_info.type) + i,
+               sizeof(runtime_info.len) + sizeof(runtime_info.type) + i*4,
                &tmp,
                sizeoftype(uint32));
     }
@@ -231,15 +245,15 @@ method Transmit_mib_info(MAC_MIB *maca_mib_info, MAC_MIB *macb_mib_info, RX_MIB 
     for (i = 0; i < sizeof(*macb_mib_info) / sizeoftype(uint32); ++i) {
         tmp = Htonl(*(cast(macb_mib_info, uint32*) +i));
         memcpy(buf + sizeof(runtime_info.header_length) + runtime_info.header_length +
-               sizeof(runtime_info.len) + sizeof(runtime_info.type) + sizeof(*maca_mib_info) + i,
+               sizeof(runtime_info.len) + sizeof(runtime_info.type) + sizeof(*maca_mib_info) + i*4,
                &tmp,
                sizeoftype(uint32));
     }
     
     for (i = 0; i < sizeof(*rx_mib_info) / sizeoftype(uint32); ++i) {
         tmp = Htonl(*(cast(rx_mib_info, uint32*) +i));
-        memcpy(buf + sizeof(runtime_info.header_length) + runtime_info.header_length +
-               sizeof(runtime_info.len) + sizeof(runtime_info.type) + sizeof(*maca_mib_info) + sizeof(*macb_mib_info) + i,
+		memcpy(buf + sizeof(runtime_info.header_length) + runtime_info.header_length +
+               sizeof(runtime_info.len) + sizeof(runtime_info.type) + sizeof(*maca_mib_info) + sizeof(*macb_mib_info) + i*4,
                &tmp,
                sizeoftype(uint32));
     }
@@ -247,7 +261,7 @@ method Transmit_mib_info(MAC_MIB *maca_mib_info, MAC_MIB *macb_mib_info, RX_MIB 
     for (i = 0; i < sizeof(*tx_mib_info) / sizeoftype(uint32); ++i) {
         tmp = Htonl(*(cast(tx_mib_info, uint32*) +i));
         memcpy(buf + sizeof(runtime_info.header_length) + runtime_info.header_length +
-               sizeof(runtime_info.len) + sizeof(runtime_info.type) + sizeof(*maca_mib_info) + sizeof(*macb_mib_info) + sizeof(*rx_mib_info) + i,
+               sizeof(runtime_info.len) + sizeof(runtime_info.type) + sizeof(*maca_mib_info) + sizeof(*macb_mib_info) + sizeof(*rx_mib_info) + i*4,
                &tmp,
                sizeoftype(uint32));
     }
@@ -339,6 +353,48 @@ method init_a664_driver_middleware_ok() {
     free_a664_driver_middleware_runtime_header(&runtime_info.header);
     free_a664_driver_middleware_runtime_name(&runtime_info.name);
     free_a664_driver_middleware_runtime_description(&runtime_info.description);
+}
+
+method init_a664_middleware_ok() {
+    local Runtime_Info runtime_info;
+    
+    set_a664_middleware_runtime_header(&runtime_info.header);
+    runtime_info.header_length = Strlen(runtime_info.header);
+    runtime_info.type = 0;
+    set_a664_middleware_runtime_name(&runtime_info.name);
+    runtime_info.name_length = Strlen(runtime_info.name);
+    runtime_info.flag = 0;
+    set_a664_middleware_runtime_description(&runtime_info.description, runtime_info.flag);
+    runtime_info.description_length = Strlen(runtime_info.description);
+    runtime_info.len = sizeof(runtime_info.type) + sizeof(runtime_info.name_length) + Strlen(runtime_info.name) +
+        sizeof(runtime_info.flag) + sizeof(runtime_info.description_length) + Strlen(runtime_info.description);
+    
+    call $Transmit_runtime_info(&runtime_info);
+
+    free_a664_middleware_runtime_header(&runtime_info.header);
+    free_a664_middleware_runtime_name(&runtime_info.name);
+    free_a664_middleware_runtime_description(&runtime_info.description);
+}
+
+method init_a664_card_ok() {
+    local Runtime_Info runtime_info;
+    
+    set_a664_card_runtime_header(&runtime_info.header);
+    runtime_info.header_length = Strlen(runtime_info.header);
+    runtime_info.type = 0;
+    set_a664_card_runtime_name(&runtime_info.name);
+    runtime_info.name_length = Strlen(runtime_info.name);
+    runtime_info.flag = 0;
+    set_a664_card_runtime_description(&runtime_info.description, runtime_info.flag);
+    runtime_info.description_length = Strlen(runtime_info.description);
+    runtime_info.len = sizeof(runtime_info.type) + sizeof(runtime_info.name_length) + Strlen(runtime_info.name) +
+        sizeof(runtime_info.flag) + sizeof(runtime_info.description_length) + Strlen(runtime_info.description);
+    
+    call $Transmit_runtime_info(&runtime_info);
+
+    free_a664_card_runtime_header(&runtime_info.header);
+    free_a664_card_runtime_name(&runtime_info.name);
+    free_a664_card_runtime_description(&runtime_info.description);
 }
 
 attribute middleware_mode "Used to switch middleware mode" { 

@@ -39,8 +39,8 @@ method EnPortQueue(PortQueue *queue,UDP_Item item) ->(bool result) {
 		tail->single_size = item.udp_packet_size;
 		memcpy(tail->buffer,item.buffer,item.udp_packet_size);
 		queue->tail = tail;
-		log "info" : "tail whole size = %d",tail->whole_size;
-		log "info" : "tail single size =%d",tail->single_size;
+		//log "info" : "tail whole size = %d",tail->whole_size;
+		//log "info" : "tail single size =%d",tail->single_size;
 	} else {
 		if(item.udp_length > PORT_ITEM_SIZE || item.udp_length + queue->queue_size > PORT_QUEUE_MAX_SIZE) {
 			log "info": "queue is full or single queue is too big!";
@@ -59,8 +59,8 @@ method EnPortQueue(PortQueue *queue,UDP_Item item) ->(bool result) {
 		tail->single_size = item.udp_packet_size;
 		tail->dest_ip = item.dest_ip;
 		tail->src_ip = item.src_ip;
-		log "info" : "tail whole size =%d",tail->whole_size;
-		log "info" : "tail single size = %d",tail->single_size;
+		//log "info" : "tail whole size =%d",tail->whole_size;
+		//log "info" : "tail single size = %d",tail->single_size;
 		
         
 		memcpy(tail->buffer, item.buffer, item.udp_packet_size);
@@ -164,7 +164,7 @@ method IsPortQueueEmpty(PortQueue *queue) ->(bool result) {
 }
 
 method RefreshPortData(Receive_Port *port, UDP_Item udp_item) {
-	port->port_type = 2;
+	port->port_type = 1;
 	
 	if (port->frame != NULL) 
 		dbuffer_free(port->dbuf);
@@ -173,6 +173,8 @@ method RefreshPortData(Receive_Port *port, UDP_Item udp_item) {
 	port->frame = dbuffer_append(port->dbuf, udp_item.udp_length);
 	
 	memcpy(port->frame, udp_item.buffer, udp_item.udp_length);
+	port->size = udp_item.udp_length;
+	$pciport.rx_sampling_port_freshness = 0;  // ÐÂÏÊµÄ
 }
 
 
@@ -188,6 +190,7 @@ struct Receive_Port {
 	PortQueue *queue;
 	dbuffer_t *dbuf;
 	uint8 *frame;
+	int  size;
 }
 
 data Receive_Port port[4096];

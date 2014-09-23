@@ -220,7 +220,7 @@ void send_to_429(void *channel_nr, void *word) {
     chan_stat.word = *(OwUInt32*)word;
     inited_channel[chan_stat.channel_nr - 1].tx_data = chan_stat.word;
     send_to_429_card(&inited_channel[chan_stat.channel_nr - 1]);
-    fprintf(stdout, "Transmit from channel %d, data is %x\n", chan_stat.channel_nr, inited_channel[chan_stat.channel_nr - 1].tx_data);
+   // fprintf(stdout, "Transmit from channel %d, data is %x\n", chan_stat.channel_nr, inited_channel[chan_stat.channel_nr - 1].tx_data);
 }
 #else
 void send_to_429(void *channel_nr, void *word) {
@@ -249,7 +249,7 @@ static recv_from_429_card(void *channels) {
         } else {
             if (receiveWords != 0) {
                 inited_channel[i].rx.is_vaild = 1;
-                fprintf(stdout, "Recv from channel %d, data is %x\n", i + 1, inited_channel[i].rx.rx_data);
+              //  fprintf(stdout, "driver recv  %d, data is %x\n", i + 1, inited_channel[i].rx.rx_data);
             } else {
                 inited_channel[i].rx.is_vaild = 0;
             }

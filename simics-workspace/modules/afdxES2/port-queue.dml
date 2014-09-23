@@ -158,7 +158,7 @@ method IsPortQueueEmpty(PortQueue *queue) -> (bool result) {
 }
 
 method RefreshPortData(Receive_Port *port, UDP_Item udp_item) {
-	port->port_type = 2;
+	port->port_type = 1;
 	
 	if (port->frame != NULL) {
 		dbuffer_free(port->dbuf);

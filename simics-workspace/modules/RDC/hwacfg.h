@@ -2,6 +2,7 @@
 #ifndef __HWA_CFG_H__
 #define __HWA_CFG_H__
 
+#define BUFF_LEN 200
 
 typedef struct
 {
@@ -71,4 +72,11 @@ typedef struct
 	ICMP_STRUCT_t IcmpSet[16];
 }HWACFG_STRUCT_t;
 
+typedef struct
+{
+	unsigned char mode;
+	unsigned char timeOut;
+	float MIBCycle;
+	unsigned char filePath[BUFF_LEN];
+}QT_RDC_CONF_VALUE_t;
 #endif /* __HWA_CFG_H__ */

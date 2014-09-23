@@ -83,3 +83,22 @@ method IsPortCacheEmpty(Port_Cache *port_cache) -> (bool result) {
         result = false;
     }
 }
+
+method RefreshCacheData(int id, Cache_Item item) {	
+	memcpy($cache[id].buffer, item.buffer, item.size);
+	$cache[id].size  = item.size;
+	$pciport.rx_sampling_port_freshness = 0;  // ÐÂÏÊµÄ
+}
+
+method IsCacheSampleEmpty(int port_id) -> (bool result) {
+	if ($cache[port_id].size == 0) 
+		result = true;
+	else 
+		result = false;
+}
+
+struct Cache_Data {
+	uint8 buffer[1518];
+	int	  size;
+}
+data Cache_Data cache[4096];

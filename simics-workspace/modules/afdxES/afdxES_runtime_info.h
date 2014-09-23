@@ -36,4 +36,18 @@ extern void free_afdxES2_mib_runtime_header(void *p);
 extern void free_afdxES2_mib_runtime_name(void *p);
 extern void free_afdxES2_mib_runtime_description(void *p);
 
+extern void set_a664_middleware_runtime_header(void *p);
+extern void set_a664_middleware_runtime_name(void *p);
+extern void set_a664_middleware_runtime_description(void *p, int flag);
+extern void free_a664_middleware_runtime_header(void *p);
+extern void free_a664_middleware_runtime_name(void *p);
+extern void free_a664_middleware_runtime_description(void *p);
+
+extern void set_a664_card_runtime_header(void *p);
+extern void set_a664_card_runtime_name(void *p);
+extern void set_a664_card_runtime_description(void *p, int flag);
+extern void free_a664_card_runtime_header(void *p);
+extern void free_a664_card_runtime_name(void *p);
+extern void free_a664_card_runtime_description(void *p);
+
 #endif

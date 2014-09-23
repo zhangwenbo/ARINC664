@@ -70,8 +70,8 @@ method receive_udp_check_sum(PortQueue* queue)->(bool result) {
     call $part_udp_check_sum(checksum_data,
                              port_item.size,sum)
         ->(new_udp_checksum);
-    log "info" : "new_udp_checksum =%x", new_udp_checksum;
-    log "info" : "new_udp_checksum =%x", old_udp_checksum;
+  //  log "info" : "new_udp_checksum =%x", new_udp_checksum;
+  //  log "info" : "new_udp_checksum =%x", old_udp_checksum;
     if(new_udp_checksum != old_udp_checksum) result = false;
     else result = true;
 }
@@ -134,8 +134,8 @@ method unpacket_ip_checksum(uint8 *buffer)->(uint8 correct) {
 	buffer[IP_CHECKSUM_ADDR+1]=0;
 	
 	call $ip_check_sum(ip_header_addr, IP_HEADER_LENGTH)->(new_ip_checksum);
-	log "info" : "2	new_ip_checksum =%x", new_ip_checksum;
-	log "info" : "2	old_ip_checksum =%x", old_ip_checksum;
+	//log "info" : "2	new_ip_checksum =%x", new_ip_checksum;
+	//log "info" : "2	old_ip_checksum =%x", old_ip_checksum;
 	if(new_ip_checksum != old_ip_checksum)
 		correct = INCORRECT;
 	else 
@@ -202,7 +202,7 @@ method crc_check(uint8 *data,uint32 size,uint32* table) {
 	crc1 = cast(data+size-4,uint32*);
 	STORE_BE32(&crc_value_temp,crc_value);
 	*crc1 = crc_value_temp;
-	log "info": "crc=%x.",*crc1;
+	//log "info": "crc=%x.",*crc1;
 }
 
 method recv_crc_check(uint8 *data,uint32 size,uint32* table)->(bool check) {
@@ -227,7 +227,7 @@ method recv_crc_check(uint8 *data,uint32 size,uint32* table)->(bool check) {
 	old_crc = *crc1;
 	STORE_BE32(&crc_value_temp,crc_value);
 	new_crc = crc_value_temp;
-	log "info": "new_crc=%x,old_crc=%x.",new_crc,old_crc;
+//	log "info": "new_crc=%x,old_crc=%x.",new_crc,old_crc;
 	if(old_crc == new_crc)
 		check = true;
 	else	

@@ -1,4 +1,3 @@
-// rtc_module.dml - Skeleton code to base new DML device modules on
 
 dml 1.2;
 
@@ -214,7 +213,19 @@ typedef struct
 }BLOCK_TIME_STRUCT_t;
 
 
+/* 2014-09-17 added, begin */
+/*  */
+extern typedef  struct 
+{
+	uint8 mode;
+	uint8 timeOut;
+	float MIBCycle;
+	uint8 filePath[200];
+}QT_RDC_CONF_VALUE_t;
+ 
 
+data QT_RDC_CONF_VALUE_t *pQtRdcConfValue;
+/* 2014-09-17 added, end */
 extern int getAfdxFrameBlockNum();
 extern int hwa_load_conf_file();
 extern A429_TO_UDP_ARRAY* GetnA429ToAudp();
@@ -225,6 +236,10 @@ extern AUDPTOA429_STRUCT_t* GetnUdpTo429();
 
 extern HWACFG_STRUCT_t *GetHwaCfg();
 
+/* 2014-09-17 added, begin */
+/* extern  QT_RDC_CONF_VALUE_t *getConfInfo(); */
+extern  QT_RDC_CONF_VALUE_t *parseConfInfo(void);
+/* 2014-09-17 added, end */
 /*
 extern int socket_init(void);
 extern int socket_recv(char *recvbuf, int size);
@@ -268,17 +283,17 @@ extern  int getRecvUdpCnt();
 
 implement Send_To_RDC {
 	method send_to_RDC(void *data, int dest_udp, int length) {
-		log "info" : "called by ARINC664 2";
-		log "info" : "The dest_udp is %d", dest_udp;
+		//log "info" : "called by ARINC664 2";
+		//log "info" : "The dest_udp is %d", dest_udp;
         // for test begin
-       // $ARINC664_2.Send_To_A664.send_to_A664(0, data, length);/*ÓÃÓÚ×Ô»·²âÊÔ*/
-        
+       // $ARINC664_2.Send_To_A664.send_to_A664(0, data, length);/*????¡Á??¡¤????*/
+        /*
 		local uint32 i;
 		for(i=0;i<length;i++) 
 			log "info":"data[%d] = %d",i,*cast(&data[i],uint8*);
          for (i=0;i<length/4;i++)
             log "info":"data[%d] = %x",i,*cast(&data[4*i],uint32*);
-        
+        */
         call $AfdxTo429(dest_udp, cast(data, uint32*), length);
         
         // for test end
@@ -357,18 +372,20 @@ event AfdxTimer{/*Ë³Ðò×é°ü ¶¨Ê±³¬Ê±*/
 			
 			pAfdxFrameBlock = getpAfdxFrameBlock();
 			pAfdxFrameBlock[*nBlockIndex].nFrameNum = 0;
+			$begin[$nA429ToAfdxCfgIndex]  = 0;
 			/*
 			if(pAfdxFrameBlock[*nBlockIndex].nFrameNum>0)
 			{
 				call $nSendToAfdx(*nBlockIndex,pAfdxFrameBlock[*nBlockIndex].pAfdxFrameBlock,pAfdxFrameBlock[*nBlockIndex].nFrameNum);
 			}
 			*/
-		    log "info": "Time Out: portId is %d\n.",*nBlockIndex;
+		    log "info": "Time Out: portId is %d",*nBlockIndex;
 			local double current_time = SIM_time($dev.obj);
-			log "info" : "Current time = %f", current_time;	
+			//log "info" : "Current time = %f", current_time;	
 			}
 }
 
+data int time_num;
 event AfdxRtcTimer{/*¶¨Ê±×é°ü*/
 		parameter timebase = "seconds";
 		method event(void* data) {
@@ -379,12 +396,21 @@ event AfdxRtcTimer{/*¶¨Ê±×é°ü*/
 			AfdxFrameBlockNum = getAfdxFrameBlockNum();
 			for(i=0;i<AfdxFrameBlockNum;i++)
 			{
-				if(pAfdxFrameBlock[i].nFrameNum>0)/*´«µÝblock¸öÊý*/
+				if(pAfdxFrameBlock[i].nFrameNum>0)/*????block????*/
 				{
+					local int j;
+					for (j=0; j < pAfdxFrameBlock[i].nFrameNum; j++) 
+					{	
+						log "info" : "recv data[%d] = %x", j, *(cast(pAfdxFrameBlock[i].pAfdxFrameBlock,int *)+j);
+						local double current_time = SIM_time($dev.obj);
+						log "info" : "Afdx Current time = %f\n", current_time;	
+					}	
 					call $nSendToAfdx(i,pAfdxFrameBlock[i].pAfdxFrameBlock,pAfdxFrameBlock[i].nFrameNum);
+										
+					pAfdxFrameBlock[i].nFrameNum=0;
 				}
 			}
-			inline $this.post(40000,NULL);
+			inline $this.post($pQtRdcConfValue->timeOut/1000.0,NULL);
 		}
 }
 
@@ -417,9 +443,9 @@ struct channel_data {
 
 method send429(uint8 channel,uint32 data)
 {
-
-	log "info" : "The channel is %d", channel;
 /*
+	log "info" : "The channel is %d", channel;
+
     local channel_data x;
     x.nr = channel;
     x.data = data;
@@ -435,9 +461,12 @@ method A429To429(uint8 channel,uint32 data)
 	local uint8 i = 0;
 	local A429_TO_A429_ARRAY * nA429ToA429arry;
 	nLabel = data&0xff;
+	
 	nA429ToA429arry = GetnA429ToA429();
+	/*  mwg add 	
 	log "info" : "A429TO429 :%x!\n",nA429ToA429arry->nA429ToA429[channel][nLabel];
 	log "info" : "data is :%x!\n",data;
+	*/
 	for (i=0;i<16;i++)
 	{
 		if (((nA429ToA429arry->nA429ToA429[channel][nLabel])&(1<<i)) == 1)
@@ -453,29 +482,35 @@ method A429To429(uint8 channel,uint32 data)
 //send to afdx card
 method nSendToAfdx(uint8 portid,uint32 * data,uint8 datalen)
 {
-    log "info": "sendAfdx:portid:%d,data:%x,datalen:%d",portid,*data,datalen;
+  // log "info": "sendAfdx:portid:%d,data:%x,datalen:%d",portid,*data,datalen;
     $ARINC664_2.Send_To_A664.send_to_A664(portid,cast(data,void *),datalen);
 }
 
 //429toafdx/429 receive from 429
 
 
+data int middle_num;
+data int last_num;
+data int head_num;
+
+data int begin[100];
+data int nA429ToAfdxCfgIndex;
 method A429ToAfdx(uint8 channel,uint32 data)
 {
-    log "info": "Received:Channel:%d,data:0x%x",channel,data;
+ //   log "info": "Received:Channel:%d,data:0x%x",channel,data;
   
 	local int i = 0;
 	local nFrameR * pFrameR;
 	local uint8 nLabel;
 	local uint32 nData;
-	local int nA429ToAfdxCfgIndex = 0;
+	
 	local uint32 nFramebit = 0; 
 	local uint8 nArryIndex;
 	local uint8 nBitIndex;
 	nLabel = data&0xff;
 	nData = (data&0x1FFFFC00)>>10;
 	local BLOCK_TIME_STRUCT_t * pBlockTime;
-	local uint8 nAfdxFlag;/*×é°ü·½Ê½*/
+	local uint8 nAfdxFlag = $pQtRdcConfValue->mode;/*×é°ü·½Ê½ 0£ºË³Ðò×é°ü£» 1£º¶¨Ê±×é°ü*/
 
 	local A429_TO_UDP_ARRAY * A429ToUdpArry;
 	local AFDXFRAME_STRUCT_t *pAfdxFrameBlock;
@@ -496,18 +531,19 @@ method A429ToAfdx(uint8 channel,uint32 data)
 			{
 				pFrameR= pFrameR->pNext;
 			}	
-			log "info": "portID:%d;\n",pFrameR->nPortId;
+		//	log "info": "portID:%d;\n",pFrameR->nPortId;
 		}
 	}
 	/*print config end*/		
-	log "info": "usd:%d,label:0x%x\n",A429ToUdpArry->nA429ToUdp[channel][nLabel].nUsed,nLabel;  
+	//log "info": "usd:%d,label:0x%x\n",A429ToUdpArry->nA429ToUdp[channel][nLabel].nUsed,nLabel;  
 	
-	if(A429ToUdpArry->nA429ToUdp[channel][nLabel].nUsed ==0)/*Èç¹ûÃ»ÓÃÔò×ª·¢µ½429*/
+	if(A429ToUdpArry->nA429ToUdp[channel][nLabel].nUsed ==0)/*?????????¨°¡Á?¡¤???429*/
 	{
 			call $A429To429(channel,data);
-	}else{																	/*×ª·¢AFDX*/
+	}else{																	/*¡Á?¡¤?AFDX*/
 		if(nAfdxFlag == 1)/*¶¨Ê±×é°ü*/
 		{
+		//	log "info" : "first = %d ", ++$time_num_1;
 			pFrameR = A429ToUdpArry->nA429ToUdp[channel][data&0xff].pFrameR;
 			for (i=0;i<A429ToUdpArry->nA429ToUdp[channel][data&0xff].nUsed;i++)
 			{
@@ -518,16 +554,17 @@ method A429ToAfdx(uint8 channel,uint32 data)
                 
                 if(pFrameR->pA429ToUdp->nUseType == 0)
                 {
-                    nA429ToAfdxCfgIndex = pFrameR->nPortId;
-                   // nFramebit=pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum;
-                    pAfdxFrameBlock[nA429ToAfdxCfgIndex].pAfdxFrameBlock[pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum]=data;
-                    pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum++;
+                    $nA429ToAfdxCfgIndex = pFrameR->nPortId;
+                   // nFramebit=pAfdxFrameBlock[$nA429ToAfdxCfgIndex].nFrameNum;
+                    pAfdxFrameBlock[$nA429ToAfdxCfgIndex].pAfdxFrameBlock[pAfdxFrameBlock[$nA429ToAfdxCfgIndex].nFrameNum]=data;
+                    pAfdxFrameBlock[$nA429ToAfdxCfgIndex].nFrameNum++;
+			//		log "info" : "second = %d ", ++$time_num_2;
                     
                 }
-						
-				
+							
 			}
-		}else{/*Ë³Ðò×é°ü*/
+		}else
+		{/*Ë³Ðò×é°ü*/
 			pFrameR = A429ToUdpArry->nA429ToUdp[channel][data&0xff].pFrameR;
 			for (i=0;i<A429ToUdpArry->nA429ToUdp[channel][data&0xff].nUsed;i++)
 			{
@@ -535,189 +572,69 @@ method A429ToAfdx(uint8 channel,uint32 data)
 				{
 					pFrameR= pFrameR->pNext;
 				}
-				if (pFrameR->pA429ToUdp->nUseType == 0)/*Õý³£Ä£Ê½Ôò¼ì²éÊÇ·ñÍ·°üÎ²°ü*/
+				if (pFrameR->pA429ToUdp->nUseType == 0)/*?????????¨°?¨¬?¨¦??¡¤??¡¤¡ã¨¹??¡ã¨¹*/
 				{
-					nA429ToAfdxCfgIndex = pFrameR->nPortId;
-					pBlockTime->pAfdxBlockTime[nA429ToAfdxCfgIndex]=nA429ToAfdxCfgIndex;
+					$nA429ToAfdxCfgIndex = pFrameR->nPortId;
+					pBlockTime->pAfdxBlockTime[$nA429ToAfdxCfgIndex]=$nA429ToAfdxCfgIndex;
+					
 					if (pFrameR->pAlabel->nHeadLabel == nLabel)     /*Í·°ü*/
 					{
-						pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum = 0;
+					//	log "info" : "head_num = %d",++$head_num;
+						$begin[$nA429ToAfdxCfgIndex]  = 1;
+						pAfdxFrameBlock[$nA429ToAfdxCfgIndex].nFrameNum = 0;
 	
-						pAfdxFrameBlock[nA429ToAfdxCfgIndex].pAfdxFrameBlock[pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum]=data;
-						pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum++;
+						pAfdxFrameBlock[$nA429ToAfdxCfgIndex].pAfdxFrameBlock[pAfdxFrameBlock[$nA429ToAfdxCfgIndex].nFrameNum]=data;
+						pAfdxFrameBlock[$nA429ToAfdxCfgIndex].nFrameNum++;
 						if(pFrameR->pAlabel->nTailLabel == nLabel)
 							{
 								log "info": "usd:for tail head and label!";  
-								log "info": "frame:0x%x,index:%d,frameNum:%d\n",pAfdxFrameBlock[nA429ToAfdxCfgIndex].pAfdxFrameBlock[0],nA429ToAfdxCfgIndex,pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum; 
-								call $nSendToAfdx(nA429ToAfdxCfgIndex,pAfdxFrameBlock[nA429ToAfdxCfgIndex].pAfdxFrameBlock,pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum);
+							//	log "info": "frame:0x%x,index:%d,frameNum:%d\n",pAfdxFrameBlock[$nA429ToAfdxCfgIndex].pAfdxFrameBlock[0],$nA429ToAfdxCfgIndex,pAfdxFrameBlock[$nA429ToAfdxCfgIndex].nFrameNum; 
+								call $nSendToAfdx($nA429ToAfdxCfgIndex,pAfdxFrameBlock[$nA429ToAfdxCfgIndex].pAfdxFrameBlock,pAfdxFrameBlock[$nA429ToAfdxCfgIndex].nFrameNum);
 								
 								continue ;
 							}else{
+								//inline $AfdxTimer.post(4000,&(pBlockTime->pAfdxBlockTime[$nA429ToAfdxCfgIndex]));   //ÐèÒªË¼¿¼Ò»ÏÂÊÇ·ñ¿ÉÒÔ±»ÏÂÃæµÄÒ»ÐÐËùÌæ´ú
 								
-								inline $AfdxTimer.post(40,&(pBlockTime->pAfdxBlockTime[nA429ToAfdxCfgIndex]));
+								  inline $AfdxTimer.post($pQtRdcConfValue->timeOut/100.0,&(pBlockTime->pAfdxBlockTime[$nA429ToAfdxCfgIndex]));
 								  local double current_time = SIM_time($dev.obj);
-								  log "info" : "Current time = %f", current_time;
-								  log "info": "Time Start!!!: portId is %d\n.",nA429ToAfdxCfgIndex;
+								//  log "info" : "Current time = %f", current_time;
+								//  log "info": "Time Start!!!: portId is %d\n.",$nA429ToAfdxCfgIndex;
 								  
 							}
-					}else if (pFrameR->pAlabel->nTailLabel == nLabel)/*Î²°ü*/
+					}else if (pFrameR->pAlabel->nTailLabel == nLabel )/*Î²°ü*/
 					{
-						pAfdxFrameBlock[nA429ToAfdxCfgIndex].pAfdxFrameBlock[pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum]=data;
-						pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum++;
-						call $nSendToAfdx(nA429ToAfdxCfgIndex,pAfdxFrameBlock[nA429ToAfdxCfgIndex].pAfdxFrameBlock,pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum);
-						inline $AfdxTimer.remove(&(pBlockTime->pAfdxBlockTime[nA429ToAfdxCfgIndex]));
-						pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum = 0;
-					}else{
-						pAfdxFrameBlock[nA429ToAfdxCfgIndex].pAfdxFrameBlock[pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum]=data;
-						pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum++;
-						if (pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum > 100)
-						{
-							pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum = 0;
-							inline $AfdxTimer.remove(&(pBlockTime->pAfdxBlockTime[nA429ToAfdxCfgIndex]));
+						if($begin[$nA429ToAfdxCfgIndex]  == 1) {
+						//	log "info" : "tail_num =%d",++$last_num;
+							pAfdxFrameBlock[$nA429ToAfdxCfgIndex].pAfdxFrameBlock[pAfdxFrameBlock[$nA429ToAfdxCfgIndex].nFrameNum]=data;
+							pAfdxFrameBlock[$nA429ToAfdxCfgIndex].nFrameNum++;
+							call $nSendToAfdx($nA429ToAfdxCfgIndex,pAfdxFrameBlock[$nA429ToAfdxCfgIndex].pAfdxFrameBlock,pAfdxFrameBlock[$nA429ToAfdxCfgIndex].nFrameNum);
+							inline $AfdxTimer.remove(&(pBlockTime->pAfdxBlockTime[$nA429ToAfdxCfgIndex]));
+							pAfdxFrameBlock[$nA429ToAfdxCfgIndex].nFrameNum = 0;
+							$begin[$nA429ToAfdxCfgIndex]  = 0;
+						} else {
+							//do nothing;
 						}
 					}
-				}/*usetype*/
-			}/*for*/
-		}/*end of Ë³Ðò×é°ü*/
-	}
-
-
-if(0)
-{
-    log "info": "Received:Channel:%d,data:%d",channel,data;
-    return;
-	local int i = 0;
-	local nFrameR * pFrameR;
-	local char nLabel;
-	local uint32 nData;
-	local int nA429ToAfdxCfgIndex = 0;
-	local uint32 nFramebit = 0; 
-	local uint8 nArryIndex;
-	local uint8 nBitIndex;
-	nLabel = data&0xff;
-	nData = (data&0x1FFFFC00)>>10;
-	local BLOCK_TIME_STRUCT_t * pBlockTime;
-	local uint8 nAfdxFlag=0;/*×é°ü·½Ê½*/
-
-	local A429_TO_UDP_ARRAY * A429ToUdpArry;
-	local AFDXFRAME_STRUCT_t *pAfdxFrameBlock;
-	
-	pBlockTime = cast($regs.afdx_block_adr,BLOCK_TIME_STRUCT_t *);
-	
-	
-	A429ToUdpArry = GetnA429ToAudp();	
-	pAfdxFrameBlock=getpAfdxFrameBlock();
-
-	//log "info": "usd:%d",A429ToUdpArry->nA429ToUdp[0][0].nUsed;  
-	
-	if(A429ToUdpArry->nA429ToUdp[channel][nLabel].nUsed ==0)/*Èç¹ûÃ»ÓÃÔò×ª·¢µ½429*/
-	{
-			call $A429To429(channel,data);
-	}else{																	/*×ª·¢AFDX*/
-		if(nAfdxFlag == 1)/*¶¨Ê±×é°ü*/
-		{
-			pFrameR = A429ToUdpArry->nA429ToUdp[channel][data&0xff].pFrameR;
-			for (i=0;i<A429ToUdpArry->nA429ToUdp[channel][data&0xff].nUsed;i++)
-			{
-				if(i>0)
-				{
-					pFrameR= pFrameR->pNext;
-				}
-					if(pFrameR->pA429ToUdp->nUseType == 0)
+					else
 					{
-						nA429ToAfdxCfgIndex = pFrameR->pA429ToUdp->nPortId;
-						nFramebit=pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum*19;
-						nArryIndex = nFramebit/32;
-						nBitIndex = nFramebit%32;
-						if (32-nBitIndex > 19)
-						{
-							pAfdxFrameBlock[nA429ToAfdxCfgIndex].pAfdxFrameBlock[nArryIndex] |= (nData<<(32-nBitIndex));
-						}else 
-						{
-							pAfdxFrameBlock[nA429ToAfdxCfgIndex].pAfdxFrameBlock[nArryIndex] |= (nData>>(19-(32-nBitIndex)));
-							pAfdxFrameBlock[nA429ToAfdxCfgIndex].pAfdxFrameBlock[nArryIndex+1] |= (nData<<(32-nBitIndex));
-						}
-						pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum++;
-						
-					}
-						
-				
-			}
-		}else{/*Ë³Ðò×é°ü*/
-			pFrameR = A429ToUdpArry->nA429ToUdp[channel][data&0xff].pFrameR;
-			for (i=0;i<A429ToUdpArry->nA429ToUdp[channel][data&0xff].nUsed;i++)
-			{
-				if(i>0)
-				{
-					pFrameR= pFrameR->pNext;
-				}
-				if (pFrameR->pA429ToUdp->nUseType == 0)/*Õý³£Ä£Ê½Ôò¼ì²éÊÇ·ñÍ·°üÎ²°ü*/
-				{
-					nA429ToAfdxCfgIndex = pFrameR->pA429ToUdp->nPortId;
-					if (pFrameR->pAlabel->nHeadLabel == nLabel)     /*Í·°ü*/
-					{
-						pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum = 0;
-	
-						nFramebit=pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum*19;
-						nArryIndex = nFramebit/32;
-						nBitIndex = nFramebit%32;
-						if (32-nBitIndex > 19)
-						{
-							pAfdxFrameBlock[nA429ToAfdxCfgIndex].pAfdxFrameBlock[nArryIndex] |= (nData<<(32-nBitIndex));
-						}else 
-						{
-							pAfdxFrameBlock[nA429ToAfdxCfgIndex].pAfdxFrameBlock[nArryIndex] |= (nData>>(19-(32-nBitIndex)));
-							pAfdxFrameBlock[nA429ToAfdxCfgIndex].pAfdxFrameBlock[nArryIndex+1] |= (nData<<(32-nBitIndex));
-						}
-						pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum++;
-						if(pFrameR->pAlabel->nTailLabel == nLabel)
-							{
-								call $nSendToAfdx(nA429ToAfdxCfgIndex,pAfdxFrameBlock[nA429ToAfdxCfgIndex].pAfdxFrameBlock,pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum);
-								continue ;
-							}else{
-								inline $AfdxTimer.post(40,&(pBlockTime->pAfdxBlockTime[nA429ToAfdxCfgIndex]));
+						if($begin[$nA429ToAfdxCfgIndex]  == 1) {
+						//	log "info" : "middle_num =%d",++$middle_num;
+							pAfdxFrameBlock[$nA429ToAfdxCfgIndex].pAfdxFrameBlock[pAfdxFrameBlock[$nA429ToAfdxCfgIndex].nFrameNum]=data;
+							pAfdxFrameBlock[$nA429ToAfdxCfgIndex].nFrameNum++;
+							if (pAfdxFrameBlock[$nA429ToAfdxCfgIndex].nFrameNum >= 100) {
+								pAfdxFrameBlock[$nA429ToAfdxCfgIndex].nFrameNum = 0;
+								$begin[$nA429ToAfdxCfgIndex]  = 0;
+							//	log "info" : "beyond 100";
+								inline $AfdxTimer.remove(&(pBlockTime->pAfdxBlockTime[$nA429ToAfdxCfgIndex]));
 							}
-					}else if (pFrameR->pAlabel->nTailLabel == nLabel)/*Î²°ü*/
-					{
-						nFramebit=pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum*19;
-						nArryIndex = nFramebit/32;
-						nBitIndex = nFramebit%32;
-						if (32-nBitIndex > 19)
-						{
-							pAfdxFrameBlock[nA429ToAfdxCfgIndex].pAfdxFrameBlock[nArryIndex] |= (nData<<(32-nBitIndex));
-						}else 
-						{
-							pAfdxFrameBlock[nA429ToAfdxCfgIndex].pAfdxFrameBlock[nArryIndex] |= (nData>>(19-(32-nBitIndex)));
-							pAfdxFrameBlock[nA429ToAfdxCfgIndex].pAfdxFrameBlock[nArryIndex+1] |= (nData<<(32-nBitIndex));
-						}
-						call $nSendToAfdx(nA429ToAfdxCfgIndex,pAfdxFrameBlock[nA429ToAfdxCfgIndex].pAfdxFrameBlock,pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum);
-						inline $AfdxTimer.remove(&(pBlockTime->pAfdxBlockTime[nA429ToAfdxCfgIndex]));
-						pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum = 0;
-					}else{
-	
-						nFramebit=pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum*19;
-						nArryIndex = nFramebit/32;
-						nBitIndex = nFramebit%32;
-						if (32-nBitIndex > 19)
-						{
-							pAfdxFrameBlock[nA429ToAfdxCfgIndex].pAfdxFrameBlock[nArryIndex] |= (nData<<(32-nBitIndex));
-						}else 
-						{
-							pAfdxFrameBlock[nA429ToAfdxCfgIndex].pAfdxFrameBlock[nArryIndex] |= (nData>>(19-(32-nBitIndex)));
-							pAfdxFrameBlock[nA429ToAfdxCfgIndex].pAfdxFrameBlock[nArryIndex+1] |= (nData<<(32-nBitIndex));
-						}
-						pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum++;
-						if (pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum > 100)
-						{
-							pAfdxFrameBlock[nA429ToAfdxCfgIndex].nFrameNum = 0;
+						}else {
+							//do nothing
 						}
 					}
 				}/*usetype*/
 			}/*for*/
-		}/*end of Ë³Ðò×é°ü*/
+		}/*end of ???¨°¡Á¨¦¡ã¨¹*/
 	}
-
-}
 }
 
 
@@ -726,7 +643,7 @@ if(0)
 //receive from afdx card
 method AfdxTo429(uint16 dest_udp,uint32 *payload,uint32 length)
 {
-log "info" : "Entering nUdpTo429()!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
+//log "info" : "Entering nUdpTo429()!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
 local uint8 i;
 local uint8 j;
 local uint32 Channel;
@@ -738,23 +655,23 @@ usertype_count = 0;
 wrongchannel_count = 0;
 wrongsize_count = 0;
 local AUDPTOA429_STRUCT_t * nUdpTo429Arry;
-log "info" : "Before call nUdpTo429()";
+//log "info" : "Before call nUdpTo429()";
 nUdpTo429Arry = GetnUdpTo429();
 
-log "info" : "usetype is %d, channel is %d, length is %d",nUdpTo429Arry[dest_udp].nUseType,nUdpTo429Arry[dest_udp].nA429SendChannel1,length;
+//log "info" : "usetype is %d, channel is %d, length is %d",nUdpTo429Arry[dest_udp].nUseType,nUdpTo429Arry[dest_udp].nA429SendChannel1,length;
     if (nUdpTo429Arry[dest_udp].nUseType ==0 && nUdpTo429Arry[dest_udp].nA429SendChannel1 !=0 && length%4 == 0)     //UseType Normal & Channels OK & frame size OK
-	{log "info": "after if!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
+	{//log "info": "after if!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
 
         for (i=1; i<=(length/4); i++) {
 		Channel = nUdpTo429Arry[dest_udp].nA429SendChannel1;
-            for (j=1;j<=16;j++) {
-			log "info": "channel is %d,j is:%d\n", Channel,j;
+           for (j=1;j<=16;j++) {
+		//	log "info": "channel is %d,j is:%d\n", Channel,j;
                 if ((Channel & 0x1) == 1)
                 {
-                    log "info": "Before call send429 ##########################";
+                 //   log "info": "Before call send429 ##########################";
                     STORE_BE32(&payload_temp,*payload);
                     call $send429(j, payload_temp);
-					log "info":"after call send429";
+				//	log "info":"after call send429";
                 }
                 Channel = Channel>>0x1;
             }
@@ -771,7 +688,7 @@ log "info" : "usetype is %d, channel is %d, length is %d",nUdpTo429Arry[dest_udp
 
 constant PORT_DATA_SIZE = 8;     // too big , sizeoftype(uint8) + sizeoftype(uint32) is OK?
 
-
+data int recv_num;
 method socket_loop_recv() {
 	local RX_DATA rx[16];
 	
@@ -780,12 +697,13 @@ method socket_loop_recv() {
 	local uint8 i = 0;
 	for (; i < 16; ++i) {
 		if (rx[i].is_vaild == 1) {
-			log "info" : "Recv from channel: %d, data %x", i + 1, rx[i].rx_data;
+			$recv_num++;
+			//log "info" : "Rchannel: %d, data %x ,recv num is %d", i + 1, rx[i].rx_data, $recv_num;
 			call $A429ToAfdx(i + 1, rx[i].rx_data);
 		}
 	}
 	
-	after (0.001) call $socket_loop_recv();
+	after (0.0001) call $socket_loop_recv();
 }
 
 method load_afdx_config()
@@ -830,22 +748,22 @@ method load_afdx_config()
 	
 	userid = cast(pHwaCfg->position,uint32) + cast(((pHwaCfg->side) << 5),uint32) + cast(((pHwaCfg->domain) << 8),uint32);
 	//partid = 
-	/*½ÓÊÕvlµÄÅäÖÃ*/
-	for(i=0;i<pHwaCfg->revvl_num;i++)/*½ÓÊÕVL×î¶à256¸ö*/
+	/*????vl??????*/
+	for(i=0;i<pHwaCfg->revvl_num;i++)/*????VL¡Á??¨¤256??*/
 	{
 	  
 	  recv_rm_cfg_cam.address =i;
 	  recv_rm_cfg_cam.VL_ID= pHwaCfg->recvVlSet[i].vlNum;
 	 
-	  recv_rm_cfg_ram.ram_data.VL_ENABLE = 1;/*Ä¬ÈÏ¶¼Ê¹ÄÜ*/
+	  recv_rm_cfg_ram.ram_data.VL_ENABLE = 1;/*??????????*/
 	  recv_rm_cfg_ram.ram_data.SKEW_MAX = pHwaCfg->recvVlSet[i].skewMax;
-	  recv_rm_cfg_ram.ram_data.RM_ENABLE = pHwaCfg->recvVlSet[i].redundantAble;/*ÈßÓàÊ¹ÄÜ*/
+	  recv_rm_cfg_ram.ram_data.RM_ENABLE = pHwaCfg->recvVlSet[i].redundantAble;/*???¨¤????*/
 	 
 	  if(pHwaCfg->recvVlSet[i].redundantAble!=0)
 	  {
 		recv_rm_cfg_ram.ram_data.NETWORK_B_ENABLE=1;
 		recv_rm_cfg_ram.ram_data.NETWORK_A_ENABLE=1;
-		recv_rm_cfg_ram.ram_data.NETWORK_B_IC_ENABLE=pHwaCfg->recvVlSet[i].integrityAble;/*ÍêÕûÐÔ¼ì²é*/
+		recv_rm_cfg_ram.ram_data.NETWORK_B_IC_ENABLE=pHwaCfg->recvVlSet[i].integrityAble;/*?¨º?????¨¬?¨¦*/
 		recv_rm_cfg_ram.ram_data.NETWORK_A_IC_ENABLE=pHwaCfg->recvVlSet[i].integrityAble;
 	  }else{
 		recv_rm_cfg_ram.ram_data.NETWORK_B_ENABLE=0;
@@ -875,7 +793,7 @@ method load_afdx_config()
 	}else{
 		  log "info" : "The nDataSrcPatition no data!!!!!error !!!!!!";
 	}
-	/*½ÓÊÕportµÄÅäÖÃ   ½ÓÊÕ¶Ë¿Ú×î´óÎª4096*/
+	/*????port??????   ????????¡Á??¨®??4096*/
 	for(i=0;i<RecvCfgUdpCnt;i++)
 	{
 		//partid = 1;/*lanxingdong detip err*/
@@ -912,7 +830,7 @@ method load_afdx_config()
 	}
     
 
-	/*·¢ËÍVLµÄÅäÖÃ   ·¢ËÍVL×î´óÎª128*/
+	/*¡¤???VL??????   ¡¤???VL¡Á??¨®??128*/
 	for(i=0;i<pHwaCfg->sendvl_num;i++)
 	{
 	  
@@ -929,7 +847,7 @@ method load_afdx_config()
 	  log "info" : "The sendvl_num is %d", i;
 	  log "info": "------------------------------------------------------------------------\n\n";
 	}
-	/*·¢ËÍ¶Ë¿ÚµÄÅäÖÃ   ·¢ËÍ¶Ë¿Ú×î´óÎª1024*/
+	/*¡¤?????????????   ¡¤???????¡Á??¨®??1024*/
     //log "info" : "SendCfgUdpCnt is %d", SendCfgUdpCnt;
 
 	for(i=0;i<SendCfgUdpCnt;i++)
@@ -957,9 +875,9 @@ method load_afdx_config()
 	  send_cfg_table.ram_data_part1.MIN_FRAME_LENGTH =pHwaCfg->sendVlSet[VlIndex>>2].minLen;
 	  send_cfg_table.ram_data_part1.PORT_TYPE=SendCfgUdp[i].nPortType;
 	  send_cfg_table.ram_data_part2.PARTITION_ID=SendCfgUdp[i].nDataSrcPatition;
-	  send_cfg_table.ram_data_part2.INTERFACE_ID=pHwaCfg->sendVlSet[VlIndex>>2].netSelect;/*ÍøÂçÑ¡Ôñ*/
+	  send_cfg_table.ram_data_part2.INTERFACE_ID=pHwaCfg->sendVlSet[VlIndex>>2].netSelect;/*????????*/
 	  log "info" : "Debug INTERFACE_ID = %d",  send_cfg_table.ram_data_part2.INTERFACE_ID;
-	  send_cfg_table.ram_data_part2.PROTOCAL_ID=0x11;/*Ö»ÓÐUDP*/
+	  send_cfg_table.ram_data_part2.PROTOCAL_ID=0x11;/*????UDP*/
 	  send_cfg_table.ram_data_part2.USER_DEFINED_ID=userid;
 	  send_cfg_table.ram_data_part3.SUB_VL_ID = (VlIndex&0x03);
 	  send_cfg_table.ram_data_part3.DEST_UDP_PORT=SendCfgUdp[i].nDstUdp;
@@ -1058,7 +976,8 @@ method transmit_runtime_info(Runtime_Info *runtime_info) {
 // initial configuration is set and when the configuration is loaded from a
 // checkpoint.
 method post_init() {
-	hwa_load_conf_file();
+	$pQtRdcConfValue = parseConfInfo();
+
 	call $load_afdx_config();
 	call $InitTime();
 	init_429_middleware();
@@ -1066,6 +985,10 @@ method post_init() {
     call $init_429_middleware_ok();
     call $init_429_card_ok();
     call $socket_loop_recv();
+	if($pQtRdcConfValue->mode == 1)/*¶¨Ê±×é°ü´¥·¢*/		/* ¸ÄÓÃÊµ¼ÊµÄÄ£Ê½²ÎÊý */
+	{
+	  inline $AfdxRtcTimer.post(0.05,NULL);
+	}
 }
 
 

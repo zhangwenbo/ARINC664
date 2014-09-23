@@ -7,6 +7,7 @@
 #define A429_CHANNEL_SIZE  16
 #define A429_LABEL_NUM  256
 
+#define BUFF_LEN 200
 typedef struct
 {
 	

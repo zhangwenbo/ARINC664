@@ -50,10 +50,10 @@ int Send_To_664_Middleware(unsigned char *sendbuf, int size) {
     int len = send(client_socket, (char *)sendbuf, size, 0);
 
     if (len == size) {
-        fprintf(stdout, "Socket send sucessfully, send %d bytes.\n", len);
+     //   fprintf(stdout, "Socket send sucessfully, send %d bytes.\n", len);
         return len;
     } else {
-        fprintf(stderr, "Socket send failed, size = %d, sended len = %d!\n", size, len);
+		fprintf(stderr, "Socket send failed, size = %d, sended len = %d!\n", size, len);
         return 0;
     }
 }
@@ -191,8 +191,6 @@ static char* ab_enable_string(u32 enable_a, u32 enable_b)
 
 void send_port_string(FILE *fp) {
 	int i;
-	int j;
-	u64 tt;
 	for (i = 0; i < transmit_cfg_ram_array_len; i++) {
 		struct transmit_cfg_ram *ram = &transmit_cfg_ram_array[i];
 		if (all_zeroes((char *)ram, sizeof(*ram)))
@@ -357,17 +355,15 @@ int Init_664_Card(void) {
 #endif
 
 #ifndef __DEBUG__
-int Recv_From_A664(int card_nr, int port_id, unsigned char *buf) {
+int Recv_From_A664(int card_nr, int port_id, unsigned char *buf,unsigned *network, unsigned *valid) {
 	HwaRecvTime time;
-	unsigned network;
-	unsigned valid;
 	
-	int len = hwa_aes_recv(card_nr, recv_ports[port_id], buf, MAX_PACK_LEN, &time, &network, &valid);
+	int len = hwa_aes_recv(card_nr, recv_ports[port_id], buf, MAX_PACK_LEN, &time, network, valid);
 	
 	return len;
 }
 #else
-int Recv_From_A664(int card_nr, int port_id, unsigned char *buf) {
+int Recv_From_A664(int card_nr, int port_id, unsigned char *buf,unsigned *network, unsigned *valid) {
 }
 #endif
 

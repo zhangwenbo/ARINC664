@@ -42,27 +42,30 @@ method RM_Handler(RM_INFO *rm_info, uint8 interface_id, uint8 frame_sn) -> (bool
         rm_info->B_Interface_ID = 0;
     }
 
-    if (interface_id != rm_info->A_Interface_ID) {
-        $rx_mib.disable_A_filt_count++;
-    }
 
-    if (interface_id != rm_info->B_Interface_ID) {
-        $rx_mib.disable_B_filt_count++;
+	if (interface_id == rm_info->A_Interface_ID) {
+        call $mib_in_sum(&($maca_mib), rm_info->frame_size);
+    } else if (interface_id == rm_info->B_Interface_ID) {
+        call $mib_in_sum(&($macb_mib), rm_info->frame_size);
     }
     
     if ((frame_sn == $recv_vl[rm_info->rm_index].expect_sn) &&
         ((interface_id == rm_info->A_Interface_ID) ||
          (interface_id == rm_info->B_Interface_ID))) {
-        $rx_mib.size = rm_info->frame_size;
+        $rx_mib.size += rm_info->frame_size;
         $recv_vl[rm_info->rm_index].expect_sn++;
         $recv_vl[rm_info->rm_index].expect_sn %= 256;
-        if (interface_id == rm_info->A_Interface_ID) {
-            call $mib_in_sum(&($maca_mib), rm_info->frame_size);
-        } else if (interface_id == rm_info->B_Interface_ID) {
-            call $mib_in_sum(&($macb_mib), rm_info->frame_size);
-        }
+      
         result = true;
     } else {
+		if(interface_id == rm_info->A_Interface_ID) {
+			 $rx_mib.disable_A_filt_count++;
+			 $rx_mib.redunt_filt_count++;
+		}
+		if(interface_id == rm_info->B_Interface_ID) {
+			 $rx_mib.disable_B_filt_count++;
+			 $rx_mib.redunt_filt_count++;
+		}
         result = false;
     }
 }

@@ -14,7 +14,7 @@ method init_udp_flag() {
     memset($udp_first,1,PORT_SIZE);
 }
 
-method unpacket_frame(uint8 *buffer,uint32 size)->(RX_MIB rx_mib) {
+method unpacket_frame(uint8 *buffer,uint32 size) {
 	local uint16 dest_udp;
 	local uint16 vl;
 	local uint32 dest_ip;
@@ -38,7 +38,7 @@ method unpacket_frame(uint8 *buffer,uint32 size)->(RX_MIB rx_mib) {
 	call $unpacket_ip_checksum(buffer)->(correct);		//IP checksum
     if (correct == INCORRECT) {
         log "info": "ip checksum error";
-		rx_mib.ip_checksum_filt_count++;
+		$rx_mib.ip_checksum_filt_count++;
         return;
     } else {
         if ($is_unpacket_frame_log_on) {
@@ -46,7 +46,7 @@ method unpacket_frame(uint8 *buffer,uint32 size)->(RX_MIB rx_mib) {
         }
     }
     
-	rx_mib.rx_ip_data_count++;
+	$rx_mib.rx_ip_data_count++;
 	dest_udp =*cast((buffer + UDP_DEST_ADDR),uint16*);
 	dest_ip = *cast(buffer + IP_DEST_ADDR,uint32 *);
 	vl	= *(buffer + VL_ADDR);
@@ -93,7 +93,7 @@ method unpacket_frame(uint8 *buffer,uint32 size)->(RX_MIB rx_mib) {
     
 	if ($udp_first[port_id] == RECEIVE_UDP_FIRST) {
 		udp_item.udp_length = *cast(buffer + UDP_LENGTH_ADDR,uint16 *);
-		rx_mib.rx_udp_data_count++;
+		$rx_mib.rx_udp_data_count++;
 	} else {
 		udp_item.udp_length = 0;
     }
@@ -104,10 +104,10 @@ method unpacket_frame(uint8 *buffer,uint32 size)->(RX_MIB rx_mib) {
 	udp_item.udp_packet_size = size - (IP_HEADER_LENGTH + MAC_HEADER_LENGTH +IPV4_LENGTH + SN_CRC_LENGTH);
 	udp_item.mf =mf;
     udp_item.dest_udp = dest_udp;
-	
+	//log "info" : "udp port type %d", udp_item.port_type;
 	if (port_id >= 0 && port_id < 4096) {
 		switch (udp_item.port_type) {
-			case 0: case 1:
+			case 0: case 2:
 			    call $EnPortQueue(($port[port_id].queue),udp_item)->(result);
                 if ($is_unpacket_frame_log_on) {
                     call $print_unpacket_frame_PortQueue();
@@ -118,11 +118,12 @@ method unpacket_frame(uint8 *buffer,uint32 size)->(RX_MIB rx_mib) {
 					return;
 				}
 				break;
-			case 2:
+			case 1:
 			    call $RefreshPortData(&($port[port_id]), udp_item);
                 if ($is_unpacket_frame_log_on) {
                     call $print_unpacket_frame_Refresh();
                 }
+				break;
 			default:
 			    log "error" : "Unsupported port type";
 			    break;

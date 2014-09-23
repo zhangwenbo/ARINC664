@@ -193,3 +193,93 @@ void free_afdxES2_mib_runtime_header(void *p) {
     free(*(char **)p);
     *(char **)p = NULL;
 }
+
+void set_a664_middleware_runtime_header(void *p) {
+    char *header = "Hwa";
+    int header_length = strlen(header) + 1;
+
+    *(char **)p = (char *)malloc(header_length);
+    memcpy(*(char **)p, header, header_length);
+}
+
+void set_a664_middleware_runtime_name(void *p) {
+    char *name = "A664Middleware";
+    int name_length = strlen(name) + 1;
+
+    *(char **)p = (char *)malloc(name_length);
+    memcpy(*(char **)p, name, name_length);
+}
+
+void set_a664_middleware_runtime_description(void *p, int flag) {
+    if (flag == 0) {            /* success */
+        char *description = "A664中间件初始化成功";
+        int description_length = strlen(description) + 1;
+        *(char **)p = (char *)malloc(description_length);
+        memcpy(*(char **)p, description, description_length);
+    } else {
+        char *description = "A664中间件初始化失败";
+        int description_length = strlen(description) + 1;
+        *(char **)p = (char *)malloc(description_length);
+        memcpy(*(char **)p, description, description_length);
+    }
+}
+
+void free_a664_middleware_runtime_header(void *p) {
+    free(*(char **)p);
+    *(char **)p = NULL;
+}
+
+void free_a664_middleware_runtime_name(void *p) {
+    free(*(char **)p);
+    *(char **)p = NULL;
+}
+
+void free_a664_middleware_runtime_description(void *p) {
+    free(*(char **)p);
+    *(char **)p = NULL;
+}
+
+void set_a664_card_runtime_header(void *p) {
+    char *header = "Hwa";
+    int header_length = strlen(header) + 1;
+
+    *(char **)p = (char *)malloc(header_length);
+    memcpy(*(char **)p, header, header_length);
+}
+
+void set_a664_card_runtime_name(void *p) {
+    char *name = "A664Card";
+    int name_length = strlen(name) + 1;
+
+    *(char **)p = (char *)malloc(name_length);
+    memcpy(*(char **)p, name, name_length);
+}
+
+void set_a664_card_runtime_description(void *p, int flag) {
+    if (flag == 0) {            /* success */
+        char *description = "A664板卡初始化成功";
+        int description_length = strlen(description) + 1;
+        *(char **)p = (char *)malloc(description_length);
+        memcpy(*(char **)p, description, description_length);
+    } else {
+        char *description = "A664板卡初始化失败";
+        int description_length = strlen(description) + 1;
+        *(char **)p = (char *)malloc(description_length);
+        memcpy(*(char **)p, description, description_length);
+    }
+}
+
+void free_a664_card_runtime_header(void *p) {
+    free(*(char **)p);
+    *(char **)p = NULL;
+}
+
+void free_a664_card_runtime_name(void *p) {
+    free(*(char **)p);
+    *(char **)p = NULL;
+}
+
+void free_a664_card_runtime_description(void *p) {
+    free(*(char **)p);
+    *(char **)p = NULL;
+}

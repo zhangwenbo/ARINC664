@@ -41,7 +41,7 @@ int qt_socket_init(void) {
 int qt_socket_send(unsigned char *sendbuf, int size) {
     int len = send(client_socket, (char *)sendbuf, size, 0);
     if (len == size) {
-        fprintf(stdout, "Socket send sucessfully, send %d bytes.\n", len);
+        //  fprintf(stdout, "Socket send sucessfully, send %d bytes.\n", len);
         return len;
     } else {
         fprintf(stderr, "Socket send failed, error code is %d\n", WSAGetLastError());

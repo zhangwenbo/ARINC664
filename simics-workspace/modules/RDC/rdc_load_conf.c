@@ -6,6 +6,17 @@
 #include <memory.h>
 #include "hwacfg.h"
 #include "softcfg.h"
+typedef struct
+{
+	unsigned char name[20];	/*  标识名 */
+	unsigned char type[10];	/*  标识类型 */
+	unsigned char value[BUFF_LEN];	/* 标识数值 */
+}QT_RDC_CONF_INFO;
+
+static unsigned int count = 0;
+
+QT_RDC_CONF_INFO qtRdcConfInfo[30];
+QT_RDC_CONF_VALUE_t qtRdcConfValue;
 
 typedef struct
 {
@@ -90,6 +101,10 @@ HWACFG_STRUCT_t *GetHwaCfg()
 	return &cfg_hwa;
 }
 
+QT_RDC_CONF_VALUE_t *getConfInfo()
+{
+	return &qtRdcConfValue;
+}
 int ReadHwaCfg(FILE *fp)
 {
 	int nReadCnt=0;
@@ -299,19 +314,17 @@ int ReadHeaderCfg(FILE *fp)
 	return 0;
 }
 
-int hwa_load_conf_file()
+int hwa_load_conf_file(char *path)
 {
-	/*
 	FILE *fp;
-	char ch;
-	fp=fopen("d:\\a.txt","r");
-	ch = fgetc(fp);
-	printf("ch is:0x%x\n",ch);
-	*/
-	FILE *fp;
-	fp=fopen("d:\\CARRDC_L_CFG.bin","rb");
+	fprintf(stdout,"file path =%s\n",path);
+	fp = fopen(path,"rb");
+
+	if(fp == NULL) {
+		fprintf(stdout,"open path failed!\n");
+		while(1);
+	}
 	memset(&A429ToUdpArry,0,sizeof(A429ToUdpArry));
-//	memset(nA429ToA429,0,20*256*sizeof(A429TOA429_STRUCT_t));
 	ReadSoftCfg(fp);
 	ReadHeaderCfg(fp);
 	ReadHwaCfg(fp);
@@ -569,3 +582,136 @@ method AfdxTo429()
 
 }
 #endif
+/*************************************************************************************************/
+
+
+void saveRdcConfInfo()
+{
+	FILE *fp;
+	char *pCh;
+	char *pBuf,tempBuf[10];
+	int i = 0;
+	
+
+	//while(1);
+	pBuf = (char *)malloc(BUFF_LEN);
+	if(pBuf == NULL)
+	{
+		fprintf(stderr, "malloc buffer error,please check!\n");
+		//while(1);
+	}
+	
+	fp = fopen("rdcconf.txt","r");
+	if(fp == NULL)
+	{
+		fprintf(stderr,"open rdc configure file error,please check!\n");
+		//while(1);
+	}
+	
+	memset((void *)qtRdcConfInfo, 0, sizeof(QT_RDC_CONF_INFO) * 30);
+	while(feof(fp) == 0)
+	{
+		memset(tempBuf, 0, 10);
+		pCh = fgets(pBuf, BUFF_LEN - 1, fp);
+		if(pCh == NULL)
+		{	
+			fprintf(stderr, "read file error,please check!\n");
+			break;
+		}
+		
+		//fprintf(stdout, "buffer[0]:%x,[1]:%x\n",pBuf[0],pBuf[1]);
+		
+		if(pBuf[0] == 10 && pBuf[1] == 0 )
+		{
+			continue;
+		}
+
+		//fprintf(stdout, "buffer string is:%s\n",pBuf);
+		
+		pCh = strchr(pBuf,':');
+		if(pCh == NULL)
+		{
+			fprintf(stderr, "find char error,please check!\n");
+			//while(1);
+		}
+
+		memcpy(tempBuf, pBuf, pCh - pBuf);
+		fprintf(stdout, "pCh:%d, pBuf:%d, data len:%d, tempBuf:%s\n",pCh,pBuf,pCh - pBuf, tempBuf);
+		
+		if(strcmp(tempBuf, "Name") == 0)
+		{
+			strcpy(pBuf, pCh + 2);
+			strcpy(qtRdcConfInfo[count].name,pBuf);
+			//fprintf(stdout, "name:%s\n",qtRdcConfInfo[count].name);
+		}else if(strcmp(tempBuf, "Type") == 0)
+		{
+			strcpy(pBuf, pCh + 2);
+			strcpy(qtRdcConfInfo[count].type,pBuf);
+			//fprintf(stdout, "type:%s\n",qtRdcConfInfo[count].type);
+		}else if(strcmp(tempBuf, "Value") == 0)
+		{
+			strcpy(pBuf, pCh + 2);
+			strcpy(qtRdcConfInfo[count].value,pBuf);
+			count++;
+			//fprintf(stdout, "value:%s\n",qtRdcConfInfo[count].value);
+		}
+	}
+
+	for(i = 0; i < count; i++)
+	{
+		fprintf(stdout, "\nname:%s",qtRdcConfInfo[i].name);
+		fprintf(stdout, "type:%s",qtRdcConfInfo[i].type);
+		fprintf(stdout, "value:%s",qtRdcConfInfo[i].value);
+	}
+}
+
+
+QT_RDC_CONF_VALUE_t *parseConfInfo(void)
+{
+	unsigned int i = 0, j = 0;
+	int mode;
+
+	saveRdcConfInfo();
+	
+	memset((void *)&qtRdcConfValue, 0, sizeof(QT_RDC_CONF_VALUE_t));
+	
+	for(i = 0; i < count; i++)
+	{
+		fprintf(stdout, "count:%d, i:%d, name:%s.\n",count, i, qtRdcConfInfo[i].name);
+		if((strncmp(qtRdcConfInfo[i].name,"RDCMode", 7) == 0) && (strncmp(qtRdcConfInfo[i].name,"RDCModel", 8) != 0))
+		{
+			qtRdcConfValue.mode = atoi(qtRdcConfInfo[i].value);
+		}
+				
+		else if(strncmp(qtRdcConfInfo[i].name,"RDCTimeout", 10) == 0)
+		{
+			qtRdcConfValue.timeOut = atoi(qtRdcConfInfo[i].value);
+		}
+		
+		else if(strncmp(qtRdcConfInfo[i].name,"RDCMIBCycle", 11) == 0)
+		{
+			qtRdcConfValue.MIBCycle = (float)atoi(qtRdcConfInfo[i].value);
+		}
+		
+		else if(strncmp(qtRdcConfInfo[i].name,"RDCModel", 8) == 0)
+		{
+			//fprintf(stdout, "input rdcmodel,i:%d.\n",i);
+			strcpy(qtRdcConfValue.filePath, qtRdcConfInfo[i].value);
+			int num = strlen(qtRdcConfValue.filePath);
+			qtRdcConfValue.filePath[num-1] = '\0';
+			
+		}
+	}
+
+	fprintf(stdout, "\nmode:%02d(1:定时；0:顺序).\n",qtRdcConfValue.mode);
+	fprintf(stdout, "MIBCycle:%02f(顺序时).\n",qtRdcConfValue.MIBCycle);
+	fprintf(stdout, "timeout:%02d(定时时).\n",qtRdcConfValue.timeOut);
+	fprintf(stdout, "file path:%s.\n",qtRdcConfValue.filePath);
+
+	hwa_load_conf_file(qtRdcConfValue.filePath);
+	return &qtRdcConfValue;
+}
+
+
+
+/*************************************************************************************************/

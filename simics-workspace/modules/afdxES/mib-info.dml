@@ -3,6 +3,10 @@ dml 1.2;
 import "packet-description.dml";
 import "constant.dml";
 
+extern void get_tx_mib(uint8 *mib_t);
+extern void get_rx_mib(uint8 *mib_t);
+extern void get_mac_mib(uint8 a_or_b, uint8 *mib_t);
+
 // for MIB
 struct MAC_MIB {
     uint32 crc_error;   				//crc checksum error
@@ -81,54 +85,37 @@ method Clear_Tx_Mib_Info() {
 }
 
 method Recv_Tx_Mib_Info_From_664_Middleware() {
-    local uint32 data_type;
 	local int len;
 	local uint8 recvbuf[8192];
 
-    data_type = PACKET_TX_MIB;
-    Send_To_664_Middleware(cast(&data_type, uint8*), CFG_TYPE_SIZE);
-			
-	len = Recv_Mib_Info_From_664_Middleware(recvbuf, 8192);
-    if (len > 0) {
-        call $Set_Tx_Mib_Info(recvbuf + 1);
-    } else {
-        log "error" : "Failed recv tx mib info from 664 middleware!\n";
-    }
+	get_tx_mib(recvbuf);
+	call $Set_Tx_Mib_Info(recvbuf);
 }
 
 method Recv_Mac_Mib_From_664_Middleware(int32 a_or_b) {
-	local uint32 data_type[2];
 	local uint8 recvbuf[8192];
 	local int len;
     
-	data_type[0] = PACKET_MAC_MIB;
-	data_type[1] = a_or_b;
-    Send_To_664_Middleware(cast(data_type, uint8*), 8);
-			
-	len = Recv_Mib_Info_From_664_Middleware(recvbuf, 8192);
-    if (len > 0) {
-        $mac_sign = a_or_b;
-        call $Set_Mac_Mib_Info(recvbuf + 1);        
-    } else {
-        log "error" : "Failed recv mac mib from 664 middleware!\n";
-    }
-
+	get_mac_mib(a_or_b, recvbuf);
+	
+	//mwg test start
+	local int i;
+	for(i=0; i<8192; i++) {
+		if(recvbuf[i] != 0)
+			log "info":"recvbuf[%d] = %x",i,recvbuf[i];
+	}
+	//mwg test end
+	$mac_sign = a_or_b;
+	call $Set_Mac_Mib_Info(recvbuf);  
 }
 
 method Recv_Rx_Mib_Info_From_664_Middleware() {
-	local uint32 data_type;
 	local uint8 recvbuf[8192];
 	local int32 len;
+	
+	get_rx_mib(recvbuf);
 
-    data_type = PACKET_RX_MIB;    
-    Send_To_664_Middleware(cast(&data_type, uint8*), CFG_TYPE_SIZE);
-			
-	len = Recv_Mib_Info_From_664_Middleware(recvbuf, 8192);
-    if (len > 0) {
-        call $Set_Rx_Mib_Info(recvbuf + 1);
-    } else {
-        log "error" : "Failed recv rx mib info from 664 middleware";
-    }
+	call $Set_Rx_Mib_Info(recvbuf);
 }
 
 method  Set_Mac_Mib_Info(uint8 *buffer) {

@@ -5,7 +5,7 @@ import "port-cache.dml";
 extern int Init_664_Work_Mode(void);
 extern int Init_664_Card(void);
 extern int Send_To_A664(int card_nr, int pord_id, char *buf, int len);
-extern int Recv_From_A664(int card_nr, int port_id, char *buf);
+extern int Recv_From_A664(int card_nr, int port_id, char *buf,uint32 *network,uint32 *valid);
 extern int Send_To_664_Middleware(char *recvbuf, int size);
 extern int Recv_Data_From_664_Middleware(char *sendbuf, int size);
 extern int Recv_Mib_Info_From_664_Middleware(char *recvbuf, int size);
@@ -33,6 +33,7 @@ data int recv_num;
 method Handle_664_Data(uint32 port_id,uint8 *data, int length) {
     local bool is_cached_ok;
     local Cache_Item item;
+	local int port_type;
     
     memcpy(item.buffer, data, length);
     item.size = length ;
@@ -41,30 +42,46 @@ method Handle_664_Data(uint32 port_id,uint8 *data, int length) {
 		
 	if($recv_num%50 == 0)
 		log "info":"%d ",$recv_num;
-    
+	port_type = $analyse_cfg_ram_array[port_id].ram_data.PORT_TYPE;
+	switch (port_type) {
+		case 0: case 2:
         call $EnPortCache($PortCache[port_id], item) -> (is_cached_ok);
         if (!is_cached_ok) {
             log "error" : "Port: %d's cache has full!\n", port_id;
             ++$rx_buf_overflow_number[port_id];
+			break;
+		case 1:
+			if ($recv_port_valid[port_id] == 1)
+				call  $RefreshCacheData(port_id, item);
+			break;
+		default:
+			log "error" : "Unsuported port type";
+			break;
         }
+	}
 }
 data int recv_port_num;
+data int recv_port_valid[4096];
 method Recv_Data_From_664_Middleware_Loop_Event() {
     local int length;
     local uint8 *buf = new uint8 [PORT_DATA_SIZE];
 	local int i;
+	local int j;
+	local uint32 network;
+	local uint32 valid;
 	for (i=0; i < $recv_port_num; i++)
 	{
-		length = Recv_From_A664(0, i, buf);
+		length = Recv_From_A664(0, i, buf, &network,&valid);
+		$recv_port_valid[i] = valid;
+		if (length > 0) {
     
-    if (length > 0) {
 			call $Handle_664_Data(i, buf, length);
 		}
     }
 
     delete buf;
 	//if($load_config_done == 1)
-		after (0.0001) call $Recv_Data_From_664_Middleware_Loop_Event();
+		after (0.001) call $Recv_Data_From_664_Middleware_Loop_Event();
 	//else 
 	//	after (0.001) call $Recv_Data_From_664_Middleware_Loop_Event();
 }
@@ -74,7 +91,7 @@ method init_middleware_mode() {
 	ret = -1;
     if ($middleware_mode == To664Middleware) {
      //   Init_664_Work_Mode();
-		
+        call $init_a664_middleware_ok();
         call $Init_Port_Cache();
     }    
 }
