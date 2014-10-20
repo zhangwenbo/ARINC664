@@ -67,7 +67,7 @@ constant PORT_DATA_SIZE = 8192;
 constant PORT_FIFO_SIZE = 65535;  
 constant PORT_ITEM_NUM  = 2622;   
 constant PORT_ITEM_SIZE = 8096;
-constant PORT_QUEUE_MAX_SIZE = 64*1024;
+constant PORT_QUEUE_MAX_SIZE = 10* 1024 * 1024;
 
 // for send vl
 constant SEND_VL_NUM = 128;
@@ -87,4 +87,3 @@ constant PORT_CACHE_MAXSIZE =10* 1024 * 1024;
 // for mib
 constant MACA_MIB_CONFIG = 1;
 constant MACB_MIB_CONFIG = 2;
-

@@ -1,6 +1,6 @@
 #include "tomiddleware.h"
 
-#define __DEBUG__
+//#define __DEBUG__
 
 SOCKET client_socket;
 #define MAX_RECV_PORTS 128

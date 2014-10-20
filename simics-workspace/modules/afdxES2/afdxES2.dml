@@ -191,7 +191,7 @@ implement ieee_802_3_mac {
             }
             call $unpacket_frame(data, size);
         } else {
-            log "error" : "Send from unkown network";
+            // log "error" : "Send from unkown network";
         }
     }
     

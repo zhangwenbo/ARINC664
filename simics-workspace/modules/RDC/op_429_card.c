@@ -1,6 +1,7 @@
 #include <op_429_card.h>
+#include <untils.h>
 
-#define __DEBUG__
+//#define __DEBUG__
 
 static A429Handle board;
 
@@ -169,28 +170,39 @@ static void init_channel_state(const A429Handle *board, const channel_conf_t* co
 }
 #endif
 
+static uint64_t get_serialNumber(void) {
+    FILE* fp;  
+    char lineBuf[129];  
+    char* delim = ":";  //分隔符为：空格  
+    int num = 0;    //文件中总的字符串个数  
+    int count = 0;  //一行中的字符串个数  
+  
+    char** dest  = (char**)calloc(2, sizeof(char*));
+
+    int i = 0;
+    for (; i < 2; ++i) {
+        dest[i] = (char*)calloc(64, sizeof(char));
+    }
+    char** tmpDest = dest;
+    
+    if (NULL != (fp = fopen("test.txt", "r"))) {
+        while(fgets(lineBuf, 128, fp) != NULL) {
+            split(lineBuf, delim, tmpDest, &count);  
+            num  = num + count;
+            tmpDest += count;
+        }  
+    }  
+    fclose(fp);
+
+    return dest[1];
+}
+
 #ifndef __DEBUG__
 void init_429_middleware(void) {
-    uint64_t aSerialNumber = 0; /* How to get? */
+    uint64_t aSerialNumber = get_serialNumber();
+    
     board = init_board(aSerialNumber);
     init_channel_state(&board, g_channel_conf, MAX_CHANNELS);
-/*
-    char *header = "Hwa";
-    char *name = "TestProgram"; 
-    int type = 0;              
-    int nflag = 0;
-    char *description = "TestProgram init OK";
-
-    char buf[1000];
-    int len = sizeof(type) + strlen(name) + 1 + sizeof(nflag) + strlen(description) + 1;
-    memcpy(buf, header, strlen(header) + 1);
-    memcpy(buf + strlen(header) + 1, &len, sizeof(len));
-    memcpy(buf + strlen(header) + 1 + sizeof(len), name, strlen(name) + 1);
-    memcpy(buf + strlen(header) + 1 + sizeof(len) + strlen(description) + 1, &nflag, sizeof(nflag));
-    memcpy(buf + strlen(header) + 1 + sizeof(len) + strlen(description) + 1 + sizeof(nflag), description, strlen(description) + 1);
-
-    socket_send(buf, len + 8);
-*/  
 }
 #else
 void init_429_middleware(void) {
