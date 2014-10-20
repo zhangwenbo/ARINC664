@@ -20,6 +20,7 @@ class ARINC_664QtMode(StandardConnectorComponent):
         self.add_connector('pci_bus', PciBusUpConnector(0, 'afdxES'))
         afdxES = self.add_pre_obj('afdxES', 'afdxES')
         afdxES.middleware_mode = 1
+        afdxES.ui_mode = 2
 
     class component_connector(Interface):
         def get_check_data(self, cnt):
