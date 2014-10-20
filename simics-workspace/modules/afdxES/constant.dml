@@ -87,3 +87,7 @@ constant PORT_CACHE_MAXSIZE =10* 1024 * 1024;
 // for mib
 constant MACA_MIB_CONFIG = 1;
 constant MACB_MIB_CONFIG = 2;
+
+// for user interface mode
+constant CLI = 1;
+constant QT = 2;
