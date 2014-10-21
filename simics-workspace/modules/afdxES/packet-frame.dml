@@ -333,7 +333,16 @@ event send_phy {
                     if ($is_packet_frame_log_on) {
                         call $print_packet_frame_frome_phy_A();
                     }
-                    $phyA.ieee_802_3_mac.send_frame(cast(&item.frame, uint8*), item.size);
+                    switch ($middleware_mode) {
+                    case IMA:
+                        break;
+                    case To429Middleware:
+                        $phyA.ieee_802_3_mac.send_frame(cast(&item.frame, uint8*), item.size);
+                        break;
+                    default:
+                        log "error" : "Danger!!! Please check your work mode!";
+                        break;
+                    }
                     $phyA_already_send_byte += item.size; 
                 } else {
                     $send_phy_delay = 0.1;
@@ -349,7 +358,16 @@ event send_phy {
                     if ($is_packet_frame_log_on) {
                         call $print_packet_frame_frome_phy_B();
                     }
-                    $phyB.ieee_802_3_mac.send_frame(cast(&item.frame, uint8*), item.size);
+                    switch ($middleware_mode) {
+                    case IMA:
+                        break;
+                    case To429Middleware:
+                        $phyB.ieee_802_3_mac.send_frame(cast(&item.frame, uint8*), item.size);
+                        break;
+                    default:
+                        log "error" : "Danger!!! Please check your work mode!";
+                        break;
+                    }
                     $phyB_already_send_byte += item.size; 
                 } else {
                     $send_phy_delay = 0.1;
@@ -371,11 +389,29 @@ event send_phy {
 					call $mib_out_sum(&($macb_mib),item2.size);
                     // do CRC Check
 					call $crc_check(item.frame,item.size,$Table);
-                    $phyA.ieee_802_3_mac.send_frame(cast(&item.frame, uint8*), item.size);
+                    switch ($middleware_mode) {
+                    case IMA:
+                        break;
+                    case To429Middleware:
+                        $phyA.ieee_802_3_mac.send_frame(cast(&item.frame, uint8*), item.size);
+                        break;
+                    default:
+                        log "error" : "Danger!!! Please check your work mode!";
+                        break;
+                    }
 
                     // do CRC Check
 					call $crc_check(item2.frame,item2.size,$Table);
-                    $phyB.ieee_802_3_mac.send_frame(cast(&item2.frame, uint8*), item2.size);
+                    switch ($middleware_mode) {
+                    case IMA:
+                        break;
+                    case To429Middleware:
+                        $phyB.ieee_802_3_mac.send_frame(cast(&item2.frame, uint8*), item2.size);
+                        break;
+                    default:
+                        log "error" : "Danger!!! Please check your work mode!";
+                        break;
+                    }
 
                     if ($is_packet_frame_log_on) {
                         call $print_packet_frame_frome_phy_AB();
