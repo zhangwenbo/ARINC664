@@ -9,6 +9,9 @@ import "crc.dml";
 import "log.dml";
 import "mib-info.dml";
 
+extern void *get_ima_server_socket(void);
+extern int ima_socket_send(void *sendbuf, int size, void *socketfd);
+
 data bool init_send_time;
 
 data uint16 fragment_identification;  //init
@@ -335,6 +338,7 @@ event send_phy {
                     }
                     switch ($middleware_mode) {
                     case IMA:
+                        ima_socket_send(&item.frame, item.size, get_ima_server_socket());
                         break;
                     case To429Middleware:
                         $phyA.ieee_802_3_mac.send_frame(cast(&item.frame, uint8*), item.size);
@@ -360,6 +364,7 @@ event send_phy {
                     }
                     switch ($middleware_mode) {
                     case IMA:
+                        ima_socket_send(&item.frame, item.size, get_ima_server_socket());
                         break;
                     case To429Middleware:
                         $phyB.ieee_802_3_mac.send_frame(cast(&item.frame, uint8*), item.size);
@@ -391,6 +396,7 @@ event send_phy {
 					call $crc_check(item.frame,item.size,$Table);
                     switch ($middleware_mode) {
                     case IMA:
+                        ima_socket_send(&item.frame, item.size, get_ima_server_socket());
                         break;
                     case To429Middleware:
                         $phyA.ieee_802_3_mac.send_frame(cast(&item.frame, uint8*), item.size);
@@ -404,6 +410,7 @@ event send_phy {
 					call $crc_check(item2.frame,item2.size,$Table);
                     switch ($middleware_mode) {
                     case IMA:
+                        ima_socket_send(&item.frame, item.size, get_ima_server_socket());
                         break;
                     case To429Middleware:
                         $phyB.ieee_802_3_mac.send_frame(cast(&item2.frame, uint8*), item2.size);

@@ -92,3 +92,9 @@ constant MACB_MIB_CONFIG = 2;
 // for user interface mode
 constant CLI = 1;
 constant QT = 2;
+
+
+// for CS mode
+constant SERVER = 1;
+constant CLIENT = 2;
+constant MAX_FRAME_SIZE = 1518;

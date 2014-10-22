@@ -8,7 +8,7 @@
 SOCKET ima_client_socket;
 SOCKET ima_server_socket;
 
-int ima_sokcet_server_init(int portNum) {
+int ima_server_socket_init(int portNum) {
     WSADATA wsa;
 
     if (WSAStartup(MAKEWORD(2,2), &wsa)) {
@@ -43,7 +43,7 @@ int ima_sokcet_server_init(int portNum) {
     return 0;
 }
 
-int ima_socket_client_init(int portNum) {
+int ima_client_socket_init(int portNum) {
     WSADATA wsa;
 
     if (WSAStartup(MAKEWORD(2,2), &wsa)) {
@@ -74,8 +74,8 @@ int ima_socket_client_init(int portNum) {
     return 0;
 }
 
-int ima_socket_send(unsigned char *sendbuf, int size, SOCKET socketfd) {
-    int len = send(socketfd, (char *)sendbuf, size, 0);
+int ima_socket_send(void *sendbuf, int size, void *socketfd) {
+    int len = send(*(SOCKET*)socketfd, (char *)sendbuf, size, 0);
 
     if (len != size) {
         fprintf(stderr, "Socket send failed, error code is %d\n", WSAGetLastError());
@@ -84,12 +84,20 @@ int ima_socket_send(unsigned char *sendbuf, int size, SOCKET socketfd) {
     return len;
 }
 
-int ima_socket_recv(unsigned char *recvbuf, int size, SOCKET socketfd) {
-    int len = recv(socketfd, (char *)recvbuf, size, 0);
+int ima_socket_recv(void *recvbuf, int size, void *socketfd) {
+    int len = recv(*(SOCKET*)socketfd, (char *)recvbuf, size, 0);
 
     if (len < 0) {
         fprintf(stderr, "Socket recv failed, error code is %d\n", WSAGetLastError());
     }
 
     return len;
+}
+
+void *get_ima_client_socket(void) {
+    return &ima_client_socket;
+}
+
+void *get_ima_server_socket(void) {
+    return &ima_server_socket;
 }

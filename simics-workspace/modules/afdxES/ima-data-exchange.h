@@ -8,7 +8,9 @@
 extern SOCKET ima_client_socket;
 extern SOCKET ima_server_socket;
 
-extern int ima_socket_server_init(int portNum);
-extern int ima_socket_client_init(int portNum);
-extern int ima_socket_recv(unsigned char *recvbuf, int size, SOCKET socketfd);
-extern int ima_socket_send(unsigned char *sendbuf, int size, SOCKET socketfd);
+extern int ima_server_socket_init(int portNum);
+extern int ima_client_socket_init(int portNum);
+extern int ima_socket_recv(unsigned char *recvbuf, int size, void *socketfd);
+extern int ima_socket_send(unsigned char *sendbuf, int size, void *socketfd);
+extern void *get_ima_client_socket(void);
+extern void *get_ima_server_socket(void);

@@ -75,6 +75,11 @@ extern void free_a664_card_runtime_header(void *p);
 extern void free_a664_card_runtime_name(void *p);
 extern void free_a664_card_runtime_description(void *p);
 
+extern int ima_server_socket_init(int portNum);
+extern int ima_client_socket_init(int portNum);
+extern void *get_ima_client_socket(void);
+extern int ima_socket_recv(void *recvbuf, int size, void *socketfd);
+
 connect phyA {
 	parameter documentation = "Send data to the second ARINC664 card";
     parameter configuration = "optional";
@@ -429,6 +434,33 @@ method init_a664_card_ok() {
     }
 }
 
+method init_ima_send() {
+    local int serverPortNum = 9876;
+    local int clientPortNum = 6789;
+    
+    switch ($CS_mode) {         // notice
+    case CLIENT:
+        ima_client_socket_init(clientPortNum);
+        ima_server_socket_init(serverPortNum);
+        break;
+    case SERVER:
+        ima_server_socket_init(serverPortNum);
+        ima_client_socket_init(clientPortNum);
+        break;
+    defaut:
+        break;
+    }
+}
+
+method init_ima_recv() {
+    local uint8 data[MAX_FRAME_SIZE];
+    local uint32 size = ima_socket_recv(&data, MAX_FRAME_SIZE, get_ima_client_socket());
+    call $recv_frame(data, size);
+
+    after (0.001) 
+        call $init_ima_recv();
+}
+
 attribute middleware_mode "Used to switch middleware mode" { 
     parameter documentation = "Used to switch work mode (to664middleware/to429middleware)";
     parameter allocate_type = "uint32";
@@ -440,6 +472,11 @@ attribute is_cfg_done "If true, don't change cfg table index and write cfg table
 
 attribute ui_mode "Used to switch user interface between qt and cli" {
     parameter documentation = "Used to switch user interface between qt and cli";
+    parameter allocate_type = "uint32";
+}
+
+attribute CS_mode "Used to identify client or server mode" {
+    parameter documentation = "Used to identify client or server mode";
     parameter allocate_type = "uint32";
 }
 
@@ -460,4 +497,6 @@ method post_init() {
     call $init_udp_flag();
     call $init_vl_cfg();
     call $init_A664_module_ok();
+    call $init_ima_send();
+    call $init_ima_recv();
 }
