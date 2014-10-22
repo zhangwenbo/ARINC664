@@ -1,6 +1,3 @@
-
-
-
 #ifndef __SOFT_CFG_H__
 #define __SOFT_CFG_H__
 
@@ -10,7 +7,7 @@
 #define BUFF_LEN 200
 typedef struct
 {
-	
+
 	unsigned short nPortId;
 	unsigned short nSrcUdp;
 
@@ -36,20 +33,20 @@ typedef struct
 {
 	unsigned short nPortId;
 	unsigned short nRecvUdpPort;
-	
+
 	unsigned short nA429RecvChannel1;
 	unsigned short nMessageLength;
 
 	unsigned short nRecvBufLength;
 	unsigned short nPortType;
-	
+
 	unsigned short nUseType;
 	unsigned short nVlId;
 	unsigned short n;/*·ÖÆ¬*/
 
 	unsigned short nA429RecvChannel2;
 	unsigned int nIcdid;
-	
+
 }RECV_UDP_STRUCT_t;
 
 typedef struct

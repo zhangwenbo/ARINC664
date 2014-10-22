@@ -1,4 +1,3 @@
-
 #ifndef __HWA_CFG_H__
 #define __HWA_CFG_H__
 
