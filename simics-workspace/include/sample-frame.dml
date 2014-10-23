@@ -1,0 +1,5 @@
+dml 1.2;
+
+typedef struct {
+    void (*sample_frame)(conf_object_t *obj, uint8 *frame, uint32 frame_size);
+} sample_frame_interface_t;

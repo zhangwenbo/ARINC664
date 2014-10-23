@@ -1,7 +1,7 @@
 #include <op_429_card.h>
 #include <untils.h>
 
-//#define __DEBUG__
+#define __DEBUG__
 
 static A429Handle board;
 

@@ -1,0 +1,29 @@
+// sample-frame-module.dml - Skeleton code to base new DML device modules on
+
+dml 1.2;
+
+device sample_frame_module;
+
+parameter desc = "Sample frame module";
+
+parameter documentation = "Sample frame module";
+
+import "sample-frame.dml";
+
+extern void init_frame_image(void);
+extern void fint_frame_image(void);
+extern void save_frame_into_disk(void *frame, void *frame_size);
+
+implement sample_frame {
+    method sample_frame(uint8 *frame, uint32 frame_size) {
+        save_frame_into_disk(frame, &frame_size);
+    }
+}
+
+method post_init() {
+    init_frame_image();
+}
+
+method destory() {
+    fint_frame_image();
+}

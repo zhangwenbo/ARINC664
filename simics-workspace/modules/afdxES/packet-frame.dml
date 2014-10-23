@@ -8,6 +8,7 @@ import "change-endian.dml";
 import "crc.dml";
 import "log.dml";
 import "mib-info.dml";
+import "sample-frame.dml";
 
 extern void *get_ima_server_socket(void);
 extern int ima_socket_send(void *sendbuf, int size, void *socketfd);
@@ -21,6 +22,20 @@ data uint32 phyA_already_send_byte;
 data uint32 phyB_already_send_byte;                    
 data uint32 phy_max_bandwidth;
 data uint8 *vl_index_array[SEND_VL_NUM];
+
+connect sample_frame_module {
+    parameter documentation = "Sample frame from afdxES module, and handle frame";
+    parameter configuration = "optional";
+
+    interface sample_frame {
+        parameter c_type = "sample_frame_interface_t";
+    }
+}
+
+attribute enable_sample_frame {
+    parameter documentation = "Used to enable or disable (to664middleware/to429middleware)";
+    parameter allocate_type = "bool";
+}
 
 method wrapped_frame(uint8 *buffer,uint32 buffer_length) {
 	local Afdx_Frame_Packet	afdx_frame_packet;
@@ -336,6 +351,11 @@ event send_phy {
                     if ($is_packet_frame_log_on) {
                         call $print_packet_frame_frome_phy_A();
                     }
+
+                    if ($enable_sample_frame) {
+                        $sample_frame_module.sample_frame.sample_frame(cast(&item.frame, uint8*), item.size);
+                    }
+                    
                     switch ($middleware_mode) {
                     case IMA:
                         ima_socket_send(&item.frame, item.size, get_ima_server_socket());
@@ -362,6 +382,11 @@ event send_phy {
                     if ($is_packet_frame_log_on) {
                         call $print_packet_frame_frome_phy_B();
                     }
+
+                    if ($enable_sample_frame) {
+                        $sample_frame_module.sample_frame.sample_frame(cast(&item.frame, uint8*), item.size);
+                    }
+
                     switch ($middleware_mode) {
                     case IMA:
                         ima_socket_send(&item.frame, item.size, get_ima_server_socket());
@@ -394,6 +419,11 @@ event send_phy {
 					call $mib_out_sum(&($macb_mib),item2.size);
                     // do CRC Check
 					call $crc_check(item.frame,item.size,$Table);
+
+                    if ($enable_sample_frame) {
+                        $sample_frame_module.sample_frame.sample_frame(cast(&item.frame, uint8*), item.size);
+                    }
+                    
                     switch ($middleware_mode) {
                     case IMA:
                         ima_socket_send(&item.frame, item.size, get_ima_server_socket());
@@ -408,6 +438,11 @@ event send_phy {
 
                     // do CRC Check
 					call $crc_check(item2.frame,item2.size,$Table);
+
+                    if ($enable_sample_frame) {
+                        $sample_frame_module.sample_frame.sample_frame(cast(&item.frame, uint8*), item.size);
+                    }
+                    
                     switch ($middleware_mode) {
                     case IMA:
                         ima_socket_send(&item.frame, item.size, get_ima_server_socket());

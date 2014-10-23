@@ -3,21 +3,36 @@ typedef unsigned int u32;
 #include "mib.h"
 #include <stdio.h>
 
-
+#define __DEBUG__
 
 static card_nr = 0;
 
+#ifndef __DEBUG__
 static void get_mac_mib_value(HwaNetMibType type, int a_or_b, u32 *value) {
 	hwa_aes_mib_net_state(card_nr, a_or_b,type, value);
 }
+#else
+static void get_mac_mib_value(HwaNetMibType type, int a_or_b, u32 *value) {
+}
+#endif
 
+#ifndef __DEBUG__
 static void get_rx_mib_value(HwaRxMibType type, u32 *value) {
 	hwa_aes_mib_rx_state(card_nr, type, value) ;
 }
+#else
+static void get_rx_mib_value(HwaRxMibType type, u32 *value) {
+}
+#endif
 
+#ifndef __DEBUG__
 static void get_tx_mib_value(HwaTxMibType type, u32 *value) {
 	hwa_aes_mib_tx_state(card_nr, type, value);
 }
+#else
+static void get_tx_mib_value(HwaTxMibType type, u32 *value) {
+}
+#endif
 
 void get_mac_mib(int a_or_b, unsigned char *mib_t) {
 	struct mac_mib_t *mib = (struct mac_mib_t *)mib_t;
