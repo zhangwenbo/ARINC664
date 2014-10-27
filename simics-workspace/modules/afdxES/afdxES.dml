@@ -435,15 +435,19 @@ method init_a664_card_ok() {
 }
 
 method init_ima_send() {
-    local int serverPortNum = 9876;
-    local int clientPortNum = 6789;
+    local int serverPortNum;
+    local int clientPortNum;
     
     switch ($CS_mode) {         // notice
     case CLIENT:
+        clientPortNum = 6789;        
+        serverPortNum = 9876;
         ima_client_socket_init(clientPortNum);
         ima_server_socket_init(serverPortNum);
         break;
     case SERVER:
+        serverPortNum = 6789;
+        clientPortNum = 9876;        
         ima_server_socket_init(serverPortNum);
         ima_client_socket_init(clientPortNum);
         break;
@@ -455,7 +459,9 @@ method init_ima_send() {
 method init_ima_recv() {
     local uint8 data[MAX_FRAME_SIZE];
     local uint32 size = ima_socket_recv(&data, MAX_FRAME_SIZE, get_ima_client_socket());
-    call $recv_frame(data, size);
+    if (size != 0) {
+        call $recv_frame(data, size);
+    }
 
     after (0.001) 
         call $init_ima_recv();

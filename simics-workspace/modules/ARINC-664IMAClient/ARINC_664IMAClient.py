@@ -14,16 +14,6 @@ class ARINC_IMAClient(StandardConnectorComponent):
     def setup(self):
         self.add_connector('pci_bus', PciBusUpConnector(0, 'afdxES'))
         afdxES = self.add_pre_obj('afdxES', 'afdxES')
-        afdxES2 = self.add_pre_obj('afdxES2', 'afdxES2')
-        RDC = self.add_pre_obj('RDC', 'RDC')
-        afdxES2.RDC = RDC
-        afdxES2.afdxES = afdxES
-        RDC.ARINC664_2 = afdxES2
-        RDC.LoadCfg = afdxES2
-        afdxES.phyA = afdxES2
-        afdxES2.phyA = afdxES
-        afdxES.phyB = afdxES2
-        afdxES2.phyB = afdxES
         afdxES.CS_mode = 2              # server
         
     def add_objects(self):
