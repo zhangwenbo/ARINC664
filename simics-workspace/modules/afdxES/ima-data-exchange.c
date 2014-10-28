@@ -106,7 +106,7 @@ int ima_client_socket_init(int portNum) {
 }
 
 void ima_socket_send(void *sendbuf, int size, void *socketfd) {
-    if (send(*(SOCKET*)socketfd, (char *)&size, size, 0) != size) {
+    if (send(*(SOCKET*)socketfd, (char *)&size, sizeof(size), 0) != sizeof(size)) {
         fprintf(stderr, "Socket send failed, error code is %d\n", WSAGetLastError());
     } 
 
@@ -143,17 +143,58 @@ static int chars_to_int(void) {
 
 int ima_socket_recv(void *recvbuf, int size, void *socketfd) {
     if (recv_state == WAIT_FOR_FRAME_SIZE) {
-        int frame_size = recv(*(SOCKET*)socketfd, frame_buffer + pend, BUFFER_SIZE - (pend % BUFFER_SIZE), 0); /* size == BUFFER_SIZE (sizeof(int)) */
-        
-        if ((frame_size > 0) && (frame_size != BUFFER_SIZE)) {
+        int frame_size = 0;
+        int ret = recv(*(SOCKET*)socketfd, (char*)&frame_size, BUFFER_SIZE, 0); 
+        if (ret > 0) {
+            recv_state = READY_TO_RECV_FRAME;
+            return ima_socket_recv(recvbuf, frame_size, socketfd);                
+        } else {
+            switch (WSAGetLastError()) {
+                case WSAEWOULDBLOCK:
+                    return 0;
+                default:
+                    fprintf(stderr, "Socket recv failed, error code is %d\n", WSAGetLastError());
+                    exit(1);
+            }            
+        }
+    } else if (recv_state == READY_TO_RECV_FRAME) {
+        int recved_frame_size = recv(*(SOCKET*)socketfd, recvbuf, size, 0);
+
+        if (recved_frame_size > 0) {
+            recv_state = WAIT_FOR_FRAME_SIZE;
+            return recved_frame_size;
+        } else {
+            switch (WSAGetLastError()) {
+                case WSAEWOULDBLOCK:
+                    return 0;
+                default:
+                    fprintf(stderr, "Socket recv failed, error code is %d\n", WSAGetLastError());
+                    exit(1);
+            }            
+        }
+    }     
+}
+
+/*
+int ima_socket_recv(void *recvbuf, int size, void *socketfd) {
+    if (recv_state == WAIT_FOR_FRAME_SIZE) {
+        int frame_size = recv(*(SOCKET*)socketfd, frame_buffer + pend, BUFFER_SIZE, 0); 
+
+        if (frame_size > 0) {
             pbegin = pend;
             if (pend + frame_size < BUFFER_MAXLENGTH) {
                 pend += frame_size;
             } else {
                 pend = pend + frame_size - BUFFER_MAXLENGTH;
             }
-            return 0;
-        } else if (frame_size < 0) { /* 非阻塞 */
+            
+            if (frame_size != BUFFER_SIZE) {
+                return 0;
+            } else {
+                recv_state = READY_TO_RECV_FRAME;
+                return ima_socket_recv(recvbuf, chars_to_int(), socketfd);                
+            }
+        } else {
             switch (WSAGetLastError()) {
                 case WSAEWOULDBLOCK:
                     return 0;
@@ -161,22 +202,25 @@ int ima_socket_recv(void *recvbuf, int size, void *socketfd) {
                     fprintf(stderr, "Socket recv failed, error code is %d\n", WSAGetLastError());
                     exit(1);
             }
-        } else {
-            recv_state = READY_TO_RECV_FRAME;
-            // char[0..3] -> int;
-            return ima_socket_recv(recvbuf, chars_to_int(), socketfd);
         }
     } else if (recv_state == READY_TO_RECV_FRAME) {
-        int recved_frame_size = recv(*(SOCKET*)socketfd, frame_buffer + pend, size, 0); /* size == frame size */
-        if ((recved_frame_size > 0) && (recved_frame_size != size)) {
+        int recved_frame_size = recv(*(SOCKET*)socketfd, frame_buffer + pend, size, 0);
+
+        if (recved_frame_size > 0) {
             pbegin = pend;
             if (pend + recved_frame_size < BUFFER_MAXLENGTH) {
                 pend += recved_frame_size;
             } else {
                 pend = pend + recved_frame_size - BUFFER_MAXLENGTH;
-            }            
-            return 0;
-        } else if (recved_frame_size < 0) { /* 非阻塞 */
+            }
+
+            if (recved_frame_size != size) {
+                return 0;
+            } else {
+                recv_state = READY_TO_HANDLE_FRAME;
+                return ima_socket_recv(recvbuf, recved_frame_size, socketfd);                
+            }
+        } else { 
             switch (WSAGetLastError()) {
                 case WSAEWOULDBLOCK:
                     return 0;
@@ -184,10 +228,7 @@ int ima_socket_recv(void *recvbuf, int size, void *socketfd) {
                     fprintf(stderr, "Socket recv failed, error code is %d\n", WSAGetLastError());
                     exit(1);
             }
-        } else {
-            recv_state = READY_TO_HANDLE_FRAME;
-            return ima_socket_recv(recvbuf, recved_frame_size, socketfd);
-        }
+        } 
     } else if (recv_state == READY_TO_HANDLE_FRAME) {
         memcpy(recvbuf, frame_buffer + pbegin, size);
         recv_state = WAIT_FOR_FRAME_SIZE;
@@ -195,6 +236,7 @@ int ima_socket_recv(void *recvbuf, int size, void *socketfd) {
         return size;
     }
 }
+*/
 
 void *get_ima_client_socket(void) {
     return &ima_client_socket;
