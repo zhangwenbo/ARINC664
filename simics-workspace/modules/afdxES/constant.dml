@@ -77,9 +77,9 @@ constant RECV_VL_NUM = 256;
 
 
 // for work mode
-constant To429Middleware = 0;
-constant To664Middleware = 1;
-constant IMA = 2;
+constant To429Middleware = 1;
+constant To664Middleware = 2;
+constant IMA = 3;
 
 // for port cache
 constant CACHE_ITEM_MAXSIZE = 10 * 1024;

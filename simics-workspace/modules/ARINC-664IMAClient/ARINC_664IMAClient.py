@@ -14,6 +14,7 @@ class ARINC_IMAClient(StandardConnectorComponent):
     def setup(self):
         self.add_connector('pci_bus', PciBusUpConnector(0, 'afdxES'))
         afdxES = self.add_pre_obj('afdxES', 'afdxES')
+        afdxES.middleware_mode = 3
         afdxES.CS_mode = 2              # server
         
     def add_objects(self):

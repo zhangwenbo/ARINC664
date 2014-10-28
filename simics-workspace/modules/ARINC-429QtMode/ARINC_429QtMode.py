@@ -24,6 +24,7 @@ class ARINC_429QtMode(StandardConnectorComponent):
         afdxES2.phyA = afdxES
         afdxES.phyB = afdxES2
         afdxES2.phyB = afdxES
+        afdxES.middleware_mode = 1
         afdxES.ui_mode = 2
         
     def add_objects(self):

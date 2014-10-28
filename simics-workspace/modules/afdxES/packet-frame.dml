@@ -445,7 +445,7 @@ event send_phy {
                     
                     switch ($middleware_mode) {
                     case IMA:
-                        ima_socket_send(&item.frame, item.size, get_ima_server_socket());
+                        ima_socket_send(&item2.frame, item2.size, get_ima_server_socket());
                         break;
                     case To429Middleware:
                         $phyB.ieee_802_3_mac.send_frame(cast(&item2.frame, uint8*), item2.size);

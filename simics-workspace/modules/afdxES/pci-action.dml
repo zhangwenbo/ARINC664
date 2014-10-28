@@ -35,8 +35,8 @@ method transmit() {
             log "error": "tr Read data from memory fail";
         }
 
-        switch ($middleware_mode) {
-        case To429Middleware:
+        switch ($middleware_mode) { // fix me
+        case To429Middleware: case IMA:
             call $wrapped_frame(buf, length);
             break;
         case To664Middleware:

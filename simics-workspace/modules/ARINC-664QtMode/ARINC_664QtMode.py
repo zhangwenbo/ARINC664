@@ -19,7 +19,7 @@ class ARINC_664QtMode(StandardConnectorComponent):
     def add_objects(self):
         self.add_connector('pci_bus', PciBusUpConnector(0, 'afdxES'))
         afdxES = self.add_pre_obj('afdxES', 'afdxES')
-        afdxES.middleware_mode = 1
+        afdxES.middleware_mode = 2
         afdxES.ui_mode = 2
 
     class component_connector(Interface):

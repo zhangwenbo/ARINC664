@@ -1,7 +1,0 @@
-add-directory "%script%"
-run-command-file "%simics%\\targets\\sbc7447\\sbc7447-vxworks-5.5.1.simics"
-
-load-module ARINC_664Mode 
-create-ARINC-664Mode foo
-connect foo.pci_bus "board0.pci_slot[1]" 
-instantiate-components 

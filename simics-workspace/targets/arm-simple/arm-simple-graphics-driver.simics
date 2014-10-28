@@ -1,2 +1,0 @@
-add-directory "%script%"
-run-command-file "%simics%\\targets\\arm-simple\\arm-simple-graphics-driver.simics"

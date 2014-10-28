@@ -1,2 +1,0 @@
-add-directory "%script%"
-run-command-file "%simics%\\targets\\p2020-simple\\p2020-simple-linux-ipsec.simics"

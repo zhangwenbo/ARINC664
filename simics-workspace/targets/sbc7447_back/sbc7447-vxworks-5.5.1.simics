@@ -1,2 +1,0 @@
-add-directory "%script%"
-run-command-file "%simics%\\targets\\sbc7447_back\\sbc7447-vxworks-5.5.1.simics"

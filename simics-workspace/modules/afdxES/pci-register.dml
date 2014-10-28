@@ -266,8 +266,15 @@ bank pciport{
                     $phy_max_bandwidth = 128 * 1024;
                     log "info": "B mac mode is 10Mbps";
                 }
-                if (!$middleware_mode) {
+                
+                switch ($middleware_mode) {
+                case To429Middleware:
                     $phyB.ieee_802_3_mac.config_bandwidth($phy_max_bandwidth);
+                    break;
+                case To664Middleware: case IMA:
+                    break;
+                default:
+                    break;
                 }
             }
         }
@@ -280,8 +287,15 @@ bank pciport{
                     log "info": "A mac mode is 10Mbps";
                     $phy_max_bandwidth = 128 * 1024;
                 }
-                if (!$middleware_mode) {
+
+                switch ($middleware_mode) {
+                case To429Middleware:
                     $phyA.ieee_802_3_mac.config_bandwidth($phy_max_bandwidth);
+                    break;
+                case To664Middleware: case IMA:
+                    break;
+                default:
+                    break;
                 }
             }
         }
@@ -534,8 +548,8 @@ bank pciport{
 			local int ret;
             $is_cfg_done = true;
             call $Print_Cfg_Table();
-            switch ($middleware_mode) {
-            case To429Middleware:
+            switch ($middleware_mode) { // fix me
+            case To429Middleware: case IMA:
                 call $QuickSortAnalyseCamArray($analyse_cfg_cam_array);
                 call $QuickSortRMCamArray($rm_cfg_cam_array);
                 call $InitVLEnableInfo();
@@ -1307,7 +1321,7 @@ bank pciport{
             if (port_id >= 0 && port_id < 4096) {
                 switch (port_type) {
                 case 0: case 2:
-                    if ($middleware_mode == To429Middleware) {
+                    if (($middleware_mode == To429Middleware) || ($middleware_mode == IMA)) { // fix me
                         inline $IsPortQueueEmpty($port[port_id].queue) ->(is_empty);
                     } else if ($middleware_mode == To664Middleware) {
                         inline $IsPortCacheEmpty($PortCache[port_id]) ->(is_empty);
@@ -1316,7 +1330,7 @@ bank pciport{
                     }
                     break;
                 case 1:
-					if ($middleware_mode == To429Middleware) {
+					if (($middleware_mode == To429Middleware) || ($middleware_mode == IMA)) { // fix me
 						inline $IsPortSampleEmpty(&($port[port_id])) -> (is_empty);
 					} else if ($middleware_mode == To664Middleware) {
 						inline $IsCacheSampleEmpty(port_id) -> (is_empty);

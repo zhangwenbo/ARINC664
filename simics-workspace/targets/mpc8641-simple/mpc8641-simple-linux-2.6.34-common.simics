@@ -1,2 +1,0 @@
-add-directory "%script%"
-run-command-file "%simics%\\targets\\mpc8641-simple\\mpc8641-simple-linux-2.6.34-common.simics"

@@ -1,2 +1,0 @@
-add-directory "%script%"
-run-command-file "%simics%\\targets\\mpc8548cds\\mpc8548cds-ose-common.simics"
