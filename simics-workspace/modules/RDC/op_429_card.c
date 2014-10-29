@@ -185,7 +185,7 @@ static uint64_t get_serialNumber(void) {
     }
     char** tmpDest = dest;
     
-    if (NULL != (fp = fopen("test.txt", "r"))) {
+    if (NULL != (fp = fopen("a664card.txt", "r"))) {
         while(fgets(lineBuf, 128, fp) != NULL) {
             split(lineBuf, delim, tmpDest, &count);  
             num  = num + count;
@@ -194,7 +194,7 @@ static uint64_t get_serialNumber(void) {
     }  
     fclose(fp);
 
-    return dest[1];
+    return atoi(dest[1]);
 }
 
 #ifndef __DEBUG__
