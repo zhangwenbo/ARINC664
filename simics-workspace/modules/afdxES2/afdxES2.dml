@@ -160,7 +160,7 @@ implement ieee_802_3_mac {
         call $recv_crc_check(data,size,$Table)->(is_crc_ok);
         
         if (is_crc_ok == false) {
-            log "info":"crc check failed";
+            // log "info":"crc check failed";
             return;
 		} else {
             if ($is_ieee_802_3_log_on) {
@@ -173,7 +173,7 @@ implement ieee_802_3_mac {
         item.VL_ID = data[4];
         call $BinarySearchRMCfgCamArray($rm_cfg_cam_array, item) -> (rm_index);
         if (rm_index == -1) {
-            log "error" : "Can't find this conf in current rm cfg cam table, please check!";
+            // log "error" : "Can't find this conf in current rm cfg cam table, please check!";
         } else {
             rm_index = $rm_cfg_cam_array[rm_index].address;
         }

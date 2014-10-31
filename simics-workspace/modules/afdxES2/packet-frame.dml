@@ -389,7 +389,8 @@ event send_phy {
                 }
                 break;
             default:
-                log "error" : "Unsupported INTERFACE_ID %d !", interface_id; 
+                // log "error" : "Unsupported INTERFACE_ID %d !", interface_id;
+                break;
             }
         } else {
             $send_phy_delay = 0.001;

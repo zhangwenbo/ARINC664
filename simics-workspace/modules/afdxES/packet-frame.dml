@@ -11,7 +11,7 @@ import "mib-info.dml";
 import "sample-frame.dml";
 
 extern void *get_ima_server_socket(void);
-extern int ima_socket_send(void *sendbuf, int size, void *socketfd);
+extern void ima_socket_send(void *sendbuf, int size, void *socketfd);
 
 data bool init_send_time;
 
@@ -466,7 +466,8 @@ event send_phy {
                 }
                 break;
             default:
-                log "error" : "Unsupported INTERFACE_ID %d !", interface_id; 
+                // log "error" : "Unsupported INTERFACE_ID %d !", interface_id;
+                break;
             }
         } else {
             $send_phy_delay = 0.001;

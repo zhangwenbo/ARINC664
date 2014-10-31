@@ -927,7 +927,7 @@ bank pciport{
             case 9:
 				if ($middleware_mode == To664Middleware)
 					$MACA_MIB_data = $maca_mib.input_frame_byte_count+$maca_mib.input_frame_count*4;
-				else if ($middleware_mode == To429Middleware)
+				else if (($middleware_mode == To429Middleware) || ($middleware_mode == IMA))
 					$MACA_MIB_data = $maca_mib.input_frame_byte_count;
                 break;
             case 10:
@@ -951,7 +951,7 @@ bank pciport{
             case 16:
 				if ($middleware_mode == To664Middleware)
 					$MACA_MIB_data = $maca_mib.output_frame_byte_count+$maca_mib.output_frame_count*4;
-                else if ($middleware_mode == To429Middleware)
+                else if (($middleware_mode == To429Middleware) || ($middleware_mode == IMA))
 					$MACA_MIB_data = $maca_mib.output_frame_byte_count;
                 break;
             case 17:
@@ -1003,7 +1003,7 @@ bank pciport{
             case 9:
 				if ($middleware_mode == To664Middleware)
 					$MACB_MIB_data = $macb_mib.input_frame_byte_count+$macb_mib.input_frame_count*4;
-				else if ($middleware_mode == To429Middleware)
+				else if (($middleware_mode == To429Middleware) || ($middleware_mode == IMA))
 					$MACB_MIB_data = $macb_mib.input_frame_byte_count;
                 break;
             case 10:
@@ -1027,7 +1027,7 @@ bank pciport{
             case 16:
 				if ($middleware_mode == To664Middleware)
 					$MACB_MIB_data = $macb_mib.output_frame_byte_count+$macb_mib.output_frame_count*4;
-                else if ($middleware_mode == To429Middleware)
+                else if (($middleware_mode == To429Middleware) || ($middleware_mode == IMA))
 					$MACB_MIB_data = $macb_mib.output_frame_byte_count;
                 break;
             case 17:
@@ -1367,59 +1367,59 @@ bank pciport{
 				port_type = $analyse_cfg_ram_array[port_id].ram_data.PORT_TYPE;
                 if (port_id >= 0 && port_id < 4096) {
 					switch (port_type) {
-						case 0: case 2:
-							switch ($middleware_mode) {
-								case To429Middleware:
-									inline $DePortQueue($port[port_id].queue, &item)-> (is_empty);
-									if (is_empty == false) {
-										return;
-									}                                               
-									break;
-								case To664Middleware:
-									inline $DePortCache($PortCache[port_id], &item1) -> (is_empty);
-									if (is_empty == false) {
-										return;
-									}                                               
-									break;
-								default:
-									log "info" : "Unsupported work mode!\n";
-									break;                        
-							}
-							break;
-				
-						case 1: 
-							switch ($middleware_mode) {
-								case To429Middleware:
-									inline $IsPortSampleEmpty(&($port[port_id])) -> (is_empty);
-									if(is_empty == false) {
-										local int i;
-										//memcpy(item.frame, ($port[port_id]).frame, ($port[port_id]).size);    
-										item.frame =  ($port[port_id]).frame;
-										item.size = ($port[port_id]).size;
-									/*	log "info": "afdx 1 sample data";
-										log "info" : "sample data size is %d",item.size;
-										for (i=8; i < item.size; i++) log "info" : "data[%d] = %x", i, item.frame[i]; 
-									*/
-									} else {
-										return ;
-									}
-									break;
-								case To664Middleware:
-									inline $IsCacheSampleEmpty(port_id) -> (is_empty);
-									if(is_empty == false ) {
-										memcpy(item1.buffer, $cache[port_id].buffer, $cache[port_id].size);      
-										item1.size = $cache[port_id].size;
-									} else {
-										return;
-									}
-									break;
-								default:
-									log "info" : "Unsupported work mode!\n";
-									break;                        
-							}
-							break;
-				
-						default:
+                    case 0: case 2:
+                        switch ($middleware_mode) {
+                        case To429Middleware: case IMA:
+                            inline $DePortQueue($port[port_id].queue, &item)-> (is_empty);
+                            if (is_empty == false) {
+                                return;
+                            }                                               
+                            break;
+                        case To664Middleware:
+                            inline $DePortCache($PortCache[port_id], &item1) -> (is_empty);
+                            if (is_empty == false) {
+                                return;
+                            }                                               
+                            break;
+                        default:
+                            log "info" : "Unsupported work mode!\n";
+                            break;                        
+                        }
+                        break;
+                        
+                    case 1: 
+                        switch ($middleware_mode) {
+                        case To429Middleware: case IMA:
+                            inline $IsPortSampleEmpty(&($port[port_id])) -> (is_empty);
+                            if(is_empty == false) {
+                                local int i;
+                                //memcpy(item.frame, ($port[port_id]).frame, ($port[port_id]).size);    
+                                item.frame =  ($port[port_id]).frame;
+                                item.size = ($port[port_id]).size;
+                                /*	log "info": "afdx 1 sample data";
+                                    log "info" : "sample data size is %d",item.size;
+                                    for (i=8; i < item.size; i++) log "info" : "data[%d] = %x", i, item.frame[i]; 
+                                */
+                            } else {
+                                return ;
+                            }
+                            break;
+                        case To664Middleware:
+                            inline $IsCacheSampleEmpty(port_id) -> (is_empty);
+                            if(is_empty == false ) {
+                                memcpy(item1.buffer, $cache[port_id].buffer, $cache[port_id].size);      
+                                item1.size = $cache[port_id].size;
+                            } else {
+                                return;
+                            }
+                            break;
+                        default:
+                            log "info" : "Unsupported work mode!\n";
+                            break;                        
+                        }
+                        break;
+                        
+                    default:
 						break;
 					}
                 } else {
@@ -1428,7 +1428,7 @@ bank pciport{
                 }
 				
                 local exception_type_t ex;
-                if ($middleware_mode == To429Middleware) {
+                if (($middleware_mode == To429Middleware) || ($middleware_mode == IMA)) {
                     item.size -= 8;
                     
                     call $pci_data_to_memory(Sim_Addr_Space_Memory,
