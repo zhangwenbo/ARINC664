@@ -40,8 +40,6 @@ method Handle_664_Data(uint32 port_id,uint8 *data, int length) {
     
 	$recv_num++;
 		
-	if($recv_num%50 == 0)
-		log "info":"%d ",$recv_num;
 	port_type = $analyse_cfg_ram_array[port_id].ram_data.PORT_TYPE;
 	switch (port_type) {
 		case 0: case 2:
@@ -60,6 +58,7 @@ method Handle_664_Data(uint32 port_id,uint8 *data, int length) {
         }
 	}
 }
+
 data int recv_port_num;
 data int recv_port_valid[4096];
 method Recv_Data_From_664_Middleware_Loop_Event() {
@@ -114,6 +113,7 @@ method change_tran_cfg(transmit_cfg_ram *transmit_cfg_ram_array, transmit_cfg_ra
 		transmit_cfg_ram_send_array->sub_vl_id=transmit_cfg_ram_array->ram_data_part3.SUB_VL_ID ;
 		transmit_cfg_ram_send_array->dest_udp_port=transmit_cfg_ram_array->ram_data_part3.DEST_UDP_PORT ;
 		transmit_cfg_ram_send_array->source_udp_port=transmit_cfg_ram_array->ram_data_part3.SOURCE_UDP_PORT ;
+        /*
 		log "info": "--------------------------------------------";
 			log "info":"dst_partition_id=%x\n",transmit_cfg_ram_send_array->dst_partition_id;
 			log "info":"user_defined_id_l=%x\n",transmit_cfg_ram_send_array->user_defined_id_l;
@@ -132,6 +132,7 @@ method change_tran_cfg(transmit_cfg_ram *transmit_cfg_ram_array, transmit_cfg_ra
 			log "info":"dest_udp_port=%x\n",transmit_cfg_ram_send_array->dest_udp_port;
 			log "info":"source_udp_port=%x\n",transmit_cfg_ram_send_array->source_udp_port;
 		log "info": "--------------------------------------------";
+        */
 }
 
 method Write_Config_All() {
