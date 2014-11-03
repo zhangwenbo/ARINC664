@@ -357,7 +357,7 @@ event send_phy {
                     }
                     
                     switch ($middleware_mode) {
-                    case IMA:
+                    case ToIMAMiddleware:
                         ima_socket_send(&item.frame, item.size, get_ima_server_socket());
                         break;
                     case To429Middleware:
@@ -388,7 +388,7 @@ event send_phy {
                     }
 
                     switch ($middleware_mode) {
-                    case IMA:
+                    case ToIMAMiddleware:
                         ima_socket_send(&item.frame, item.size, get_ima_server_socket());
                         break;
                     case To429Middleware:
@@ -425,7 +425,7 @@ event send_phy {
                     }
                     
                     switch ($middleware_mode) {
-                    case IMA:
+                    case ToIMAMiddleware:
                         ima_socket_send(&item.frame, item.size, get_ima_server_socket());
                         break;
                     case To429Middleware:
@@ -444,7 +444,7 @@ event send_phy {
                     }
                     
                     switch ($middleware_mode) {
-                    case IMA:
+                    case ToIMAMiddleware:
                         ima_socket_send(&item2.frame, item2.size, get_ima_server_socket());
                         break;
                     case To429Middleware:
@@ -475,37 +475,4 @@ event send_phy {
 
         inline $send_phy.post($send_phy_delay, NULL);
     }
-}
-method mib_out_sum(MAC_MIB *mib,int size) {
-	mib->output_frame_count++;  
-	mib->output_frame_byte_count+=size;  		
-	if(size <128)
-		mib->output_64_127_count++;		
-	else if(size<256)
-		mib->output_128_255_count++;		
-	else if(size<512)
-		mib->output_256_511_count++;		
-	else if(size < 1024)
-		mib->output_512_1023_count++;		
-	else if(size <=1518)
-		mib->output_1024_1518_count++;		
-}
-
-method mib_in_sum(MAC_MIB *mib,int size) {	
-	mib->input_frame_byte_count+=size; 			
-	mib->input_frame_count++;  
-	if(size < 64)
-		mib->delete_little_64++;  		
-	else if(size < 128)
-		mib->input_64_127_count++;			
-	else if (size < 256)
-		mib->input_128_255_count++;			
-	else if(size < 512)
-		mib->input_256_511_count++;		
-	else if(size < 1024)
-		mib->input_512_1023_count++;		
-	else if(size <=1518)
-		mib->input_1024_1518_count++;	
-	else 
-		mib->delete_big_1518++; 
 }

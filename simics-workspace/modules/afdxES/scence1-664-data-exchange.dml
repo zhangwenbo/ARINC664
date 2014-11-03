@@ -1,0 +1,181 @@
+dml 1.2;
+
+import "port-cache.dml";
+
+extern int Init_664_Work_Mode(void);
+extern int Init_664_Card(void);
+extern int Send_To_A664(int card_nr, int pord_id, char *buf, int len);
+extern int Recv_From_A664(int card_nr, int port_id, char *buf,uint32 *network,uint32 *valid);
+extern int Send_To_664_Middleware(char *recvbuf, int size);
+extern int Recv_Data_From_664_Middleware(char *sendbuf, int size);
+extern int Recv_Mib_Info_From_664_Middleware(char *recvbuf, int size);
+extern void write_cfg_table(int type ,char *buf, int size);
+extern int get_recv_port_num();
+
+constant ANALYSE_CFG_CAM = 0;
+constant ANALYSE_CFG_RAM = 1;
+constant TRANSMIT_CFG_RAM = 2;
+constant SCHEDULING_CFG_RAM = 3;
+constant RM_CFG_CAM = 4;
+constant RM_CFG_RAM = 5;
+constant FRAGMENT_CFG_RAM = 6;
+constant PACKET_SEND = 7;
+constant PACKET_RECV = 8;
+constant DO_LOAD_CONF = 9;
+constant PACKET_MAC_MIB = 10;
+constant PACKET_RX_MIB = 11;
+constant PACKET_TX_MIB = 12;
+constant CFG_TYPE_SIZE = 4;
+constant CFG_NUM = 128;
+
+data int recv_num;
+
+method Handle_664_Data(uint32 port_id,uint8 *data, int length) {
+    local bool is_cached_ok;
+    local Cache_Item item;
+	local int port_type;
+    
+    memcpy(item.buffer, data, length);
+    item.size = length ;
+    
+	$recv_num++;
+		
+	port_type = $analyse_cfg_ram_array[port_id].ram_data.PORT_TYPE;
+	switch (port_type) {
+		case 0: case 2:
+        call $EnPortCache($PortCache[port_id], item) -> (is_cached_ok);
+        if (!is_cached_ok) {
+            log "error" : "Port: %d's cache has full!\n", port_id;
+            ++$rx_buf_overflow_number[port_id];
+			break;
+		case 1:
+			if ($recv_port_valid[port_id] == 1)
+				call  $RefreshCacheData(port_id, item);
+			break;
+		default:
+			log "error" : "Unsuported port type";
+			break;
+        }
+	}
+}
+
+data int recv_port_num;
+data int recv_port_valid[4096];
+method Recv_Data_From_664_Middleware_Loop_Event() {
+    local int length;
+    local uint8 *buf = new uint8 [PORT_DATA_SIZE];
+	local int i;
+	local int j;
+	local uint32 network;
+	local uint32 valid;
+	for (i=0; i < $recv_port_num; i++)
+	{
+		length = Recv_From_A664(0, i, buf, &network,&valid);
+		$recv_port_valid[i] = valid;
+		if (length > 0) {
+    
+			call $Handle_664_Data(i, buf, length);
+		}
+    }
+
+    delete buf;
+	//if($load_config_done == 1)
+		after (0.001) call $Recv_Data_From_664_Middleware_Loop_Event();
+	//else 
+	//	after (0.001) call $Recv_Data_From_664_Middleware_Loop_Event();
+}
+
+
+data int load_config_done;
+
+method change_tran_cfg(transmit_cfg_ram *transmit_cfg_ram_array, transmit_cfg_ram_send *transmit_cfg_ram_send_array) {
+		transmit_cfg_ram_send_array->dst_partition_id=transmit_cfg_ram_array->ram_data_part4.PARTITION_ID ;
+		transmit_cfg_ram_send_array->user_defined_id_l=transmit_cfg_ram_array->ram_data_part4.USER_DEFINED_ID_L ;
+		transmit_cfg_ram_send_array->user_defined_id_h=transmit_cfg_ram_array->ram_data_part4.USER_DEFINED_ID_H ;
+		transmit_cfg_ram_send_array->private_ip=transmit_cfg_ram_array->ram_data_part4. PRIVATE_IP;
+		transmit_cfg_ram_send_array->vl_id=transmit_cfg_ram_array->ram_data_part1.VL_ID;
+		transmit_cfg_ram_send_array->vl_index=transmit_cfg_ram_array->ram_data_part1.VL_INDEX ;
+		transmit_cfg_ram_send_array->ip_multicast=transmit_cfg_ram_array->ram_data_part1.IP_MULTICAST;
+		transmit_cfg_ram_send_array->min_frame_length=transmit_cfg_ram_array->ram_data_part1.MIN_FRAME_LENGTH ;
+		transmit_cfg_ram_send_array->port_type=transmit_cfg_ram_array->ram_data_part1.PORT_TYPE ;
+		transmit_cfg_ram_send_array->partition_id=transmit_cfg_ram_array->ram_data_part2.PARTITION_ID ;
+		transmit_cfg_ram_send_array->interface_id=transmit_cfg_ram_array->ram_data_part2.INTERFACE_ID ;
+		transmit_cfg_ram_send_array->protocol_id=transmit_cfg_ram_array->ram_data_part2.PROTOCAL_ID ;
+		transmit_cfg_ram_send_array->user_defined_id=transmit_cfg_ram_array->ram_data_part2.USER_DEFINED_ID;
+		transmit_cfg_ram_send_array->sub_vl_id=transmit_cfg_ram_array->ram_data_part3.SUB_VL_ID ;
+		transmit_cfg_ram_send_array->dest_udp_port=transmit_cfg_ram_array->ram_data_part3.DEST_UDP_PORT ;
+		transmit_cfg_ram_send_array->source_udp_port=transmit_cfg_ram_array->ram_data_part3.SOURCE_UDP_PORT ;
+        /*
+		log "info": "--------------------------------------------";
+			log "info":"dst_partition_id=%x\n",transmit_cfg_ram_send_array->dst_partition_id;
+			log "info":"user_defined_id_l=%x\n",transmit_cfg_ram_send_array->user_defined_id_l;
+			log "info":"user_defined_id_h=%x\n",transmit_cfg_ram_send_array->user_defined_id_h;
+			log "info":"private_ip=%x\n",transmit_cfg_ram_send_array->private_ip;
+			log "info":"vl_id=%x\n",transmit_cfg_ram_send_array->vl_id;
+			log "info":"vl_index=%x\n",transmit_cfg_ram_send_array->vl_index;
+			log "info":"ip_multicast=%x\n",transmit_cfg_ram_send_array->ip_multicast;
+			log "info":"min_frame_length=%x\n",transmit_cfg_ram_send_array->min_frame_length;
+			log "info":"port_type=%x\n",transmit_cfg_ram_send_array->port_type;
+			log "info":"partition_id=%x\n",transmit_cfg_ram_send_array->partition_id;
+			log "info":"interface_id=%x\n",transmit_cfg_ram_send_array->interface_id;
+			log "info":"protocol_id=%x\n",transmit_cfg_ram_send_array->protocol_id;
+			log "info":"user_defined_id=%x\n",transmit_cfg_ram_send_array->user_defined_id;
+			log "info":"sub_vl_id=%x\n",transmit_cfg_ram_send_array->sub_vl_id;
+			log "info":"dest_udp_port=%x\n",transmit_cfg_ram_send_array->dest_udp_port;
+			log "info":"source_udp_port=%x\n",transmit_cfg_ram_send_array->source_udp_port;
+		log "info": "--------------------------------------------";
+        */
+}
+
+method Write_Config_All() {
+	local int data_type;
+	local int cfg_table_size;
+	local int i;
+	local int ret;
+	local int constant_field;
+	local transmit_cfg_ram_send *ram_send;
+	local transmit_cfg_ram *ram;
+    data_type = ANALYSE_CFG_CAM;
+    cfg_table_size = sizeoftype(analyse_cfg_cam) * CFG_NUM;
+	write_cfg_table(data_type,cast(&$analyse_cfg_cam_array, uint8*), cfg_table_size);
+
+    data_type = ANALYSE_CFG_RAM;
+    cfg_table_size = sizeoftype(analyse_cfg_ram) * CFG_NUM; 
+	write_cfg_table(data_type,cast(&$analyse_cfg_ram_array, uint8*), cfg_table_size);
+
+    data_type = TRANSMIT_CFG_RAM;
+    cfg_table_size = sizeoftype(transmit_cfg_ram_send) * CFG_NUM;
+	for (i=0; i < CFG_NUM; i++) {
+		ram =cast(&($transmit_cfg_ram_array[i]),transmit_cfg_ram *);
+		ram_send =cast(&($transmit_cfg_ram_send_array[i]),transmit_cfg_ram_send *);
+		call $change_tran_cfg(ram, ram_send);
+	}
+	write_cfg_table(data_type,cast(&$transmit_cfg_ram_send_array, uint8*), cfg_table_size);
+
+    data_type = SCHEDULING_CFG_RAM;
+    cfg_table_size = sizeoftype(scheduling_cfg_ram) * CFG_NUM; 
+	write_cfg_table(data_type,cast(&$scheduling_cfg_ram_array, uint8*), cfg_table_size);
+
+    data_type = RM_CFG_CAM;
+    cfg_table_size = sizeoftype(rm_cfg_cam) * CFG_NUM;
+	write_cfg_table(data_type,cast(&$rm_cfg_cam_array, uint8*), cfg_table_size);
+
+    data_type = RM_CFG_RAM;
+    cfg_table_size = sizeoftype(rm_cfg_ram) * CFG_NUM; 
+	write_cfg_table(data_type,cast(&$rm_cfg_ram_array, uint8*), cfg_table_size);
+
+    data_type = FRAGMENT_CFG_RAM;
+    cfg_table_size = sizeoftype(fragment_cfg_ram) * CFG_NUM;
+	write_cfg_table(data_type,cast(&$fragment_cfg_ram_array, uint8*), cfg_table_size);
+
+}
+
+method Send_Payload_To_664_Middleware(uint8 *data, uint32 port_id, uint32 length) {
+    local uint32 data_type = 0;
+    
+    data_type = PACKET_SEND;
+    Send_To_664_Middleware(cast(&data_type, uint8*), CFG_TYPE_SIZE);
+    Send_To_664_Middleware(cast(&length, uint8*), CFG_TYPE_SIZE);
+    Send_To_664_Middleware(cast(&port_id, uint8*), CFG_TYPE_SIZE);
+    Send_To_664_Middleware(data, length);    
+}

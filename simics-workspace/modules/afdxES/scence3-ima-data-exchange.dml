@@ -1,0 +1,50 @@
+dml 1.2;
+
+extern int ima_server_socket_init(int portNum);
+extern int ima_client_socket_init(int portNum);
+extern void *get_ima_client_socket(void);
+extern int ima_socket_recv(void *recvbuf, int size, void *socketfd);
+extern int get_recv_state(void);
+extern void change_recv_state(void);
+
+data int size;
+
+method init_ima_send() {
+    if ($middleware_mode == ToIMAMiddleware) {
+        local int serverPortNum;
+        local int clientPortNum;
+    
+        switch ($CS_mode) {
+        case CLIENT:
+            clientPortNum = 6789;        
+            serverPortNum = 9876;
+            ima_client_socket_init(clientPortNum);
+            ima_server_socket_init(serverPortNum);
+            break;
+        case SERVER:
+            serverPortNum = 6789;
+            clientPortNum = 9876;        
+            ima_server_socket_init(serverPortNum);
+            ima_client_socket_init(clientPortNum);
+            break;
+        defaut:
+            break;
+        }        
+    }
+}
+
+method init_ima_recv() {
+    if ($middleware_mode == ToIMAMiddleware) {
+        if ($is_cfg_done) {
+            local uint8 data[MAX_FRAME_SIZE];
+            $size = ima_socket_recv(&data, $size, get_ima_client_socket());
+            if (($size != 0) && (get_recv_state() == 2)) {
+                change_recv_state();
+                call $recv_frame(data, $size);
+            }
+        }
+
+        after (0.001) 
+            call $init_ima_recv();                    
+    }
+}

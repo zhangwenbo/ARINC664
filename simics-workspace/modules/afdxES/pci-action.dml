@@ -10,58 +10,42 @@ import "packet-frame.dml";
 //start DMA from PCI memory space to local space
 method transmit() {
     if ($pci9056.dmacsr1.dma1e == 1 && $pci9056.dmadpr1.dmad1 == 0 && $pci9056.dmasiz1.siz1 != 0) {
-        // Yes to transmit
-        // read from pci memeory space
         local exception_type_t ex;
         local exception_type_t exn;
-        local dbuffer_t *dbuf = new_dbuffer();  // new a buf
-        log "info",2,0: "tr new a dbuf";
+        local dbuffer_t *dbuf = new_dbuffer();  
         local uint8 *buf;
 		local uint32 i;
-        log "info",2,0: "tr new a buf";
         local physical_address_t length;
-        log "info",2,0: "tr new a length";
         length = $pci9056.dmasiz1.siz1;  // required by the method of access_simple
-        log "info",2,0: "tr set length";
         buf = dbuffer_append(dbuf, length); // buf is the address of dbuf
-        log "info",2,0: "tr set buf";
         call $pci_data_from_memory(Sim_Addr_Space_Memory,
                                     buf,
                                     $pci9056.dmapadr1.padr1,
                                     $pci9056.dmasiz1.siz1) -> (ex);
-        log "info",2,0: " tr read from pci memory space";
         if (ex != Sim_PE_No_Exception) {
             throw;
             log "error": "tr Read data from memory fail";
         }
 
         switch ($middleware_mode) { // fix me
-        case To429Middleware: case IMA:
+        case To429Middleware: case ToIMAMiddleware:
             call $wrapped_frame(buf, length);
             break;
         case To664Middleware:
 			Send_To_A664(0, $pciport.tx_port_id.id, buf, $pciport.tx_frame_len.frame_len);
-            //call $Send_Payload_To_664_Middleware(buf, $pciport.tx_port_id.id, $pciport.tx_frame_len.frame_len);
             break;
         default:
             log "error" : "Unsupported work mode";
             break;
         }
 		
-        log "info",2,0: "tr set DMA done status";
-        // set interrupt pin and raise pci interrupt
         if ($pci9056.dmamode1.die == 1 && $pci9056.intcsr.ie == 1 && $pci9056.intcsr.dma1ie == 1){
-            log "info",2,0: "tr ready to raise pci interrupt";
-           // call $pci_config.pci_raise_interrupt();  //interrrupt mode
 	        $pci9056.loopdmadone = 1;
 	        $pciport.tx_buf_overflow.del_frame_id_valid_bit = 1;
-            log "info",2,0: "tr raise pci interrupt";
-        }
-        else {
+        } else {
             log "error" : "tr Unable to raise PCI interrupt!";
         }
-    }
-    else{
+    } else{
         log "error": "tr Unable to start DMA transmit!";
     }
 }
@@ -69,30 +53,19 @@ method transmit() {
 // start DMA from local space to PCI memory space
 method receive() {
     if ($pci9056.dmacsr0.dma0e == 1 && $pci9056.dmadpr0.dmad0 == 1 && $pci9056.dmasiz0.siz0 != 0) {
-        // Yes to receive
-        // read from local space
         local exception_type_t ex;
         local exception_type_t exn;
         local dbuffer_t *dbuf = new_dbuffer();  // new a buf
-        log "info",2,0: "new a dbuf";
         local uint8 *buf;
-        log "info",2,0: "new a buf";
         local physical_address_t length;
-        log "info",2,0: "new a length";
         length = $pci9056.dmasiz0.siz0;   // required by the method of access_simple
-        log "info",2,0: "set length";
 		buf = dbuffer_append(dbuf, length);  // buf is the address of dbuf
-        log "info",2,0: "set buf";
-		
-		
         
-		// the name of connector line 90 add ".memory_space.asscee_simple()"
         exn = $local_space.memory_space.access_simple($dev.obj,
                                                 $pci9056.dmaladr0.ladr0,
                                                 buf,
                                                 length,
                                                 Sim_RW_Read,Sim_Endian_Target);
-        log "info",2,0: "read from local space";
         if (exn != Sim_PE_No_Exception) {
             log "error": "unknown exception (%d) on local space read", cast (exn, int);
         }
@@ -100,22 +73,18 @@ method receive() {
                                     buf,
                                     $pci9056.dmapadr0.padr0,
                                     $pci9056.dmasiz0.siz0) -> (ex);
-        log "info",2,0: "write to pci memory space";
         dbuffer_free(dbuf);//free dbuf
         if (ex != Sim_PE_No_Exception) {
             throw;
             log "error": "write data to memory fail";
         }
-        log "info",2,0: "set DMA done status";
-        // set interrupt pin and raise pci interrupt
+
         if ($pci9056.dmamode0.die == 1 && $pci9056.intcsr.ie == 1 && $pci9056.intcsr.dma0ie == 1) {
-            log "info",2,0: "ready to raise pci interrupt";
             call $pci_config.pci_raise_interrupt();
-            log "info",2,0: "raise pci interrupt";
         } else {
             log "error" : "Unable to raise PCI interrupt!";
         }
 	} else{
         log "error": "Unable to start DMA receive!";
-  }
+    }
 }

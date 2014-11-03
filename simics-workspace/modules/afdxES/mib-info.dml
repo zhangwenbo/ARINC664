@@ -133,3 +133,37 @@ method  Set_Rx_Mib_Info(uint8 *buffer) {
 method  Set_Tx_Mib_Info(uint8 *buffer) {
 	memcpy(&($tx_mib), buffer, sizeoftype(TX_MIB));
 }
+
+method mib_out_sum(MAC_MIB *mib,int size) {
+	mib->output_frame_count++;  
+	mib->output_frame_byte_count+=size;  		
+	if(size <128)
+		mib->output_64_127_count++;		
+	else if(size<256)
+		mib->output_128_255_count++;		
+	else if(size<512)
+		mib->output_256_511_count++;		
+	else if(size < 1024)
+		mib->output_512_1023_count++;		
+	else if(size <=1518)
+		mib->output_1024_1518_count++;		
+}
+
+method mib_in_sum(MAC_MIB *mib,int size) {	
+	mib->input_frame_byte_count+=size; 			
+	mib->input_frame_count++;  
+	if(size < 64)
+		mib->delete_little_64++;  		
+	else if(size < 128)
+		mib->input_64_127_count++;			
+	else if (size < 256)
+		mib->input_128_255_count++;			
+	else if(size < 512)
+		mib->input_256_511_count++;		
+	else if(size < 1024)
+		mib->input_512_1023_count++;		
+	else if(size <=1518)
+		mib->input_1024_1518_count++;	
+	else 
+		mib->delete_big_1518++; 
+}
