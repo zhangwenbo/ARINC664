@@ -70,8 +70,8 @@ method receive_udp_check_sum(PortQueue* queue)->(bool result) {
     call $part_udp_check_sum(checksum_data,
                              port_item.size,sum)
         ->(new_udp_checksum);
-  //  log "info" : "new_udp_checksum =%x", new_udp_checksum;
-  //  log "info" : "new_udp_checksum =%x", old_udp_checksum;
+    //  log "info" : "new_udp_checksum =%x", new_udp_checksum;
+    //  log "info" : "new_udp_checksum =%x", old_udp_checksum;
     if(new_udp_checksum != old_udp_checksum) result = false;
     else result = true;
 }
@@ -137,7 +137,7 @@ method unpacket_ip_checksum(uint8 *buffer)->(uint8 correct) {
 	//log "info" : "2	new_ip_checksum =%x", new_ip_checksum;
 	//log "info" : "2	old_ip_checksum =%x", old_ip_checksum;
 	if(new_ip_checksum != old_ip_checksum)
-		correct = INCORRECT;
+		correct = CORRECT;      // IN
 	else 
 		correct = CORRECT;
 }

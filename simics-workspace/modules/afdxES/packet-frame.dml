@@ -10,6 +10,7 @@ import "log.dml";
 import "mib-info.dml";
 import "sample-frame.dml";
 
+extern void a664module_send_to_a664card(void *buf, int len);
 extern void *get_ima_server_socket(void);
 extern void ima_socket_send(void *sendbuf, int size, void *socketfd);
 
@@ -357,12 +358,15 @@ event send_phy {
                     }
                     
                     switch ($middleware_mode) {
-                    case ToIMAMiddleware:
-                        ima_socket_send(&item.frame, item.size, get_ima_server_socket());
+                    case To664Middleware:
+                        a664module_send_to_a664card(&item.frame, item.size);
                         break;
                     case To429Middleware:
                         $phyA.ieee_802_3_mac.send_frame(cast(&item.frame, uint8*), item.size);
                         break;
+                    case ToIMAMiddleware:
+                        ima_socket_send(&item.frame, item.size, get_ima_server_socket());
+                        break;                        
                     default:
                         log "error" : "Danger!!! Please check your work mode!";
                         break;
@@ -388,11 +392,14 @@ event send_phy {
                     }
 
                     switch ($middleware_mode) {
-                    case ToIMAMiddleware:
-                        ima_socket_send(&item.frame, item.size, get_ima_server_socket());
+                    case To664Middleware:
+                        a664module_send_to_a664card(&item.frame, item.size);
                         break;
                     case To429Middleware:
                         $phyB.ieee_802_3_mac.send_frame(cast(&item.frame, uint8*), item.size);
+                        break;                        
+                    case ToIMAMiddleware:
+                        ima_socket_send(&item.frame, item.size, get_ima_server_socket());
                         break;
                     default:
                         log "error" : "Danger!!! Please check your work mode!";
@@ -425,11 +432,14 @@ event send_phy {
                     }
                     
                     switch ($middleware_mode) {
-                    case ToIMAMiddleware:
-                        ima_socket_send(&item.frame, item.size, get_ima_server_socket());
+                    case To664Middleware:
+                        a664module_send_to_a664card(&item.frame, item.size);
                         break;
                     case To429Middleware:
                         $phyA.ieee_802_3_mac.send_frame(cast(&item.frame, uint8*), item.size);
+                        break;                        
+                    case ToIMAMiddleware:
+                        ima_socket_send(&item.frame, item.size, get_ima_server_socket());
                         break;
                     default:
                         log "error" : "Danger!!! Please check your work mode!";
@@ -444,11 +454,14 @@ event send_phy {
                     }
                     
                     switch ($middleware_mode) {
-                    case ToIMAMiddleware:
-                        ima_socket_send(&item2.frame, item2.size, get_ima_server_socket());
+                    case To664Middleware:
+                        a664module_send_to_a664card(&item.frame, item.size);
                         break;
                     case To429Middleware:
                         $phyB.ieee_802_3_mac.send_frame(cast(&item2.frame, uint8*), item2.size);
+                        break;                        
+                    case ToIMAMiddleware:
+                        ima_socket_send(&item2.frame, item2.size, get_ima_server_socket());
                         break;
                     default:
                         log "error" : "Danger!!! Please check your work mode!";

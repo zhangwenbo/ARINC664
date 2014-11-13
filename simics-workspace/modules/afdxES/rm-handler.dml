@@ -97,7 +97,7 @@ method Init_RM_INFO(RM_INFO *rm_info, uint8 rm_index, uint32 frame_size) {
 
 method RM_Handler(RM_INFO *rm_info, uint8 interface_id, uint8 frame_sn) -> (bool result) {
     if (rm_info->VL_ENABLE == 0) {
-        result = false;
+        result = true;
         return;
     }
 
@@ -127,6 +127,12 @@ method RM_Handler(RM_INFO *rm_info, uint8 interface_id, uint8 frame_sn) -> (bool
         $recv_vl[rm_info->rm_index].expect_sn++;
         $recv_vl[rm_info->rm_index].expect_sn %= 256;
       
+        if ($middleware_mode == To664Middleware) {
+            if ($recv_vl[rm_info->rm_index].expect_sn == 0) {
+                $recv_vl[rm_info->rm_index].expect_sn++;
+            }
+        }
+
         result = true;
     } else {
 		if(interface_id == rm_info->A_Interface_ID) {

@@ -5,13 +5,13 @@
 #
 
 MODULE_CLASSES = afdxES
-SRC_FILES = tomiddleware.c communicate-with-qt.c untils.c afdxES_runtime_info.c mib.c scence3-ima-data-exchange.c
+SRC_FILES = communicate-with-qt.c untils.c afdxES_runtime_info.c scence3-ima-data-exchange.c scence1-664-data-exchange.c # tomiddleware.c mib.c
 DML_FILES = afdxES.dml
 DMLC_FLAGS = -m -I$(SIMICS_WORKSPACE)/include
 
 MODULE_CFLAGS = -I$(SIMICS_WORKSPACE)/modules/afdxES/inc/  
 MODULE_LDFLAGS = $(SIMICS_WORKSPACE)\modules\afdxES\lib\AFDX_Card.lib -lws2_32
- 
+
 SIMICS_API := 4.6
 THREAD_SAFE := yes
 

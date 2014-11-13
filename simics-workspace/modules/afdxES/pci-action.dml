@@ -27,12 +27,11 @@ method transmit() {
             log "error": "tr Read data from memory fail";
         }
 
-        switch ($middleware_mode) { // fix me
-        case To429Middleware: case ToIMAMiddleware:
-            call $wrapped_frame(buf, length);
-            break;
+        switch ($middleware_mode) {
+        case To429Middleware:
+        case ToIMAMiddleware:
         case To664Middleware:
-			Send_To_A664(0, $pciport.tx_port_id.id, buf, $pciport.tx_frame_len.frame_len);
+            call $wrapped_frame(buf, length);
             break;
         default:
             log "error" : "Unsupported work mode";

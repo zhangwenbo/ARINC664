@@ -5,8 +5,6 @@ typedef unsigned int u32;
 
 #define __DEBUG__
 
-static card_nr = 0;
-
 #ifndef __DEBUG__
 static void get_mac_mib_value(HwaNetMibType type, int a_or_b, u32 *value) {
 	hwa_aes_mib_net_state(card_nr, a_or_b,type, value);

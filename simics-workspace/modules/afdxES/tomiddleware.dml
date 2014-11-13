@@ -7,7 +7,6 @@ method init_middleware_mode() {
     switch ($middleware_mode) {
     case To664Middleware:
         call $init_a664_middleware_ok();
-        call $Init_Port_Cache();
         break;
     case To429Middleware:
         break;

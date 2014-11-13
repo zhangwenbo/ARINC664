@@ -306,9 +306,10 @@ int Init_664_Card(void) {
 		return -1;
 	}
 	//for test
-	cardnum = 0;
+	cardnum = 0;                /* 可扩展 */
 	
-	hwa_aes_set_mode(cardnum,mode_normal);			
+//	hwa_aes_set_mode(cardnum,mode_normal);
+    hwa_aes_set_mode(cardnum, mode_inject);
 		
 	//open card
 	printf("Opening Card...\n");

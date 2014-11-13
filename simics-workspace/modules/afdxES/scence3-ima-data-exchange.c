@@ -131,7 +131,7 @@ static int chars_to_int(char *array) {
 int ima_socket_recv(void *recvbuf, int size, void *socketfd) { 
     if (recv_state == WAIT_FOR_FRAME_SIZE) {
         char frame_size[4];
-        int ret = recv(*(SOCKET*)socketfd, &frame_size, 4, 0);
+        int ret = recv(*(SOCKET*)socketfd, (char*)&frame_size, 4, 0);
         if (ret > 0) {
             if (ret != 4) {
                 while (4 - ret) {
@@ -152,7 +152,7 @@ int ima_socket_recv(void *recvbuf, int size, void *socketfd) {
 
             recv_state = READY_TO_RECV_FRAME;
             
-            return ima_socket_recv(recvbuf, chars_to_int(&frame_size), socketfd);
+            return ima_socket_recv(recvbuf, chars_to_int((char*)&frame_size), socketfd);
         } else {
             switch (WSAGetLastError()) {
                 case WSAEWOULDBLOCK:
@@ -163,7 +163,7 @@ int ima_socket_recv(void *recvbuf, int size, void *socketfd) {
             }                        
         }
     } else if (recv_state == READY_TO_RECV_FRAME) {
-        int ret = recv(*(SOCKET*)socketfd, &frame, size, 0);
+        int ret = recv(*(SOCKET*)socketfd, (char*)&frame, size, 0);
         if (ret > 0) {
             if (ret != size) {
                 while (size - ret) {
