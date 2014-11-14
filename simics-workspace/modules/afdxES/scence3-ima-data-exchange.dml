@@ -3,7 +3,7 @@ dml 1.2;
 extern int ima_server_socket_init(int portNum);
 extern int ima_client_socket_init(int portNum);
 extern void *get_ima_client_socket(void);
-extern int ima_socket_recv(void *recvbuf, int size, void *socketfd);
+extern int ima_socket_recv(void *recvbuf, int size, void *socketfd, int addr_type);
 extern int get_recv_state(void);
 extern void change_recv_state(void);
 
@@ -37,7 +37,7 @@ method init_ima_recv() {
     if ($middleware_mode == ToIMAMiddleware) {
         if ($is_cfg_done) {
             local uint8 data[MAX_FRAME_SIZE];
-            $size = ima_socket_recv(&data, $size, get_ima_client_socket());
+            $size = ima_socket_recv(&data, $size, get_ima_client_socket(), 1);
             if (($size != 0) && (get_recv_state() == 2)) {
                 change_recv_state();
                 call $recv_frame(data, $size);

@@ -12,7 +12,7 @@ import "sample-frame.dml";
 
 extern void a664module_send_to_a664card(void *buf, int len);
 extern void *get_ima_server_socket(void);
-extern void ima_socket_send(void *sendbuf, int size, void *socketfd);
+extern void ima_socket_send(void *sendbuf, int size, void *socketfd, int addr_type);
 
 data bool init_send_time;
 
@@ -365,7 +365,7 @@ event send_phy {
                         $phyA.ieee_802_3_mac.send_frame(cast(&item.frame, uint8*), item.size);
                         break;
                     case ToIMAMiddleware:
-                        ima_socket_send(&item.frame, item.size, get_ima_server_socket());
+                        ima_socket_send(&item.frame, item.size, get_ima_server_socket(), 0);
                         break;                        
                     default:
                         log "error" : "Danger!!! Please check your work mode!";
@@ -399,7 +399,7 @@ event send_phy {
                         $phyB.ieee_802_3_mac.send_frame(cast(&item.frame, uint8*), item.size);
                         break;                        
                     case ToIMAMiddleware:
-                        ima_socket_send(&item.frame, item.size, get_ima_server_socket());
+                        ima_socket_send(&item.frame, item.size, get_ima_server_socket(), 0);
                         break;
                     default:
                         log "error" : "Danger!!! Please check your work mode!";
@@ -439,7 +439,7 @@ event send_phy {
                         $phyA.ieee_802_3_mac.send_frame(cast(&item.frame, uint8*), item.size);
                         break;                        
                     case ToIMAMiddleware:
-                        ima_socket_send(&item.frame, item.size, get_ima_server_socket());
+                        ima_socket_send(&item.frame, item.size, get_ima_server_socket(), 0);
                         break;
                     default:
                         log "error" : "Danger!!! Please check your work mode!";
@@ -461,7 +461,7 @@ event send_phy {
                         $phyB.ieee_802_3_mac.send_frame(cast(&item2.frame, uint8*), item2.size);
                         break;                        
                     case ToIMAMiddleware:
-                        ima_socket_send(&item2.frame, item2.size, get_ima_server_socket());
+                        ima_socket_send(&item2.frame, item2.size, get_ima_server_socket(), 0);
                         break;
                     default:
                         log "error" : "Danger!!! Please check your work mode!";

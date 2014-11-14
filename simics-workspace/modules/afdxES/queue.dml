@@ -40,7 +40,7 @@ method DeQueue(Queue *queue, Item *item) {
 }
 	
 method IsEmpty(Queue *queue) -> (bool result) {
-	result = queue->front == queue->rear;
+	result = queue->item_num == 0;
 }
 	
 method SetEmpty(Queue *queue) {
