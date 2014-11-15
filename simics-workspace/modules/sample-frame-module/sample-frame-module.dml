@@ -12,11 +12,11 @@ import "sample-frame.dml";
 
 extern void init_frame_image(void);
 extern void fint_frame_image(void);
-extern void save_frame_into_disk(void *frame, void *frame_size);
+extern void save_frame_into_disk(void *frame, void *frame_size, int frame_type);
 
 implement sample_frame {
-    method sample_frame(uint8 *frame, uint32 frame_size) {
-        save_frame_into_disk(frame, &frame_size);
+    method sample_frame(uint8 *frame, uint32 frame_size, int frame_type) {
+        save_frame_into_disk(frame, &frame_size, frame_type);
     }
 }
 

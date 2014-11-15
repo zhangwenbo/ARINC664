@@ -354,7 +354,7 @@ event send_phy {
                     }
 
                     if ($enable_sample_frame) {
-                        $sample_frame_module.sample_frame.sample_frame(cast(&item.frame, uint8*), item.size);
+                        $sample_frame_module.sample_frame.sample_frame(cast(&item.frame, uint8*), item.size, 0);
                     }
                     
                     switch ($middleware_mode) {
@@ -388,7 +388,7 @@ event send_phy {
                     }
 
                     if ($enable_sample_frame) {
-                        $sample_frame_module.sample_frame.sample_frame(cast(&item.frame, uint8*), item.size);
+                        $sample_frame_module.sample_frame.sample_frame(cast(&item.frame, uint8*), item.size, 0);
                     }
 
                     switch ($middleware_mode) {
@@ -428,7 +428,7 @@ event send_phy {
 					call $crc_check(item.frame,item.size,$Table);
 
                     if ($enable_sample_frame) {
-                        $sample_frame_module.sample_frame.sample_frame(cast(&item.frame, uint8*), item.size);
+                        $sample_frame_module.sample_frame.sample_frame(cast(&item.frame, uint8*), item.size, 0);
                     }
                     
                     switch ($middleware_mode) {
@@ -450,7 +450,7 @@ event send_phy {
 					call $crc_check(item2.frame,item2.size,$Table);
 
                     if ($enable_sample_frame) {
-                        $sample_frame_module.sample_frame.sample_frame(cast(&item.frame, uint8*), item.size);
+                        $sample_frame_module.sample_frame.sample_frame(cast(&item.frame, uint8*), item.size, 0);
                     }
                     
                     switch ($middleware_mode) {
