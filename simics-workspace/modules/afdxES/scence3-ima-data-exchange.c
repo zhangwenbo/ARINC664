@@ -3,19 +3,10 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <unistd.h>
-#include <WINSOCK2.H>
+#include <winsock2.h>
 
 SOCKET ima_client_socket = INVALID_SOCKET;
 SOCKET ima_server_socket = INVALID_SOCKET;
-
-/*
-#define BUFFER_SIZE          4
-#define BUFFER_MAXLENGTH      1518 * 2
-
-static char frame_buffer[BUFFER_SIZE + BUFFER_MAXLENGTH];
-static int pbegin = 0;
-static int pend = 0;
-*/
 
 static int recv_state;
 static char frame[1518];
@@ -30,14 +21,17 @@ typedef enum {
     IMA_SERVER_INIT_ADDR,
     IMA_CLIENT_INIT_ADDR
 } ADDR_TYPE;
-    
+
+#define SERVER_IP "127.0.0.1"
+#define CLIENT_IP "127.0.0.1"
+
 #ifndef __TCP__
 struct sockaddr_in ima_server_init_addr;
 struct sockaddr_in ima_client_init_addr;
 #else
 #endif
 
-int ima_server_socket_init(int portNum) {
+int ima_server_socket_init(int serverPortNum, int clientPortNum) {
     WSADATA wsa;
 
     if (WSAStartup(MAKEWORD(2,2), &wsa)) {
@@ -59,13 +53,19 @@ int ima_server_socket_init(int portNum) {
     SOCKADDR_IN addr;
     addr.sin_family = AF_INET;
     addr.sin_addr.s_addr = htonl(INADDR_ANY);  
-    addr.sin_port = htons(portNum);
+    addr.sin_port = htons(serverPortNum);
 #else
     struct sockaddr_in addr;    
     addr.sin_family = AF_INET;
     addr.sin_addr.s_addr = INADDR_ANY;
-    addr.sin_port = htons(portNum);
-    ima_server_init_addr = addr; /* ok? */
+    addr.sin_port = htons(serverPortNum);
+	
+	struct sockaddr_in clientaddr;;    
+    clientaddr.sin_family = AF_INET;
+    clientaddr.sin_addr.S_un.S_addr = inet_addr(CLIENT_IP);
+    clientaddr.sin_port = htons(clientPortNum);
+
+    ima_server_init_addr = clientaddr; 
 #endif
     
     int opt = 1;
@@ -100,6 +100,7 @@ int ima_server_socket_init(int portNum) {
         exit(1);
     }
 #else
+    ima_server_socket = serSocket;
 #endif
     
     fprintf(stdout, "Socket_server_init ok\n");
@@ -107,7 +108,7 @@ int ima_server_socket_init(int portNum) {
     return 0;
 }
 
-int ima_client_socket_init(int portNum) {
+int ima_client_socket_init(int clientPortNum, int serverPortNum) {
     WSADATA wsa;
 
     if (WSAStartup(MAKEWORD(2,2), &wsa)) {
@@ -130,15 +131,16 @@ int ima_client_socket_init(int portNum) {
     SOCKADDR_IN serveraddr;   
     memset(&serveraddr, 0, sizeof(serveraddr));
     serveraddr.sin_family = AF_INET;
-    serveraddr.sin_port = htons(portNum);
+    serveraddr.sin_port = htons(clientPortNum);
     serveraddr.sin_addr.s_addr = inet_addr("127.0.0.1");
 #else
-    struct sockaddr_in server;
-    memset((char*)&server, 0, sizeof(server));
-    server.sin_family = AF_INET;
-    server.sin_port = htons(portNum);
-    server.sin_addr.S_un.S_addr = inet_addr("127.0.0.1");
-    ima_client_init_addr = server; /* ok? */
+    struct sockaddr_in serveraddr;
+    memset((char*)&serveraddr, 0, sizeof(serveraddr));
+    serveraddr.sin_family = AF_INET;
+    serveraddr.sin_port = htons(serverPortNum);
+    serveraddr.sin_addr.S_un.S_addr = inet_addr(SERVER_IP);
+    
+    ima_client_init_addr = serveraddr; 
 #endif
 
 #ifdef __TCP__
@@ -147,8 +149,17 @@ int ima_client_socket_init(int portNum) {
         exit(1);
     }
 #else
+    struct sockaddr_in addr;    
+    addr.sin_family = AF_INET;
+    addr.sin_addr.s_addr = INADDR_ANY;
+    addr.sin_port = htons(clientPortNum);
+
+    if (bind(ima_client_socket, (struct sockaddr *)&addr, sizeof(addr)) == SOCKET_ERROR) {
+        printf ("Bind failed with error code: %d\n", WSAGetLastError());
+        exit(EXIT_FAILURE);
+    }    
 #endif
-    
+
     unsigned long ul = 1;
     if (ioctlsocket(ima_client_socket, FIONBIO, (unsigned long*)&ul) == SOCKET_ERROR) {
         fprintf(stderr, "ioctlsocket failed, error code is %d\n", WSAGetLastError());
@@ -184,12 +195,12 @@ void ima_socket_send(void *sendbuf, int size, void *socketfd, int addr_type) {
     }
 #else
     if (sendto(*(SOCKET*)socketfd, (char *)&size, sizeof(size),
-               0, (struct socketaddr *)&addr, sizeof(addr)) != sizeof(size)) {
+               0, (struct sockaddr *)&addr, sizeof(addr)) != sizeof(size)) {
         fprintf(stderr, "sendto() failed with error code: %d\n", WSAGetLastError());
     }
 
     if (sendto(*(SOCKET*)socketfd, (char *)sendbuf, size,
-               0, (struct socketaddr *)&addr, sizeof(addr)) != size) {
+               0, (struct sockaddr *)&addr, sizeof(addr)) != size) {
         fprintf(stderr, "sendto() failed with error code: %d\n", WSAGetLastError());
     }    
 #endif
@@ -225,7 +236,7 @@ int ima_socket_recv(void *recvbuf, int size, void *socketfd, int addr_type) { /*
         int ret = recv(*(SOCKET*)socketfd, (char*)&frame_size, 4, 0);
 #else
         int ret = recvfrom(*(SOCKET*)socketfd, (char*)&frame_size, 4, 0,
-                           (struct socketaddr *)&addr, &addr_len); /* notice here */
+                           (struct sockaddr *)&addr, &addr_len); /* notice here */
 #endif        
         if (ret > 0) {
             if (ret != 4) {
@@ -234,7 +245,7 @@ int ima_socket_recv(void *recvbuf, int size, void *socketfd, int addr_type) { /*
                     int ret1 = recv(*(SOCKET*)socketfd, frame_size + ret, 4 - ret, 0);
 #else
                     int ret1 = recvfrom(*(SOCKET*)socketfd, frame_size + ret, 4 - ret, 0,
-                                        (struct socketaddr *)&addr, &addr_len); /* notice here */
+                                        (struct sockaddr *)&addr, &addr_len); /* notice here */
 #endif
                     if (ret1 > 0) {
                         ret += ret1;
@@ -267,7 +278,7 @@ int ima_socket_recv(void *recvbuf, int size, void *socketfd, int addr_type) { /*
         int ret = recv(*(SOCKET*)socketfd, (char*)&frame, size, 0);
 #else
         int ret = recvfrom(*(SOCKET*)socketfd, (char*)&frame, size, 0,
-                           (struct socketaddr *)&addr, &addr_len); /* notice here */
+                           (struct sockaddr *)&addr, &addr_len); /* notice here */
 #endif
         if (ret > 0) {
             if (ret != size) {
@@ -276,7 +287,7 @@ int ima_socket_recv(void *recvbuf, int size, void *socketfd, int addr_type) { /*
                     int ret1 = recv(*(SOCKET*)socketfd, frame + ret, size - ret, 0);
 #else
                     int ret1 = recvfrom(*(SOCKET*)socketfd, frame + ret, size - ret, 0,
-                                        (struct socketaddr *)&addr, &addr_len); /* notice here */
+                                        (struct sockaddr *)&addr, &addr_len); /* notice here */
 #endif
                     if (ret1 > 0) {
                         ret += ret1;
