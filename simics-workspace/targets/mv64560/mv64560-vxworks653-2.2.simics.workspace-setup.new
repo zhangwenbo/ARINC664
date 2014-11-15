@@ -1,0 +1,2 @@
+add-directory "%script%"
+run-command-file "%simics%\\targets\\mv64560\\mv64560-vxworks653-2.2.simics"

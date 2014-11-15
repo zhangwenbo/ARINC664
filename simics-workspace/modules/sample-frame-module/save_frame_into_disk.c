@@ -11,7 +11,7 @@ typedef enum {
 FILE *frame_image[2];
 
 const char *filename[] = {
-    "sframe_image.bin"
+    "sframe_image.bin",
     "rframe_image.bin"
 };
 
@@ -35,13 +35,14 @@ void save_frame_into_disk(void *frame, void *frame_size, int frame_type) {
     int file_size = get_file_size(frame_type);
 
     if ((file_size != -1) && (file_size >= max_file_size)) {
-        fseek(frame_image, 0, SEEK_SET);
+        fseek(frame_image[frame_type], 0, SEEK_SET);
     } else {
-        fseek(frame_image, 0, SEEK_END);        
+        fseek(frame_image[frame_type], 0, SEEK_END);
     }
 
     fwrite(frame_size, sizeof(*(uint32*)frame_size), 1, frame_image[frame_type]);
     fwrite(frame, *(uint32*)frame_size, 1, frame_image[frame_type]);
+    fflush(frame_image[frame_type]);
 }
 
 void init_frame_image(void) {

@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="US-ASCII"?>
+<?xml-stylesheet type="text/xsl" href="_verimax_log.xsl"?>
+<Report TagLine="VerIMAx 1.31 (EXT) [API 1.2.2.5]"
+	Date="October 30, 2014" Time="14:00:01"
+	Day="30" Month="10" Year="2014" Hour="14" Minute="0" Second="1">
+	<VerimaxEventLog>
+		<Log
+			Type="INFORMATION"
+			TypeId="4"
+			XmlFile=""
+			XmlLine="0"
+			XmlColumn="0"
+			XsdFile=""
+			XsdLine="0"
+			XsdColumn="0"
+			Text="File c:\windriver653\vxworks653-2.2\target\config\xml\schema\compiler\arch\ppc\vxcr_wr_configrecord.xsd read - OK"/>
+		<Log
+			Type="INFORMATION"
+			TypeId="4"
+			XmlFile=""
+			XmlLine="0"
+			XmlColumn="0"
+			XsdFile=""
+			XsdLine="0"
+			XsdColumn="0"
+			Text="File c:\windriver653\vxworks653-2.2\target\config\xml\schema\compiler\arch\ppc\vxcr_typelib.xsd read - OK"/>
+		<Log
+			Type="INFORMATION"
+			TypeId="4"
+			XmlFile=""
+			XmlLine="0"
+			XmlColumn="0"
+			XsdFile=""
+			XsdLine="0"
+			XsdColumn="0"
+			Text="Schema file c:\windriver653\vxworks653-2.2\target\config\xml\schema\compiler\arch\ppc\vxcr_typelib.xsd version 2.2.2 read - OK"/>
+		<Log
+			Type="INFORMATION"
+			TypeId="4"
+			XmlFile=""
+			XmlLine="0"
+			XmlColumn="0"
+			XsdFile=""
+			XsdLine="0"
+			XsdColumn="0"
+			Text="File c:\windriver653\vxworks653-2.2\target\config\xml\schema\compiler\arch\ppc\vxcr_module.xsd read - OK"/>
+		<Log
+			Type="INFORMATION"
+			TypeId="4"
+			XmlFile=""
+			XmlLine="0"
+			XmlColumn="0"
+			XsdFile=""
+			XsdLine="0"
+			XsdColumn="0"
+			Text="File c:\windriver653\vxworks653-2.2\target\config\xml\schema\compiler\arch\ppc\vxcr_coreos.xsd read - OK"/>
+		<Log
+			Type="INFORMATION"
+			TypeId="4"
+			XmlFile=""
+			XmlLine="0"
+			XmlColumn="0"
+			XsdFile=""
+			XsdLine="0"
+			XsdColumn="0"
+			Text="Schema file c:\windriver653\vxworks653-2.2\target\config\xml\schema\compiler\arch\ppc\vxcr_coreos.xsd version 2.2.2 read - OK"/>
+		<Log
+			Type="INFORMATION"
+			TypeId="4"
+			XmlFile=""
+			XmlLine="0"
+			XmlColumn="0"
+			XsdFile=""
+			XsdLine="0"
+			XsdColumn="0"
+			Text="File c:\windriver653\vxworks653-2.2\target\config\xml\schema\compiler\arch\ppc\vxcr_application.xsd read - OK"/>
+		<Log
+			Type="INFORMATION"
+			TypeId="4"
+			XmlFile=""
+			XmlLine="0"
+			XmlColumn="0"
+			XsdFile=""
+			XsdLine="0"
+			XsdColumn="0"
+			Text="Schema file c:\windriver653\vxworks653-2.2\target\config\xml\schema\compiler\arch\ppc\vxcr_application.xsd version 2.2.2 read - OK"/>
+		<Log
+			Type="INFORMATION"
+			TypeId="4"
+			XmlFile=""
+			XmlLine="0"
+			XmlColumn="0"
+			XsdFile=""
+			XsdLine="0"
+			XsdColumn="0"
+			Text="File c:\windriver653\vxworks653-2.2\target\config\xml\schema\compiler\arch\ppc\vxcr_partition.xsd read - OK"/>
+		<Log
+			Type="INFORMATION"
+			TypeId="4"
+			XmlFile=""
+			XmlLine="0"
+			XmlColumn="0"
+			XsdFile=""
+			XsdLine="0"
+			XsdColumn="0"
+			Text="Schema file c:\windriver653\vxworks653-2.2\target\config\xml\schema\compiler\arch\ppc\vxcr_partition.xsd version 2.2.2 read - OK"/>
+		<Log
+			Type="INFORMATION"
+			TypeId="4"
+			XmlFile=""
+			XmlLine="0"
+			XmlColumn="0"
+			XsdFile=""
+			XsdLine="0"
+			XsdColumn="0"
+			Text="File c:\windriver653\vxworks653-2.2\target\config\xml\schema\compiler\arch\ppc\vxcr_xinclude.xsd read - OK"/>
+		<Log
+			Type="INFORMATION"
+			TypeId="4"
+			XmlFile=""
+			XmlLine="0"
+			XmlColumn="0"
+			XsdFile=""
+			XsdLine="0"
+			XsdColumn="0"
+			Text="Schema file c:\windriver653\vxworks653-2.2\target\config\xml\schema\compiler\arch\ppc\vxcr_xinclude.xsd version 2.2.2 read - OK"/>
+		<Log
+			Type="INFORMATION"
+			TypeId="4"
+			XmlFile=""
+			XmlLine="0"
+			XmlColumn="0"
+			XsdFile=""
+			XsdLine="0"
+			XsdColumn="0"
+			Text="Schema file c:\windriver653\vxworks653-2.2\target\config\xml\schema\compiler\arch\ppc\vxcr_module.xsd version 2.2.2 read - OK"/>
+		<Log
+			Type="INFORMATION"
+			TypeId="4"
+			XmlFile=""
+			XmlLine="0"
+			XmlColumn="0"
+			XsdFile=""
+			XsdLine="0"
+			XsdColumn="0"
+			Text="File c:\windriver653\vxworks653-2.2\target\config\xml\schema\compiler\arch\ppc\vxcr_wr_extensions.xsd read - OK"/>
+		<Log
+			Type="INFORMATION"
+			TypeId="4"
+			XmlFile=""
+			XmlLine="0"
+			XmlColumn="0"
+			XsdFile=""
+			XsdLine="0"
+			XsdColumn="0"
+			Text="Schema file c:\windriver653\vxworks653-2.2\target\config\xml\schema\compiler\arch\ppc\vxcr_wr_extensions.xsd version 2.2.2 read - OK"/>
+		<Log
+			Type="INFORMATION"
+			TypeId="4"
+			XmlFile=""
+			XmlLine="0"
+			XmlColumn="0"
+			XsdFile=""
+			XsdLine="0"
+			XsdColumn="0"
+			Text="Schema file c:\windriver653\vxworks653-2.2\target\config\xml\schema\compiler\arch\ppc\vxcr_wr_configrecord.xsd version 2.2.2 read - OK"/>
+		<Log
+			Type="INFORMATION"
+			TypeId="4"
+			XmlFile=""
+			XmlLine="0"
+			XmlColumn="0"
+			XsdFile=""
+			XsdLine="0"
+			XsdColumn="0"
+			Text="File c:\windriver653\workspace\test_queuing_port\mv64560_testqueuingport\integration\configrecord.xml read - OK"/>
+		<Log
+			Type="INFORMATION"
+			TypeId="4"
+			XmlFile=""
+			XmlLine="0"
+			XmlColumn="0"
+			XsdFile=""
+			XsdLine="0"
+			XsdColumn="0"
+			Text="File c:\windriver653\workspace\test_queuing_port\mv64560_testqueuingport\demo.xml read - OK"/>
+		<Log
+			Type="INFORMATION"
+			TypeId="4"
+			XmlFile=""
+			XmlLine="0"
+			XmlColumn="0"
+			XsdFile=""
+			XsdLine="0"
+			XsdColumn="0"
+			Text="File c:\windriver653\vxworks653-2.2\target\config\mv64560\mv64560.xml read - OK"/>
+		<Log
+			Type="INFORMATION"
+			TypeId="4"
+			XmlFile=""
+			XmlLine="0"
+			XmlColumn="0"
+			XsdFile=""
+			XsdLine="0"
+			XsdColumn="0"
+			Text="File c:\windriver653\workspace\test_queuing_port\mv64560_testqueuingport\apptest1.xml read - OK"/>
+		<Log
+			Type="INFORMATION"
+			TypeId="4"
+			XmlFile=""
+			XmlLine="0"
+			XmlColumn="0"
+			XsdFile=""
+			XsdLine="0"
+			XsdColumn="0"
+			Text="File c:\windriver653\workspace\test_queuing_port\mv64560_testqueuingport\apptest2.xml read - OK"/>
+		<Log
+			Type="INFORMATION"
+			TypeId="4"
+			XmlFile=""
+			XmlLine="0"
+			XmlColumn="0"
+			XsdFile=""
+			XsdLine="0"
+			XsdColumn="0"
+			Text="File c:\windriver653\workspace\test_queuing_port\mv64560_testqueuingport\apptest3.xml read - OK"/>
+		<Log
+			Type="INFORMATION"
+			TypeId="4"
+			XmlFile=""
+			XmlLine="0"
+			XmlColumn="0"
+			XsdFile=""
+			XsdLine="0"
+			XsdColumn="0"
+			Text="File c:\windriver653\workspace\test_queuing_port\mv64560_testqueuingport\pos.xml read - OK"/>
+		<Log
+			Type="INFORMATION"
+			TypeId="4"
+			XmlFile=""
+			XmlLine="0"
+			XmlColumn="0"
+			XsdFile=""
+			XsdLine="0"
+			XsdColumn="0"
+			Text="File c:\windriver653\workspace\test_queuing_port\mv64560_testqueuingport\apptest1_part.xml read - OK"/>
+		<Log
+			Type="INFORMATION"
+			TypeId="4"
+			XmlFile=""
+			XmlLine="0"
+			XmlColumn="0"
+			XsdFile=""
+			XsdLine="0"
+			XsdColumn="0"
+			Text="File c:\windriver653\workspace\test_queuing_port\mv64560_testqueuingport\apptest2_part.xml read - OK"/>
+		<Log
+			Type="INFORMATION"
+			TypeId="4"
+			XmlFile=""
+			XmlLine="0"
+			XmlColumn="0"
+			XsdFile=""
+			XsdLine="0"
+			XsdColumn="0"
+			Text="File c:\windriver653\workspace\test_queuing_port\mv64560_testqueuingport\apptest3_part.xml read - OK"/>
+		<Log
+			Type="VERSION"
+			TypeId="5"
+			XmlFile=""
+			XmlLine="0"
+			XmlColumn="0"
+			XsdFile=""
+			XsdLine="0"
+			XsdColumn="0"
+			Text="Configuration Record Compiler - ver. VXCR.2.2.2-1"/>
+	</VerimaxEventLog>
+	<defs>
+		<tab name="VerimaxEventLog">
+			<attrs>
+				<attr name="DumpRowName" tag="0" value="Log" type="str"/>
+			</attrs>
+			<col name="Type" type="text.15"/>
+			<col name="TypeId" type="uint"/>
+			<col name="XmlFile" type="text.4000"/>
+			<col name="XmlLine" type="uint"/>
+			<col name="XmlColumn" type="uint"/>
+			<col name="XsdFile" type="text.4000"/>
+			<col name="XsdLine" type="uint"/>
+			<col name="XsdColumn" type="uint"/>
+			<col name="Text" type="text.4095"/>
+		</tab>
+	</defs>
+</Report>

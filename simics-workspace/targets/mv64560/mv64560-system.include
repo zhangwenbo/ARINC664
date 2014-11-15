@@ -1,0 +1,36 @@
+if not defined host_name       {$host_name       = "mv64560"}
+if not defined freq_mhz        {$freq_mhz         = 2000}
+if not defined system_freq_mhz {$system_freq_mhz  = 166}
+if not defined memory_megs     {$memory_megs      = 512}
+if not defined mac_address0    {$mac_address0     = "00:50:43:67:89:00"}
+if not defined mac_address1    {$mac_address1     = "00:50:43:67:89:01"}
+if not defined mac_address2    {$mac_address2     = "00:50:43:67:89:02"}
+
+###
+
+load-module memory-components
+load-module hwa-mv64560-comp
+load-module std-components
+load-module os-awareness
+
+$system = (create-board-mv64560 name = $host_name
+                                system_frequency = $system_freq_mhz
+                                mac_address0 = $mac_address0
+                                mac_address1 = $mac_address1
+                                mac_address2 = $mac_address2)
+
+$cpu = (create-cpu-ppc7447 cpu_frequency = $freq_mhz
+                           system_frequency = $system_freq_mhz)
+connect $system.cpu $cpu.system
+
+$console = (create-std-text-console ($system + ".console0"))
+
+connect $system.uart[0] $console.connector_serial
+
+$dimm0 = (create-ddr-memory-module ranks = 2 rank_density = $memory_megs / 2)
+connect $system.ddr_slot[0] $dimm0.connector_mem_bus
+
+$dimm1 = (create-ddr-memory-module ranks = 2 rank_density = $memory_megs / 2)
+connect $system.ddr_slot[1] $dimm1.connector_mem_bus
+
+create-os-awareness $system.software

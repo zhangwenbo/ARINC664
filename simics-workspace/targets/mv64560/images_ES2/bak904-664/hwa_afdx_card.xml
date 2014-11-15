@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AFDXCard CreateTime="2010-03-25 11:23:16">
+<AFDXNetwork Speed="100">
+<AFDXEs UserDefinedID="1" PartitionID="1">
+<AFDXPort PortName="psend_port1" PortType="Queue" Redund="Enable" VLNetwork="AB" PortNetwork="AB" VL="0" IntegralityCheckA="Enable" IntegralityCheckB="Disable" BAG="1" MTU="1518" SubVL="0" SkewMax="0" SrcUDP="0" DstUDP="0" MaxFrameSize="1518" MaxFrameInBuff="28" DirectionType="Send" Discipline="FIFO" RefreshPeriod="25252"/>
+<AFDXPort PortName="psend_port2" PortType="Queue" Redund="Enable" VLNetwork="AB" PortNetwork="AB" VL="1" IntegralityCheckA="Enable" IntegralityCheckB="Disable" BAG="1" MTU="1518" SubVL="0" SkewMax="0" SrcUDP="0" DstUDP="0" MaxFrameSize="1518" MaxFrameInBuff="28" DirectionType="Send" Discipline="FIFO" RefreshPeriod="25252"/>
+
+<AFDXPort PortName="precv_port1" PortType="Queue" Redund="Enable" VLNetwork="AB" PortNetwork="AB" VL="0" IntegralityCheckA="Disable" IntegralityCheckB="Enable" BAG="1" MTU="1518" SubVL="0" SkewMax="1" SrcUDP="0" DstUDP="0" MaxFrameSize="1518" MaxFrameInBuff="28" DirectionType="Recv" Discipline="FIFO" RefreshPeriod="25252"/>
+<AFDXPort PortName="precv_port2" PortType="Queue" Redund="Enable" VLNetwork="AB" PortNetwork="AB" VL="1" IntegralityCheckA="Disable" IntegralityCheckB="Enable" BAG="1" MTU="1518" SubVL="0" SkewMax="1" SrcUDP="0" DstUDP="0" MaxFrameSize="1518" MaxFrameInBuff="28" DirectionType="Recv" Discipline="FIFO" RefreshPeriod="25252"/>
+
+</AFDXEs>
+</AFDXNetwork>
+</AFDXCard>

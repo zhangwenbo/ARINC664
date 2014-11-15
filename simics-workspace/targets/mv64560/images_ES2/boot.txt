@@ -1,0 +1,8 @@
+#Boot30
+pwd://coreOS.sm
+pwd://pos.sm
+pwd://configRecord.reloc
+pwd://AppTest1_part.sm
+pwd://AppTest2_part.sm
+pwd://AppTest3_part.sm
+

@@ -1,0 +1,50 @@
+# 2013-12-06 4:12PM DB64560 on SBC7447 with SAVIC VX653 image
+# Configuration for vxWorks653 wrSbc7447 BSP
+#
+
+if not defined create_network     {$create_network     = "yes"}
+if not defined network_connection {$network_connection = "port-forwarding"}
+if not defined boot_loader        {$boot_loader        = "bootApp_romCompressed"}
+if not defined boot_file          {$boot_file          = "boot.txt"}
+if not defined boot_offset        {$boot_offset        = 0}
+if not defined target             {$target             = "sbc7448"}
+if not defined board_ip           {$board_ip           = "192.168.0.2"}
+if not defined netmask            {$netmask            = "ffffff00"}
+if not defined boot_dev           {$boot_dev           = "mv0"}
+if not defined boot_type          {$boot_type          = "ftp"}
+if not defined host_ip            {$host_ip            = "192.168.0.30"}
+if not defined gateway_ip         {$gateway_ip         = "10.10.0.1"}
+if not defined user               {$user               = "vxworks653"}
+if not defined passwd             {$passwd             = "foo"}
+if not defined flags              {$flags              = "0x26"}
+if not defined do_login           {$do_login           = TRUE }
+###
+
+
+if (not ((file-exists $boot_loader) and (file-exists $boot_file))) {
+    interrupt-script ("This script can only be executed if you have additional " +
+    "files, not part of the distribution. These files cannot be distributed " +
+    "with Simics without approval from Wind River. This is just an example script, " +
+    "if you do have access to the needed files.")
+}
+
+run-command-file "%script%/mv64560-system.include"
+
+instantiate-components
+
+$system.phys_mem.load-file filename = $boot_loader offset = 0
+
+
+#if $boot_loader_type == "binary" {
+ #      $phys_mem.load-binary -pa filename = $boot_loader  offset = $boot_offset
+  #  } else {
+   #    $phys_mem.load-file filename = $boot_loader  offset = $boot_offset
+ #}
+	
+# For Board debug 7Seg
+@simenv.led = SIM_create_object('set-memory', '', [])
+$system.phys_mem.add-map $led 0xfc000000 0x100000 priority = 1
+
+run-command-file "%script%/sbc7447-vxworks653-setup.include"
+
+

@@ -1,0 +1,25 @@
+# 2013-12-06 4:16PM workspace script for MV64560 SBC7447
+
+add-directory "%script%"
+add-directory "%script%/images"
+
+if not defined ftp_path    { $ftp_path = "./targets/mv64560/images" }
+if not defined boot_loader { $boot_loader = "bootApp_romCopy"  }
+
+if not defined boot_dev           {$boot_dev           = "mgi0"}
+
+#if not defined auto_boot      {$auto_boot      = FALSE}
+
+run-command-file "%script%/mv64560-vxworks653-2.2-IMAServer.include"
+
+#@jg 2013-12-09 4:33PM set pc to bootloader_address 0x9850_0100
+set-pc 0x9850_0100
+
+$console.con->win32_font = "Lucida Console:Regular:15"
+
+load-module ARINC_IMAServerMonitor
+create-ARINC-IMAServerMonitor foo
+connect foo.pci_bus "mv64560.pci_slot[0]" 
+instantiate-components 
+
+connect-real-network-host sim1

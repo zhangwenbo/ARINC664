@@ -1,0 +1,47 @@
+<ConfigRecord xmlns="http://www.windriver.com/vxWorks653/ConfigRecord"  xmlns:xi="http://www.w3.org/2001/XInclude"  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  xsi:schemaLocation="http://www.windriver.com/vxWorks653/ConfigRecord C:\vx653psc22\vxworks653-2.2\target\config\xml\schema\VXCR_WR_ConfigRecord.xsd">
+    <xi:include href="C:/vx653psc22/vxworks653-2.2/target/config/mv64560/mv64560_default.xml"/>
+    <WR_DD_Extensions>
+	<domainInformation NameRef="coreOS" DomainId="0" LinkagePath="." />
+	<sectionInformation Name=".text" Size="0x00200000" PhysicalAddress="0x00100000" VirtualAddress="0x00100000" PayloadAddress="0x99000000" RamPayloadAddress="0x0F000000" />
+	<sectionInformation Name=".rodata" Size="0x00050000" PhysicalAddress="0x00300000" VirtualAddress="0x00300000" PayloadAddress="0x99200000" RamPayloadAddress="0x0f200000" />
+	<sectionInformation Name=".data" Size="0x00018000" PhysicalAddress="0x00350000" VirtualAddress="0x00350000" PayloadAddress="0x99250000" RamPayloadAddress="0x0f250000" />
+	<sectionInformation Name=".bss" Size="0x00610000" PhysicalAddress="0x00368000" VirtualAddress="0x00368000" PayloadAddress="0x99268000" RamPayloadAddress="0x0f268000" />
+	<sectionInformation Name=".configRecord" Size="0x00100000" PhysicalAddress="0x03600000" VirtualAddress="0x03600000" PayloadAddress="0x992b7000" RamPayloadAddress="0x0f2b7000" />
+    </WR_DD_Extensions>
+    <WR_DD_Extensions>
+	<domainInformation NameRef="vxSysLib" DomainId="1" LinkagePath="." />
+	<sectionInformation Name=".text" Size="0x40000" PhysicalAddress="0x04300000" VirtualAddress="0x20000000" PayloadAddress="0x99268000" RamPayloadAddress="0x0f268000" />
+	<sectionInformation Name=".rodata" Size="0x7000" PhysicalAddress="0x04340000" VirtualAddress="0x20040000" PayloadAddress="0x992a8000" RamPayloadAddress="0x0f2a8000" />
+	<sectionInformation Name=".data" Size="0x7000" PhysicalAddress="0x04347000" VirtualAddress="0x20047000" PayloadAddress="0x992af000" RamPayloadAddress="0x0f2af000" />
+	<sectionInformation Name=".bss" Size="0x3000" PhysicalAddress="0x0434e000" VirtualAddress="0x2004e000" PayloadAddress="0x992b6000" RamPayloadAddress="0x0f2b6000" />
+	<sectionInformation Name=".persistent.data" Size="0x1000" PhysicalAddress="0x04351000" VirtualAddress="0x20051000" PayloadAddress="0x992b6000" RamPayloadAddress="0x0f2b6000" />
+	<sectionInformation Name=".persistent.bss" Size="0x1000" PhysicalAddress="0x04352000" VirtualAddress="0x20052000" PayloadAddress="0x992b7000" RamPayloadAddress="0x0f2b7000" />
+    </WR_DD_Extensions>
+    <WR_DD_Extensions>
+	<domainInformation NameRef="mv64560_part1" DomainId="2" LinkagePath=".:vxSysLib" />
+	<sectionInformation Name=".text" Size="0x4000" PhysicalAddress="0x04353000" VirtualAddress="0x40000000" PayloadAddress="0x993b7000" RamPayloadAddress="0x0f3b7000" />
+	<sectionInformation Name=".rodata" Size="0x1000" PhysicalAddress="0x04357000" VirtualAddress="0x40004000" PayloadAddress="0x993bb000" RamPayloadAddress="0x0f3bb000" />
+	<sectionInformation Name=".data" Size="0x1000" PhysicalAddress="0x04358000" VirtualAddress="0x40005000" PayloadAddress="0x993bc000" RamPayloadAddress="0x0f3bc000" />
+	<sectionInformation Name=".bss" Size="0x1000" PhysicalAddress="0x04359000" VirtualAddress="0x40006000" PayloadAddress="0x993bd000" RamPayloadAddress="0x0f3bd000" />
+	<sectionInformation Name=".persistent.data" Size="0x1000" PhysicalAddress="0x0435a000" VirtualAddress="0x40007000" PayloadAddress="0x993bd000" RamPayloadAddress="0x0f3bd000" />
+	<sectionInformation Name=".persistent.bss" Size="0x1000" PhysicalAddress="0x0435b000" VirtualAddress="0x40008000" PayloadAddress="0x993be000" RamPayloadAddress="0x0f3be000" />
+    </WR_DD_Extensions>
+    <WR_MMU_Extensions>
+	<MmuInformation Name="vxSysLibPool" PhysicalAddress="0x04300000" VirtualAddress="0" Size="0x00053000" />
+	<MmuInformation Name="mv64560_part1Pool" PhysicalAddress="0x04353000" VirtualAddress="0" Size="0x300000" />
+	<MmuInformation Name="configRecordPool" PhysicalAddress="0x03600000" VirtualAddress="0x03600000" Size="0x00100000" />
+	<MmuInformation Name="kernelMemPool" PhysicalAddress="0" VirtualAddress="0" Size="0x03600000" />
+	<MmuInformation Name="kernelPgPool" PhysicalAddress="0x03700000" VirtualAddress="0x03700000" Size="0x00400000" />
+	<MmuInformation Name="portPgPool" PhysicalAddress="0x03b00000" VirtualAddress="0x03b00000" Size="0x00200000" />
+	<MmuInformation Name="hmlogPgPool" PhysicalAddress="0x03d00000" VirtualAddress="0x03d00000" Size="0x00100000" />
+	<MmuInformation Name="ramPayloadPgPool" PhysicalAddress="0x0F000000" VirtualAddress="0x0F000000" Size="0x01000000" />
+	<MmuInformation Name="INTERNAL_REGPool" PhysicalAddress="0xF1000000" VirtualAddress="0xF1000000" Size="0x100000" />
+	<MmuInformation Name="DEVICE_CS0Pool" PhysicalAddress="0xFC000000" VirtualAddress="0xFC000000" Size="0x100000" />
+	<MmuInformation Name="DEVICE_CS1Pool" PhysicalAddress="0x98000000" VirtualAddress="0x98000000" Size="0x8000000" />
+	<MmuInformation Name="DEVICE_CS2Pool" PhysicalAddress="0xFD000000" VirtualAddress="0xFD000000" Size="0x100000" />
+	<MmuInformation Name="BOOTDEV_CSPool" PhysicalAddress="0xFF000000" VirtualAddress="0xFF000000" Size="0x1000000" />
+	<MmuInformation Name="PCI0_IOPool" PhysicalAddress="0xE0000000" VirtualAddress="0xE0000000" Size="0x10000000" />
+	<MmuInformation Name="PCI1_IOPool" PhysicalAddress="0x50000000" VirtualAddress="0x50000000" Size="0x10000000" />
+    </WR_MMU_Extensions>
+</ConfigRecord>
+

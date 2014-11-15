@@ -1,0 +1,39 @@
+if ($boot_type == "ftp") {
+    enable-real-time-mode
+}
+
+run-command-file "%script%/vxworks-setup.include"
+
+if defined boot_networks {
+if ($create_network == "yes") {
+    $service_node_ip_address = $gateway_ip
+    $ip_address = $board_ip
+    $eth_comp = $system
+    if not defined eth_cnt { $eth_cnt = "eth[0]" }
+    run-command-file "%simics%/targets/common/add-eth-link.include"
+    $service_node.dhcp-add-pool 128 $ip_address
+    if (defined tap_iface) {
+        connect-real-network-host interface = $tap_iface
+    } else {
+        connect-real-network
+    }
+}
+}
+
+if ($do_login == TRUE) {
+    script-branch {
+        local $con = ($console.con)
+        local $l_boot_dev = $boot_dev
+        local $l_board_ip = $board_ip
+        local $l_gateway_ip = $gateway_ip
+        $con.wait-for-string "Hello, world!"
+        $con.input "\n"
+        $con.wait-for-string "[coreOS] ->" 
+        $con.input "ifAddrSet(\"" + $l_boot_dev + "\",\"" + $l_board_ip + "\")\n"
+        $con.wait-for-string "->" 
+        $con.input "ping(\"%s\",4)\n" % $gateway_ip
+        $con.wait-for-string "->" 
+        
+    }
+}
+

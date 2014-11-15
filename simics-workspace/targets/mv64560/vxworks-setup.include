@@ -1,0 +1,103 @@
+#
+# vxworks start parameters
+#
+if not defined auto_boot      {$auto_boot      = TRUE}
+if not defined boot_dev       {$boot_dev       = ""}
+if not defined proc_nr        {$proc_nr        = ""}
+if not defined host           {$host           = ""}
+if not defined boot_file      {$boot_file      = "boot.txt"}
+if not defined board_ip       {$board_ip       = "10.10.0.50"}
+if not defined backplane_ip   {$backplane_ip   = ""}
+if not defined host_ip        {$host_ip        = "10.10.0.1"}
+if not defined gateway_ip     {$gateway_ip     = "10.10.0.1"}
+if not defined user           {$user           = "anonymous"}
+if not defined passwd         {$passwd         = "foo"}
+if not defined flags          {$flags          = "0x26"}
+if not defined target         {$target         = ""}
+if not defined startup_script {$startup_script = ""}
+if not defined other          {$other          = ""}
+if not defined netmask        {$netmask        = "ffffff00"}
+if not defined boot_offset    {$boot_offset    = 0}
+if not defined boot_loader_type {$boot_loader_type = "binary"}
+if not defined boot_type      {$boot_type      = "ftp"}
+if not defined ftp_path       {$ftp_path       = "/home/virtutech"}
+if not defined hellolan       {$hellolan       = "1"}
+
+if defined boot_loader {
+    local $cpus = ($system.get-processor-list)
+    local $cpu = $cpus[0]
+    local $phys_mem = $cpu->physical_memory
+    if $boot_loader_type == "binary" {
+       $phys_mem.load-binary -pa filename = $boot_loader  offset = $boot_offset
+	  #$phys_mem.load-file filename = $boot_loader  offset = $boot_offset
+    } else {
+       $phys_mem.load-file filename = $boot_loader  offset = $boot_offset
+    }
+}
+
+#default-port-forward-target $board_ip
+
+#if ($boot_type == "ftp") and (read-variable service_node) {
+ #   $service_node.ftp->ftp_root_directory = $ftp_path
+#}
+
+if $auto_boot {
+    script-branch {
+        local $con = ($console.con)
+        local $cpus = ($system.get-processor-list)
+        local $cpu = $cpus[0]
+        local $phys_mem = $cpu->physical_memory
+		local $l_boot_type = $boot_type
+	    local $l_boot_file = $boot_file
+	    local $l_boot_dev = $boot_dev
+	    local $l_proc_nr = $proc_nr
+	    local $l_host = $host
+	    local $l_board_ip = $board_ip
+	    local $l_backplane_ip = $backplane_ip
+	    local $l_host_ip = $host_ip
+	    local $l_gateway_ip = $gateway_ip
+	    local $l_user = $user
+	    local $l_passwd = $passwd
+	    local $l_flags = $flags
+	    local $l_target = $target
+	    local $l_startup_script = $startup_script
+	    local $l_other = $other
+	    local $l_netmask = $netmask
+
+	    $con.wait-for-string "Press any key to stop auto-boot..."
+	    $con.wait-then-write -s "7"                                     "\n"
+
+if defined hellolan{
+      if $l_boot_type == "memory" {
+
+            $ram_start_address = ($phys_mem.load-binary -pa filename = $l_boot_file offset = 0)
+            $con.wait-then-write -s "Boot]:"                            ("g " + `"0x%x" % simenv.ram_start_address` + "\n")
+
+		} else {
+
+		    $con.wait-then-write -s "Boot]: "                               "c\n"
+		    # Configure the bootloader
+		    $con.wait-then-write -s "boot device          : "               ($l_boot_dev + "\n")
+		    $con.wait-then-write -s "processor number     : 0"              ($l_proc_nr + "\n")
+		    $con.wait-then-write -s "host name            : "               ($l_host + "\n")
+	        $con.wait-then-write -s "file name            : "				($l_boot_file + "\n")
+
+		    if $l_netmask != "" {
+		        $con.wait-then-write -s "inet on ethernet (e) : "               ($l_board_ip + ":" + $l_netmask + "\n")
+		    } else {
+		        $con.wait-then-write -s "inet on ethernet (e) : "               ($l_board_ip + "\n")
+		    }
+		    $con.wait-then-write -s "inet on backplane (b): "               ($l_backplane_ip + "\n")
+		    $con.wait-then-write -s "host inet (h)        : "               ($l_host_ip + "\n")
+		    $con.wait-then-write -s "gateway inet (g)     : "               ($l_gateway_ip + "\n")
+		    $con.wait-then-write -s "user (u)             : "               ($l_user + "\n")
+		    $con.wait-then-write -s "ftp password (pw) (blank = use rsh): " ($l_passwd + "\n")
+		    $con.wait-then-write -s "flags (f)            : 0x0 "           ($l_flags + "\n")
+		    $con.wait-then-write -s "target name (tn)     : "               ($l_target + "\n")
+		    $con.wait-then-write -s "startup script (s)   : "               ($l_startup_script + "\n")
+		    $con.wait-then-write -s "other (o)            : "               ($l_other + "\n")
+	        $con.wait-then-write -s "Boot]:"                            	"@\n"
+		}
+		}
+    }
+}

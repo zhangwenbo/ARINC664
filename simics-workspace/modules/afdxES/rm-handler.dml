@@ -44,7 +44,7 @@ method recv_frame(uint8 *data, uint32 size) {
     local RM_INFO rm_info;
 
     if ($enable_sample_frame) {
-        $sample_frame_module.sample_frame.sample_frame(cast(&item.frame, uint8*), item.size, 1);
+        $sample_frame_module.sample_frame.sample_frame(cast(data, uint8*), size, 1);
     }
     
     if ($is_ieee_802_3_log_on) {
