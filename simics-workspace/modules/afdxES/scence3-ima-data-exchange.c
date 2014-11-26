@@ -5,10 +5,11 @@
 #include <unistd.h>
 #include <winsock2.h>
 
+// #define __TCP__    1
+
 SOCKET ima_client_socket = INVALID_SOCKET;
 SOCKET ima_server_socket = INVALID_SOCKET;
 
-static int recv_state;
 static char frame[1518];
 
 typedef enum {
@@ -17,21 +18,27 @@ typedef enum {
     BEGIN_TO_HANDLE_FRAME
 } RECV_STATE;
 
+static int recv_state;
+
+
 typedef enum {
-    IMA_SERVER_INIT_ADDR,
-    IMA_CLIENT_INIT_ADDR
+    IMA_LOCAL_INIT_ADDR,
+    IMA_PEER_INIT_ADDR
 } ADDR_TYPE;
 
-#define SERVER_IP "127.0.0.1"
-#define CLIENT_IP "127.0.0.1"
+#define LOCAL_IP "127.0.0.1"
+#define PEER_IP "192.9.230.156"   /* 用于发送，是对端的IP */
 
 #ifndef __TCP__
 struct sockaddr_in ima_server_init_addr;
 struct sockaddr_in ima_client_init_addr;
+
+static char send_buffer[2000];
+static char recv_buffer[2000];
 #else
 #endif
 
-int ima_server_socket_init(int serverPortNum, int clientPortNum) {
+int ima_server_socket_init(int localPortNum, int peerPortNum) {
     WSADATA wsa;
 
     if (WSAStartup(MAKEWORD(2,2), &wsa)) {
@@ -53,19 +60,19 @@ int ima_server_socket_init(int serverPortNum, int clientPortNum) {
     SOCKADDR_IN addr;
     addr.sin_family = AF_INET;
     addr.sin_addr.s_addr = htonl(INADDR_ANY);  
-    addr.sin_port = htons(serverPortNum);
+    addr.sin_port = htons(localPortNum);
 #else
     struct sockaddr_in addr;    
     addr.sin_family = AF_INET;
     addr.sin_addr.s_addr = INADDR_ANY;
-    addr.sin_port = htons(serverPortNum);
+    addr.sin_port = htons(localPortNum);
 	
-	struct sockaddr_in clientaddr;;    
+	struct sockaddr_in clientaddr;
     clientaddr.sin_family = AF_INET;
-    clientaddr.sin_addr.S_un.S_addr = inet_addr(CLIENT_IP);
-    clientaddr.sin_port = htons(clientPortNum);
+    clientaddr.sin_addr.S_un.S_addr = inet_addr(PEER_IP);
+    clientaddr.sin_port = htons(localPortNum); /* 对端的接收端口, 本地的发送端口 */
 
-    ima_server_init_addr = clientaddr; 
+    ima_server_init_addr = clientaddr; /* send时用到的地址信息 */
 #endif
     
     int opt = 1;
@@ -77,10 +84,12 @@ int ima_server_socket_init(int serverPortNum, int clientPortNum) {
         exit(1);
     }
 #else
+    /* need it?
     if (bind(serSocket, (struct sockaddr *)&addr, sizeof(addr)) == SOCKET_ERROR) {
         printf ("Bind failed with error code: %d\n", WSAGetLastError());
         exit(EXIT_FAILURE);
     }
+    */
 #endif
 
 #ifdef __TCP__    
@@ -108,7 +117,7 @@ int ima_server_socket_init(int serverPortNum, int clientPortNum) {
     return 0;
 }
 
-int ima_client_socket_init(int clientPortNum, int serverPortNum) {
+int ima_client_socket_init(int peerPortNum, int localPortNum) {
     WSADATA wsa;
 
     if (WSAStartup(MAKEWORD(2,2), &wsa)) {
@@ -131,14 +140,14 @@ int ima_client_socket_init(int clientPortNum, int serverPortNum) {
     SOCKADDR_IN serveraddr;   
     memset(&serveraddr, 0, sizeof(serveraddr));
     serveraddr.sin_family = AF_INET;
-    serveraddr.sin_port = htons(clientPortNum);
-    serveraddr.sin_addr.s_addr = inet_addr("127.0.0.1");
+    serveraddr.sin_port = htons(peerPortNum);
+    serveraddr.sin_addr.s_addr = inet_addr(PEER_IP);
 #else
     struct sockaddr_in serveraddr;
     memset((char*)&serveraddr, 0, sizeof(serveraddr));
     serveraddr.sin_family = AF_INET;
-    serveraddr.sin_port = htons(serverPortNum);
-    serveraddr.sin_addr.S_un.S_addr = inet_addr(SERVER_IP);
+    serveraddr.sin_port = htons(peerPortNum); /* 对端的发送端口 */
+    serveraddr.sin_addr.S_un.S_addr = inet_addr(PEER_IP); /* 对端IP */
     
     ima_client_init_addr = serveraddr; 
 #endif
@@ -152,7 +161,7 @@ int ima_client_socket_init(int clientPortNum, int serverPortNum) {
     struct sockaddr_in addr;    
     addr.sin_family = AF_INET;
     addr.sin_addr.s_addr = INADDR_ANY;
-    addr.sin_port = htons(clientPortNum);
+    addr.sin_port = htons(peerPortNum); /* 对端端口 */
 
     if (bind(ima_client_socket, (struct sockaddr *)&addr, sizeof(addr)) == SOCKET_ERROR) {
         printf ("Bind failed with error code: %d\n", WSAGetLastError());
@@ -172,18 +181,20 @@ int ima_client_socket_init(int clientPortNum, int serverPortNum) {
 }
 
 void ima_socket_send(void *sendbuf, int size, void *socketfd, int addr_type) {
+#ifndef __TCP__
     struct sockaddr_in addr;
     switch (addr_type) {
-        case IMA_SERVER_INIT_ADDR:
+        case IMA_LOCAL_INIT_ADDR:
             addr = ima_server_init_addr;
             break;
-        case IMA_CLIENT_INIT_ADDR:
+        case IMA_PEER_INIT_ADDR:
             addr = ima_client_init_addr;
             break;
         default:
             fprintf(stderr, "Fatal error: unkown addr type!\n");
             break;
     }
+#endif
         
 #ifdef __TCP__
     if (send(*(SOCKET*)socketfd, (char *)&size, sizeof(size), 0) != sizeof(size)) {
@@ -194,15 +205,15 @@ void ima_socket_send(void *sendbuf, int size, void *socketfd, int addr_type) {
         fprintf(stderr, "Socket send failed, error code is %d\n", WSAGetLastError());
     }
 #else
-    if (sendto(*(SOCKET*)socketfd, (char *)&size, sizeof(size),
-               0, (struct sockaddr *)&addr, sizeof(addr)) != sizeof(size)) {
-        fprintf(stderr, "sendto() failed with error code: %d\n", WSAGetLastError());
-    }
-
-    if (sendto(*(SOCKET*)socketfd, (char *)sendbuf, size,
+    memset(send_buffer, 0, 2000);
+    memcpy(send_buffer, sendbuf, size);
+    
+	// fprintf(stderr, "Send to addr = %d, and port = %d\n", addr.sin_addr.S_un.S_addr, addr.sin_port);
+	
+    if (sendto(*(SOCKET*)socketfd, send_buffer, size,
                0, (struct sockaddr *)&addr, sizeof(addr)) != size) {
         fprintf(stderr, "sendto() failed with error code: %d\n", WSAGetLastError());
-    }    
+    }
 #endif
 }
 
@@ -216,12 +227,13 @@ static int chars_to_int(char *array) {
 }
 
 int ima_socket_recv(void *recvbuf, int size, void *socketfd, int addr_type) { /* 最后一个参数用作数组下标也不错 */
+#ifndef __TCP__
     struct sockaddr_in addr;
     switch (addr_type) {
-        case IMA_SERVER_INIT_ADDR:
+        case IMA_LOCAL_INIT_ADDR:
             addr = ima_server_init_addr;
             break;
-        case IMA_CLIENT_INIT_ADDR:
+        case IMA_PEER_INIT_ADDR:
             addr = ima_client_init_addr;
             break;
         default:
@@ -229,24 +241,19 @@ int ima_socket_recv(void *recvbuf, int size, void *socketfd, int addr_type) { /*
             break;
     }
     int addr_len = sizeof(addr);
-    
+#endif
+
+#ifdef __TCP__
     if (recv_state == WAIT_FOR_FRAME_SIZE) {
         char frame_size[4];
-#ifdef __TCP__
         int ret = recv(*(SOCKET*)socketfd, (char*)&frame_size, 4, 0);
-#else
-        int ret = recvfrom(*(SOCKET*)socketfd, (char*)&frame_size, 4, 0,
-                           (struct sockaddr *)&addr, &addr_len); /* notice here */
-#endif        
+
+
         if (ret > 0) {
             if (ret != 4) {
                 while (4 - ret) {
-#ifdef __TCP__
                     int ret1 = recv(*(SOCKET*)socketfd, frame_size + ret, 4 - ret, 0);
-#else
-                    int ret1 = recvfrom(*(SOCKET*)socketfd, frame_size + ret, 4 - ret, 0,
-                                        (struct sockaddr *)&addr, &addr_len); /* notice here */
-#endif
+
                     if (ret1 > 0) {
                         ret += ret1;
                     } else {
@@ -274,21 +281,13 @@ int ima_socket_recv(void *recvbuf, int size, void *socketfd, int addr_type) { /*
             }                        
         }
     } else if (recv_state == READY_TO_RECV_FRAME) {
-#ifdef __TCP__
         int ret = recv(*(SOCKET*)socketfd, (char*)&frame, size, 0);
-#else
-        int ret = recvfrom(*(SOCKET*)socketfd, (char*)&frame, size, 0,
-                           (struct sockaddr *)&addr, &addr_len); /* notice here */
-#endif
+
         if (ret > 0) {
             if (ret != size) {
                 while (size - ret) {
-#ifdef __TCP__
                     int ret1 = recv(*(SOCKET*)socketfd, frame + ret, size - ret, 0);
-#else
-                    int ret1 = recvfrom(*(SOCKET*)socketfd, frame + ret, size - ret, 0,
-                                        (struct sockaddr *)&addr, &addr_len); /* notice here */
-#endif
+
                     if (ret1 > 0) {
                         ret += ret1;
                     } else {
@@ -322,6 +321,28 @@ int ima_socket_recv(void *recvbuf, int size, void *socketfd, int addr_type) { /*
         fprintf(stderr, "Fatal error, unsupported recv state!\n");
         exit(1);
     }
+#else
+    if (recv_state == WAIT_FOR_FRAME_SIZE) {
+        memset(recv_buffer, 0, 2000);
+        int ret = recvfrom(*(SOCKET*)socketfd, recv_buffer, 2000, 0,
+                           (struct sockaddr *)&addr, &addr_len); /* notice here */
+		
+		// fprintf(stderr, "recv from addr = %d, and port = %d\n", addr.sin_addr.S_un.S_addr, addr.sin_port);
+        if (ret > 0) {
+            recv_state = BEGIN_TO_HANDLE_FRAME;
+            memcpy(recvbuf, recv_buffer, ret);
+            return ret;
+        } else {
+            switch (WSAGetLastError()) {
+                case WSAEWOULDBLOCK:
+                    return 0;
+                default:
+                    fprintf(stderr, "Socket recv failed, error code is %d\n", WSAGetLastError());
+                    exit(1);
+            }                                    
+        }
+    }
+#endif
 }
 
 void *get_ima_client_socket(void) {

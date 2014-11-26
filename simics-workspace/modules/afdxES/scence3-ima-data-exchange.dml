@@ -9,6 +9,8 @@ extern void change_recv_state(void);
 
 data int size;
 
+// data int counter;
+
 method init_ima_send() {
     if ($middleware_mode == ToIMAMiddleware) {
         local int serverPortNum;
@@ -39,7 +41,19 @@ method init_ima_recv() {
             local uint8 data[MAX_FRAME_SIZE];
             $size = ima_socket_recv(&data, $size, get_ima_client_socket(), 1);
             if (($size != 0) && (get_recv_state() == 2)) {
+                /*
+                  ++$counter;
+                  if ($counter % 100 == 0) {
+                  log "info" : "Recv counter = %d", $counter;
+                  
+                */
                 change_recv_state();
+				/*
+				local int i = 0;
+				for (; i < $size; ++i) {
+					log "info" : "The data[%d] = %d", i, data[i];
+				}
+				*/
                 call $recv_frame(data, $size);
             }
         }
