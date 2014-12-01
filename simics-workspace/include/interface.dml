@@ -26,3 +26,7 @@ typedef struct {
 typedef struct {
     void (*transmit_runtime_info)(conf_object_t *obj, Runtime_Info *runtime_info);
 } transmit_runtime_info_between_afdxES2_and_RDC_interface_t;
+
+typedef struct {
+    void (*init_vxworks_ok)(conf_object_t *obj, bool ok_flag);
+} Transmit_Vxworks_Init_Info_interface_t;

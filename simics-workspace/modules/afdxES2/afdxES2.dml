@@ -51,6 +51,15 @@ connect RDC {
 	}
 }
 
+connect Vxworks {
+	parameter documentation = "Transmit vxworks init info";
+    parameter configuration = "optional";
+
+    interface Transmit_Vxworks_Init_Info {
+        parameter c_type = "Transmit_Vxworks_Init_Info_interface_t";
+    }    
+}
+
 implement transmit_runtime_info_between_afdxES2_and_RDC {
     method transmit_runtime_info(Runtime_Info *runtime_info) {
         $afdxES.transmit_runtime_info_between_afdxES_and_afdxES2.transmit_runtime_info(runtime_info);
@@ -198,7 +207,12 @@ implement ieee_802_3_mac {
     method config_bandwidth(uint32 max_bandwidth) {
         $phy_max_bandwidth = max_bandwidth;
     }
+
+    method init_vxworks_ok(bool ok_flag) {
+        $Vxworks.Transmit_Vxworks_Init_Info.init_vxworks_ok(true);
+    }
 }
+
 
 attribute record_mib_cycle {
     parameter documentation = "";

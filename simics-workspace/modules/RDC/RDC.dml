@@ -224,6 +224,8 @@ extern typedef  struct
  
 
 data QT_RDC_CONF_VALUE_t *pQtRdcConfValue;
+data bool vxworks_init_ok_flag;
+
 /* 2014-09-17 added, end */
 extern int getAfdxFrameBlockNum();
 extern int hwa_load_conf_file();
@@ -297,6 +299,12 @@ implement Send_To_RDC {
         
         // for test end
 	}
+}
+
+implement Transmit_Vxworks_Init_Info {
+    method init_vxworks_ok(bool ok_flag) {
+        $vxworks_init_ok_flag = true;
+    }
 }
 
 connect ARINC664_2 {
@@ -690,18 +698,20 @@ constant PORT_DATA_SIZE = 8;     // too big , sizeoftype(uint8) + sizeoftype(uin
 data int recv_num;
 method socket_loop_recv() {
 	local RX_DATA rx[16];
-	
-	recv_from_429(&rx);
-	
-	local uint8 i = 0;
-	for (; i < 16; ++i) {
-		if (rx[i].is_vaild == 1) {
-			$recv_num++;
-			//log "info" : "Rchannel: %d, data %x ,recv num is %d", i + 1, rx[i].rx_data, $recv_num;
-			call $A429ToAfdx(i + 1, rx[i].rx_data);
-		}
-	}
-	
+
+    if ($vxworks_init_ok_flag) {
+        recv_from_429(&rx);
+        
+        local uint8 i = 0;
+        for (; i < 16; ++i) {
+            if (rx[i].is_vaild == 1) {
+                $recv_num++;
+                //log "info" : "Rchannel: %d, data %x ,recv num is %d", i + 1, rx[i].rx_data, $recv_num;
+                call $A429ToAfdx(i + 1, rx[i].rx_data);
+            }
+        }
+    }
+
 	after (0.0001) call $socket_loop_recv();
 }
 

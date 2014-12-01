@@ -6,6 +6,7 @@ import "quick-sort.dml";
 import "log.dml";
 import "tomiddleware.dml";
 
+
 // extern void LoadCfgTo664Middleware();
 // Basic bank declaration
 bank pci_config {
@@ -552,7 +553,10 @@ bank pciport{
             call $QuickSortRMCamArray($rm_cfg_cam_array);
             call $InitVLEnableInfo();            
             switch ($middleware_mode) { 
-            case To429Middleware: case ToIMAMiddleware:
+            case To429Middleware:
+                $phyA.ieee_802_3_mac.init_vxworks_ok(true);
+                break;
+            case ToIMAMiddleware:
                 break;
             case To664Middleware:
 				// call $ Write_Config_All();
